@@ -7,8 +7,10 @@ import errorMiddleware from './middlewares/errorMiddleware';
 import * as multer from 'multer';
 class App {
   public app: express.Application;
+  private PORT;
   constructor(controllers: IController[]) {
     this.app = express();
+    this.PORT = process.env.PORT || 5000;
     this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
@@ -59,8 +61,8 @@ class App {
         })
     }
   public listen() {
-    this.app.listen(process.env.PORT, () => {
-      console.log(`App listening on the port ${process.env.PORT}`);
+    this.app.listen(this.PORT, () => {
+      console.log(`App listening on the port ${this.PORT}`);
     });
   }
 }
