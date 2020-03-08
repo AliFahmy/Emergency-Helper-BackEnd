@@ -1,5 +1,5 @@
 import {
-    cleanEnv, str,port
+    cleanEnv, str
   } from 'envalid';
    
   export function validateEnv() {
@@ -7,7 +7,6 @@ import {
       MONGO_PASSWORD: str(),
       MONGO_PATH: str(),
       MONGO_USER: str(),
-      PORT: port(),
       JWT_SECRET: str()
     });
   }

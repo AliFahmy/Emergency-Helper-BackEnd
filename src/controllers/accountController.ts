@@ -27,7 +27,7 @@ class AccountController implements Controller {
     constructor(){
         this.path = '/account';
         this.router = express.Router();
-        this.initializeRoutes();
+        this.initializeRoutes(); 
     }
     private initializeRoutes(){
         this.router.post(`${this.path}/register`,validationMiddleware(CreateUserDTO),this.registration);
