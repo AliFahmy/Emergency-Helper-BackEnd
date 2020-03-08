@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import IAddress from '../interfaces/user/IAddress';
+import IAddress from 'interfaces/user/IAddress';
 
 const addressSchema = new mongoose.Schema({
     addressName:{
@@ -15,8 +15,13 @@ const addressSchema = new mongoose.Schema({
             type:Number,
             required:true
         }
+    },
+    Client:{
+        ref: 'Client',
+        type: mongoose.Schema.Types.ObjectId,
     }
 })
 
+const addressModel = mongoose.model<IAddress>('ClientAddress',addressSchema);
 
-export default addressSchema;
+export default addressModel;

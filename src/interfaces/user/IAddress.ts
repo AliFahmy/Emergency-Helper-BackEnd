@@ -1,9 +1,7 @@
 import { Document} from "mongoose";
+import ILocation from '../ILocation';
 interface IAddress extends Document{
     addressName:string;
-    location:{
-        locationX:number;
-        locationY:number;
-    }
+    location:ILocation;
 }
 export default IAddress;

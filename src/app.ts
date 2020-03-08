@@ -4,12 +4,11 @@ import * as mongoose from 'mongoose';
 import IController from './interfaces/IController';
 import * as cookieParser from 'cookie-parser';
 import errorMiddleware from './middlewares/errorMiddleware';
+import * as multer from 'multer';
 class App {
   public app: express.Application;
- 
   constructor(controllers: IController[]) {
     this.app = express();
-    
     this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
@@ -18,6 +17,21 @@ class App {
  
   private initializeMiddlewares() {
     this.app.use(bodyParser.json());
+    this.app.use(multer({storage:multer.diskStorage({
+      destination: function (req, file, cb) {
+          cb(null, 'uploads/')
+      },
+      filename: function (req: any, file: Express.Multer.File, cb: any) {
+          cb(null,new Date().toISOString + '-' + file.originalname)
+      }
+  }),fileFilter: (req:Express.Request,file:Express.Multer.File,cb) => {
+    if(file.mimetype === 'image/jpg'|| file.mimetype === 'image/jpeg'){
+        cb(null,true);
+    }
+    else{
+        cb(null,false);
+    }
+}}).array('image'));
     this.app.use(cookieParser());
   }
  private initializeErrorHandling(){
