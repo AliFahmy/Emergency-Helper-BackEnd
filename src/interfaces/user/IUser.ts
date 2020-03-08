@@ -1,5 +1,4 @@
 import { Document} from "mongoose";
-import IWallet from "./IWallet";
 interface IUser extends Document{
     _id: string;
     name:{
@@ -17,6 +16,6 @@ interface IUser extends Document{
   mobile:string;
   nationality:string;
   picture:string;
-  wallet:IWallet
+  balance:number;
 }
 export default IUser;

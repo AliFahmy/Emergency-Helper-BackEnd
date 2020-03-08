@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import IUser from '../interfaces/user/IUser';
-import walletSchema from './Wallet';
 
 const baseOptions = {
   discriminatorKey: 'role',
@@ -18,6 +17,20 @@ const userSchema = new mongoose.Schema({
           type: String,
           required:true
       }
+  },
+  birthDate:{
+    day:{
+      type:Number,
+      required:true
+    },
+    month:{
+      type:Number,
+      required:true
+    },
+    year:{
+      type:Number,
+      required:true
+    }
   },
   email:{
       type: String,
@@ -42,10 +55,7 @@ const userSchema = new mongoose.Schema({
   picture:{
       type:String,
       required:true
-  },
-  wallet:{
-    type:walletSchema,
-  },
+  }
 },baseOptions);
  
 const userModel = mongoose.model<IUser>('User', userSchema);

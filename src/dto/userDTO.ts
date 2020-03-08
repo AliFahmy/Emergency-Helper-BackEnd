@@ -1,12 +1,13 @@
-import { IsString,IsEmail,IsNumber,ValidateNested } from 'class-validator';
+import { IsString,IsEmail,IsNumber,ValidateNested, } from 'class-validator';
 import BirthDateDTO from './birthDateDTO';
+import NameDTO from './nameDTO';
 
 class CreateUserDTO {
-  @IsString()
-  public firstName: string;
-
-  @IsString()
-  public lastName: string;
+  @IsNumber()
+  public userRole:number;
+  
+  @ValidateNested()
+  public name: NameDTO;
 
   @IsEmail()
   public email: string;
@@ -27,7 +28,8 @@ class CreateUserDTO {
   public nationality : string;
 
   @IsString()
-  public picture :string
+  public picture :string;
+  
 }
 
 export default CreateUserDTO;

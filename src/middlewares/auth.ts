@@ -3,8 +3,8 @@ import * as jwt from 'jsonwebtoken';
 import AuthenticationTokenMissingException from '../exceptions/AuthenticationTokenMissingException';
 import WrongAuthenticationTokenException from '../exceptions/WrongAuthenticationTokenException';
 import IDataStoredInToken from '../interfaces/token/IDataStoredInToken';
-import IRequestWithUser from '../interfaces/request/IRequestWithUser';
-import userModel from './../models/user';
+import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
+import userModel from '../models/User';
 
 
 async function authMiddleware(request: IRequestWithUser, response: Response, next: NextFunction) {

@@ -1,8 +1,9 @@
 import IAddress from './IAddress';
 import IUser from './IUser';
-import { Document } from 'mongoose';
+import IRequest from './../request/IRequest';
 interface IClient extends IUser {
-    savedAddress: IAddress
+    savedAddress: IAddress[],
+    requests: IRequest[]
 }
 
 export default IClient;
