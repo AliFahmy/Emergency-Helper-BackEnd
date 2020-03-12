@@ -15,20 +15,8 @@ class CreateUserDTO {
   @IsString()
   public password: string;
 
-  @ValidateNested()
-  public birthDate : BirthDateDTO;
-
-  @IsString()
-  public gender: string;
-
   @IsString()
   public mobile : string;
-
-  @IsString()
-  public nationality : string;
-
-  @IsString()
-  public picture :string;
   
 }
 

@@ -8,13 +8,13 @@ import userModel from '../models/User';
 
 
 async function authMiddleware(request: IRequestWithUser, response: Response, next: NextFunction) {
-    const cookies = request.cookies;
-    if(cookies && cookies.Authorization){
+    const headers = request.headers;
+    if(headers && headers["authorization"]){
         const secret = process.env.JWT_SECRET;
         try{
-            const verificationResponse = jwt.verify(cookies.Authorization,secret) as IDataStoredInToken;
-            const id = verificationResponse._id;
-            const user = await userModel.findById(id);
+            const verificationResponse = jwt.verify(headers['authorization'].split(" ")[1],secret) as IDataStoredInToken;
+            const _id = verificationResponse._id;
+            const user = await userModel.findById(_id,'-_id -password -createdAt -updatedAt -__v');
             if(user){
                 request.user = user;
                 next();
