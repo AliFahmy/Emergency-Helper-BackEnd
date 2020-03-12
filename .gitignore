@@ -3,3 +3,4 @@ node_modules
 testcases.json
 /uploads/*
 multer.html
+.env

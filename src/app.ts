@@ -5,11 +5,20 @@ import IController from './interfaces/IController';
 import * as cookieParser from 'cookie-parser';
 import errorMiddleware from './middlewares/errorMiddleware';
 import * as multer from 'multer';
+import * as swaggerUi from 'swagger-ui-express';
+import * as swaggerJSDoc from 'swagger-jsdoc'
+import * as swaggerDocument from '../swagger.json';
+
+
 class App {
+  
   public app: express.Application;
-  private PORT;
+  private PORT:any;
+
+
   constructor(controllers: IController[]) {
     this.app = express();
+    this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
     this.PORT = process.env.PORT || 5000;
     this.connectToDatabase();
     this.initializeMiddlewares();
@@ -34,27 +43,29 @@ class App {
         cb(null,false);
     }
 }}).array('image'));
-    this.app.use(cookieParser());
-  }
+  
+  this.app.use(cookieParser());
+}
+
+
  private initializeErrorHandling(){
    this.app.use(errorMiddleware);
  }
+ 
   private initializeControllers(controllers:IController[]) {
     controllers.forEach((controller) => {
-      this.app.use('/', controller.router);
+      this.app.use('/api', controller.router);
     });
   }
  
   private connectToDatabase(){
     const {
-        MONGO_USER,
-        MONGO_PASSWORD,
-        MONGO_PATH,
+      MONGODB_URL
       } = process.env;
       mongoose
-        .connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,{ useNewUrlParser: true })
+        .connect(MONGODB_URL.toString(),{ useNewUrlParser: true,useUnifiedTopology:true })
         .then((result)=>{
-            console.log(result)
+            console.log("CONNECTED TO DB")
         })
         .catch((err:Error)=>{
             console.log(err);

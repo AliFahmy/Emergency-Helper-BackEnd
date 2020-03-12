@@ -1,1 +1,1 @@
-web: nodemon ./src/server.ts
+web: node ./src/server.ts
