@@ -1,0 +1,215 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Emergency Helper API",
+        "description":"this is a Restful API provided for the client side of the Emergency Helper Application"
+    },
+    "tags": [
+        {
+            "name": "Account",
+            "description": "API for Accounts in the system"
+        }
+    ],
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "components": {
+        "securitySchemes": {
+          "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+          }
+        }
+      },
+      "security": [{
+        "bearerAuth": []
+      }],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/api/account/login": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Gets A Token for user",
+                "requestBody": {
+                    "description": "Login Data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Account"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Token"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Failed. Bad post data."
+                    }
+                }
+            }
+        },
+
+        "/api/account/register": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Registers Client to the database",
+                "requestBody": {
+                    "description": "Register Information",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AccountRegistration"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content":{
+                            "application/json":{
+
+                                "schema": {
+                                    "$ref": "#/definitions/Token"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Failed. Couldn't Register User."
+                    }
+                }
+            }
+        },
+        "/api/account":{
+            "get":{
+                "tags":["Account"],
+                "summary":"Gets all the data of the currently logged in user",
+                "responses":{
+                    "200":{
+                        "description": "A User Object",
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "$ref": "#/definitions/AccountInformation"
+                                } 
+                            }
+                        },
+                        "404": {
+                            "description": "Failed. Couldn't Get Information."
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Token": {
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "Account": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "AccountRegistration":{
+            "type":"object",
+            "properties":{
+                "name":{
+                   "type":"object",
+                   "properties":{
+                       "firstName":{
+                           "type":"string"
+                       },
+                       "lastName":{
+                           "type":"string"
+                       }
+                   }
+                },
+                "mobile":{
+                    "type":"string"
+                },
+                "email":{
+                    "type":"string"
+                },
+                "password":{
+                    "type":"string"
+                },
+                "userRole":{
+                    "type":"number"
+                }
+            }
+        },
+        "AccountInformation":{
+            "type":"object",
+            "properties":{
+                "name":{
+                    "type":"object",
+                    "properties":{
+                        "firstName":{
+                            "type":"string"
+                        },
+                        "lastName":{
+                            "type":"string"
+                        }
+                    }
+                },
+                "role":{
+                    "type":"string"
+                },
+                "email":{
+                    "type":"string"
+                },
+                "gender":{
+                    "type":"string"
+                },
+                "mobile":{
+                    "type":"string"
+                },
+                "nationality":{
+                    "type":"string"
+                },
+                "picture":{
+                    "type":"string",
+                    "format":"byte"
+                }
+            }
+        }
+    }
+}

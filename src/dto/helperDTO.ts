@@ -1,4 +1,4 @@
-import { IsString,IsEmail,IsNumber,ValidateNested, IsBoolean } from 'class-validator';
+import { IsString,IsEmail,IsNumber,ValidateNested, IsBoolean, IsArray } from 'class-validator';
 import CreateUserDTO from './userDTO';
 class HelperDTO extends CreateUserDTO {
     @IsString()
@@ -15,6 +15,9 @@ class HelperDTO extends CreateUserDTO {
 
     @IsString()
     public nationalCardPhoto:string;
+
+    @IsArray()
+    public files:Express.Multer.File[];
   
 }
 export default HelperDTO;
