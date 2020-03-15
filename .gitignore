@@ -1,6 +1,6 @@
 node_modules
 .idea
 testcases.json
-/uploads/*
+./src/uploads/*
 multer.html
 .env

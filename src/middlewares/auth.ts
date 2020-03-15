@@ -14,7 +14,7 @@ async function authMiddleware(request: IRequestWithUser, response: Response, nex
         try{
             const verificationResponse = jwt.verify(headers['authorization'].split(" ")[1],secret) as IDataStoredInToken;
             const _id = verificationResponse._id;
-            const user = await userModel.findById(_id,'-_id -password -createdAt -updatedAt -__v');
+            const user = await userModel.findById(_id,'-password -createdAt -updatedAt -__v');
             if(user){
                 request.user = user;
                 next();
