@@ -34,14 +34,13 @@
         "application/json"
     ],
     "paths": {
-        "/api/account/login": {
+        "/api/Account/Login": {
             "post": {
                 "tags": [
                     "Account"
                 ],
                 "summary": "Gets A Token for user",
                 "requestBody": {
-                    "description": "Login Data",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -56,7 +55,6 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
                         "content":{
                             "application/json":{
                                 "schema": {
@@ -66,65 +64,233 @@
                         }
                     },
                     "400": {
-                        "description": "Failed. Bad post data."
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Login Failed"
+                                }
+                            }
                     }
                 }
             }
+        }
         },
 
-        "/api/account/register": {
-            "post": {
-                "tags": [
-                    "Account"
-                ],
-                "summary": "Registers Client to the database",
-                "requestBody": {
-                    "description": "Register Information",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/definitions/AccountRegistration"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content":{
-                            "application/json":{
-
+        "/api/Account/RegisterUser": {
+                "post": {
+                    "tags": [
+                        "Account"
+                    ],
+                    "summary": "Registers Client to the database",
+                    "requestBody": {
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/Token"
+                                    "$ref": "#/definitions/AccountRegistration"
                                 }
                             }
                         }
                     },
-                    "404": {
-                        "description": "Failed. Couldn't Register User."
+                    "responses": {
+                        "200": {
+
+                            "content":{
+                                "application/json":{
+
+                                    "schema": {
+                                        "$ref": "#/definitions/Token"
+                                    }
+                                }
+                            }
+                        },
+                        "404": {
+                            "content":{
+                                "text/plain": {
+                                    "schema":{
+                                        "type": "string",
+                                        "example":"Registration Failed"
+                                    }
+                                }
+                        }
                     }
                 }
             }
         },
-        "/api/account":{
-            "get":{
-                "tags":["Account"],
-                "summary":"Gets all the data of the currently logged in user",
-                "responses":{
-                    "200":{
-                        "description": "A User Object",
+
+        "/api/Account":{
+                "get":{
+                    "tags":["Account"],
+                    "summary":"Gets all the data of the currently logged in user",
+                    "responses":{
+                        "200":{
+                            "content":{
+                                "application/json": {
+                                    "schema":{
+                                        "$ref": "#/definitions/AccountInformation"
+                                    }
+                                }
+                            }
+                    },
+                    "404": {
                         "content":{
                             "text/plain": {
                                 "schema":{
-                                    "$ref": "#/definitions/AccountInformation"
-                                } 
+                                    "type": "string",
+                                    "example":"Failed To Get Account"
+                                }
                             }
-                        },
-                        "404": {
-                            "description": "Failed. Couldn't Get Information."
                         }
                     }
+                }
+            },
+                "put":{
+                    "tags":["Account"],
+                    "summary":"Updates the currently logged in user",
+                    "requestBody": {
+
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AccountUpdate"
+                                }
+                            }
+                        }
+                    },
+                    "responses":{
+                        "200":{
+
+                            "content":{
+                                "text/plain": {
+                                    "schema":{
+                                        "type": "string",
+                                        "example":"Updated Successfully"
+                                    }
+                                }
+                            }
+                        },
+                        "500":{
+                            "content":{
+                                "text/plain": {
+                                    "schema":{
+                                        "type": "string",
+                                        "example":"Failed To Update"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        },
+
+        "/api/Account/ChangePassword":{
+            "put":{
+                "tags":["Account"],
+                "summary":"Updates the password of the currently logged in user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/ChangePassword"
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "200":{
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Updated Successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Failed To Change Password"
+                                }
+                            }
+                        }
+                      }
+                }
+            }
+        },
+
+        "/api/Account/Picture":{
+            "get":{
+                "tags":["Account"],
+                "summary":"Gets A buffer of the profile picture",
+                "responses":{
+                    "200":{
+                        "content":{
+                            "text/plain":{
+                                "schema":{
+                                    "type":"string",
+                                    "example": "Picture"
+                                }
+                            }
+                        }
+                },
+                "404": {
+                    "content":{
+                        "text/plain": {
+                            "schema":{
+                                "type": "string",
+                                "example":"Failed To Get Account"
+                            }
+                        }
+                    }
+                }
+            }
+            },
+            "put":{
+                "tags":["Account"],
+                "summary":"Changes the picture of the currently logged in user",
+                "requestBody": {
+                    "description": "multipart/form-data value.",
+                    "content": {
+                        "multipart/form-data": {
+                            "x-parser":"stream",
+                            "schema": {
+                                "type":"object",
+                                "properties":{
+                                    "picture":{
+                                        "type":"string",
+                                        "format":"binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "200":{
+                        "description": "A Updated User Object",
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Updated Successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Failed to add picture"
+                                }
+                            }
+                        }
+                      }
+
                 }
             }
         }
@@ -144,6 +310,20 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "AccountUpdate":{
+            "type":"object",
+            "properties":{
+                "email": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "nationality": {
                     "type": "string"
                 }
             }
@@ -204,10 +384,16 @@
                 },
                 "nationality":{
                     "type":"string"
+                }
+            }
+        },
+        "ChangePassword":{
+            "properties":{
+                "oldPassword":{
+                    "type":"string"
                 },
-                "picture":{
-                    "type":"string",
-                    "format":"byte"
+                "newPassword":{
+                    "type":"string"
                 }
             }
         }

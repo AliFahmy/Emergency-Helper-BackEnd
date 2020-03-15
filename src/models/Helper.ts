@@ -3,46 +3,38 @@ import User from './User';
 import IHelper from './../interfaces/user/IHelper';
 
 const Helper = User.discriminator('Helper',new mongoose.Schema({
-    cv_url:{
+    certificate:{
         type:String,
         required:true
     },
     bankAccount:{
-        type:String,
-        required:true
+        type:String
     },
     isApproved:{
         type:Boolean,
+        default:false
+    },
+    frontID:{
+        type:String,
         required:true
     },
-    nationalNumberId:{
-        type:Number
-    },
-    nationalCardPhoto:{
-        front:{
-            type:String
-        },
-        back:{
-            type:String
-        }
-    },
-    passportPhoto:{
-        type:String
+    backID:{
+        type:String,
+        required:true
     },
     isActive:{
         type:Boolean,
-        required:true
+        default:false
     },
     location:{
         locationX:{
-            type:Number,
-            required:true
+            type:Number
         },
         locationY:{
-            type:Number,
-            required:true
+            type:Number
         }
-    }
+    },
+    skills:[{type:String}]
 }));
 
 const helperModel = mongoose.model<IHelper>('Helper');
