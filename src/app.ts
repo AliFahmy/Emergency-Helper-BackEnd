@@ -18,12 +18,12 @@ class App {
 
   constructor(controllers: IController[]) {
     this.app = express();
-    this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
     this.PORT = process.env.PORT || 5000;
     this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
     this.initializeErrorHandling();
+    this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
   }
  
   private initializeMiddlewares() {
