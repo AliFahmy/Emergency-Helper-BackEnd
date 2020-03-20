@@ -17,5 +17,6 @@ interface IUser extends Document{
   nationality:string;
   picture:string;
   balance:number;
+  role:string;
 }
 export default IUser;

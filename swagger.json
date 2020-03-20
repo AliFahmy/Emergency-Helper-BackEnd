@@ -9,6 +9,14 @@
         {
             "name": "Account",
             "description": "API for Accounts in the system"
+        },
+        {
+            "name":"Admin",
+            "description": "API for Admins in the system"
+        },
+        {
+            "name":"Helper",
+            "description": "API for Helpers in the system"
         }
     ],
     "schemes": [
@@ -293,6 +301,71 @@
 
                 }
             }
+        },
+        "/api/Helper/Category":{
+            "post":{
+                "tags":["Helper"],
+                "summary":"Inserts new helper category to the system",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Category"
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "200":{
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Category Inserted Successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Failed to Insert Category"
+                                }
+                            }
+                        }
+                      }
+
+                }
+            }
+        },
+        "/api/Helper/AllCategories":{
+            "get":{
+                "tags":["Helper"],
+                "summary":"Gets all the helper categories",
+                "responses":{
+                    "200":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/definitions/AllCategories"
+                                }
+                            }
+                        }
+                },
+                "404": {
+                    "content":{
+                        "text/plain": {
+                            "schema":{
+                                "type": "string",
+                                "example":"Failed To Get Categories"
+                            }
+                        }
+                    }
+                }
+            }
+        }
         }
     },
     "definitions": {
@@ -312,6 +385,12 @@
                 "password": {
                     "type": "string"
                 }
+            }
+        },
+        "AllCategories":{
+            "type":"array",
+            "items":{
+                "$ref": "#/definitions/Category"
             }
         },
         "AccountUpdate":{
@@ -353,6 +432,14 @@
                 },
                 "userRole":{
                     "type":"number"
+                }
+            }
+        },
+        "Category":{
+            "type":"object",
+            "properties":{
+                "name":{
+                    "type":"string"
                 }
             }
         },

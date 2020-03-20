@@ -50,7 +50,14 @@ const userSchema = new mongoose.Schema({
   },
   picture:{
       type:String,
-  }
+  },
+  balance:{
+    type:Number
+  },
+  isApproved:{
+    type:Boolean,
+    default:false
+}
 },baseOptions);
  
 const userModel = mongoose.model<IUser>('User', userSchema);
