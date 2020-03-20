@@ -36,14 +36,6 @@ const supportTicketSchema = new mongoose.Schema({
             required:true
         }
     },
-    user:{
-        ref: 'User',
-        type:mongoose.Schema.Types.ObjectId
-    },
-    request:{
-        ref: 'Client',
-        type: mongoose.Schema.Types.ObjectId,
-    },
     category:{
         ref: 'SupportTicketCategory',
         type: mongoose.Schema.Types.ObjectId

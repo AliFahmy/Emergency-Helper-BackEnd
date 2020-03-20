@@ -12,7 +12,6 @@ import ITokenData from '../interfaces/token/ITokenData';
 import IUser from '../interfaces/user/IUser';
 import IDataStoredInToken from '../interfaces/token/IDataStoredInToken';
 import IRequestWithUser from 'interfaces/httpRequest/IRequestWithUser';
-import IHelper from './../interfaces/user/IHelper';
 /////////////////////////////////////////
 import clientModel from '../models/Client';
 import adminModel from './../models/Admin';
@@ -20,7 +19,7 @@ import userModel from './../models/User';
 import helperModel from '../models/Helper';
 /////////////////////////////////////////
 import CreateUserDTO from '../dto/createUserDTO';
-import  LogInDto from '../dto/loginDTO';
+import LogInDto from '../dto/loginDTO';
 import HelperDTO from '../dto/helperDTO';
 import UpdateAccountDTO from '../dto/updateAccountDTO';
 import UpdatePasswordDTO from './../dto/UpdatePasswordDTO';
@@ -49,6 +48,7 @@ class AccountController implements IController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.get(`${this.path}`,authMiddleware,this.getAccount);
         this.router.get(`${this.path}/Picture`,authMiddleware,this.getPicture);
+        this.router.get(`${this.path}/Balance`,authMiddleware,this.getBalance);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.put(`${this.path}`,authMiddleware,validationMiddleware(UpdateAccountDTO),this.updateAccount);
         this.router.put(`${this.path}/Picture`,authMiddleware,validationMiddleware(PictureDTO),this.updatePicture);
@@ -89,8 +89,18 @@ class AccountController implements IController {
     private getAccount =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
             response.status(200).send(await userModel.findById(request.user._id,'-password -_id -picture -createdAt -updatedAt -__v'));
     }
+    private getBalance =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
+        response.status(200).send(request.user.balance);
+    }
     private getPicture =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
-        response.sendFile(request.user.picture);
+        response.sendFile(request.user.picture,(err) => {
+            if (err) {
+                next(err);
+            }
+            else {
+              console.log("sent");
+            }
+          });
     }
     private updatePicture = async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
         if(request.body.picture){

@@ -10,10 +10,6 @@ const Helper = User.discriminator('Helper',new mongoose.Schema({
     bankAccount:{
         type:String
     },
-    isApproved:{
-        type:Boolean,
-        default:false
-    },
     frontID:{
         type:String,
         required:true
@@ -34,7 +30,13 @@ const Helper = User.discriminator('Helper',new mongoose.Schema({
             type:Number
         }
     },
-    skills:[{type:String}]
+    skills:{
+        type:String
+    },
+    categories:[{
+        ref: 'Category',
+        type: mongoose.Schema.Types.ObjectId,
+    }]
 }));
 
 const helperModel = mongoose.model<IHelper>('Helper');
