@@ -10,14 +10,12 @@ import * as swaggerDocument from '../swagger.json';
 import * as path from 'path';
 
 class App {
-
   public app: express.Application;
   private PORT:any;
-
-
+  
   constructor(controllers: IController[]) {
     this.app = express();
-    this.PORT = process.env.PORT || 6000;
+    this.PORT = process.env.PORT || 5000;
     this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
