@@ -9,8 +9,8 @@ validateEnv();
 const app = new App(
   [
     new AccountController(),
-    new AdminController(),
-    new HelperController()
+    new HelperController(),
+    new AdminController()
   ]
   );
 app.listen();
