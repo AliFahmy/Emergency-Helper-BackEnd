@@ -149,9 +149,18 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "content":{
+                            "text/plain": {
+                             "schema":{
+                                  "$ref": "#/definitions/UnAuthorized"
+                                 }
+                            }   
+                        }
                     }
                 }
-            },
+                },
                 "put":{
                     "tags":["Account"],
                     "summary":"Updates the currently logged in user",
@@ -185,6 +194,15 @@
                                         "example":"Failed To Update"
                                     }
                                 }
+                            }
+                        },
+                        "401": {
+                            "content":{
+                                "text/plain": {
+                                 "schema":{
+                                      "$ref": "#/definitions/UnAuthorized"
+                                     }
+                                }   
                             }
                         }
                     }
@@ -224,7 +242,16 @@
                                 }
                             }
                         }
-                      }
+                      },
+                      "401": {
+                        "content":{
+                            "text/plain": {
+                             "schema":{
+                                  "$ref": "#/definitions/UnAuthorized"
+                                 }
+                            }   
+                        }
+                    }
                 }
             }
         },
@@ -252,6 +279,15 @@
                                 "example":"Failed To Get Account"
                             }
                         }
+                    }
+                },
+                "401": {
+                    "content":{
+                        "text/plain": {
+                         "schema":{
+                              "$ref": "#/definitions/UnAuthorized"
+                             }
+                        }   
                     }
                 }
             }
@@ -297,8 +333,16 @@
                                 }
                             }
                         }
-                      }
-
+                      },
+                      "401": {
+                        "content":{
+                            "text/plain": {
+                             "schema":{
+                                  "$ref": "#/definitions/UnAuthorized"
+                                 }
+                            }   
+                        }
+                    }
                 }
             }
         },
@@ -316,7 +360,7 @@
                     }
                 },
                 "responses":{
-                    "200":{
+                    "201":{
                         "content":{
                             "text/plain": {
                                 "schema":{
@@ -335,7 +379,16 @@
                                 }
                             }
                         }
-                      }
+                      },
+                      "401": {
+                        "content":{
+                            "text/plain": {
+                             "schema":{
+                                  "$ref": "#/definitions/UnAuthorized"
+                                 }
+                            }   
+                        }
+                    }
 
                 }
             }
@@ -366,6 +419,42 @@
                 }
             }
         }
+        },
+        "/api/Admin/GetAllClients":{
+            "get":{
+                "tags":["Admin"],
+                "summary":"Gets all the clients in the system",
+                "responses":{
+                    "200":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/definitions/AllClients"
+                                }
+                            }
+                        }
+                },
+                "400": {
+                    "content":{
+                        "text/plain": {
+                            "schema":{
+                                "type": "string",
+                                "example":"Failed To Get Clients"
+                            }
+                        }
+                    }
+                }
+            },
+                "401": {
+                    "content":{
+                        "text/plain": {
+                         "schema":{
+                              "$ref": "#/definitions/UnAuthorized"
+                             }
+                        }   
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -374,6 +463,16 @@
                 "token": {
                     "type": "string"
                 }
+            }
+        },
+        "UnAuthorized":{
+            "type": "string",
+            "example":"Unauthorized Account"
+        },
+        "AllClients":{
+            "type":"array",
+            "items":{
+                "$ref": "#/definitions/Account"
             }
         },
         "Account": {
