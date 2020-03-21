@@ -17,15 +17,14 @@ class HelperController implements IController {
     constructor(){
         this.path = '/Helper';
         this.router = express.Router();
-        this.router.use(authMiddleware);
         this.initializeRoutes();
     }
     private initializeRoutes(){
         this.router.get(`${this.path}/AllCategories`,this.getAllCategories);
         ////////////////////////////////////////////////////////////////////
-        this.router.post(`${this.path}/Category`,validationMiddleware(CategoryDTO),this.insertCategory);
+        this.router.post(`${this.path}/Category`,authMiddleware,validationMiddleware(CategoryDTO),this.insertCategory);
     }
-    private getAllCategories =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
+    private getAllCategories =  async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
         await categoryModel.find({},'-_id -createdAt -updatedAt -__v',(err,categories)=>{
             if(err){
                 response.status(400).send(err);
