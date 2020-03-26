@@ -4,18 +4,18 @@ import IHelper from './../interfaces/user/IHelper';
 
 const Helper = User.discriminator('Helper',new mongoose.Schema({
     certificate:{
-        type:String,
+        type:Buffer,
         required:true
     },
     bankAccount:{
         type:String
     },
     frontID:{
-        type:String,
+        type:Buffer,
         required:true
     },
     backID:{
-        type:String,
+        type:Buffer,
         required:true
     },
     isActive:{

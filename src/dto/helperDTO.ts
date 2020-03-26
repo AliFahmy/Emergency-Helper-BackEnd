@@ -1,4 +1,4 @@
-import { IsString,IsEmail,IsNumber,ValidateNested,IsArray } from 'class-validator';
+import { IsString,IsEmail,ValidateNested,IsBase64,IsArray} from 'class-validator';
 import NameDTO from './nameDTO';
 
 class HelperDTO {
@@ -11,25 +11,22 @@ class HelperDTO {
     @IsString()
     public password: string;
 
-    @IsString()
-    public mobile : string;
-
     @IsArray()
-    public categories:string[];
-
-    @IsArray()
-    public skills:string[];
+    public categories: string[];
 
     @IsString()
+    public skills:string;
+
+    @IsBase64()
     public frontID:string;
 
-    @IsString()
+    @IsBase64()
     public backID:string;
 
-    @IsString()
+    @IsBase64()
     public certificate:string;
 
-    @IsString()
+    @IsBase64()
     public picture:string;
 }
 export default HelperDTO;

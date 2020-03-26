@@ -1,13 +1,15 @@
-import { IsString,ValidateNested } from 'class-validator';
+import { IsString,IsBase64,IsOptional} from 'class-validator';
 
 class UpdateAccountDTO {
-
+    @IsOptional()
     @IsString()
     public email :string;
 
+    @IsOptional()
     @IsString()
     public mobile:string;
 
+    @IsOptional()
     @IsString()
     public nationality:string;
 }

@@ -1,6 +1,5 @@
 import { IsString } from 'class-validator';
 
-
 class LogInDto {
   @IsString()
   public email: string;
