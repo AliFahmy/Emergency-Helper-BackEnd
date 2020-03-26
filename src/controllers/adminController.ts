@@ -1,6 +1,7 @@
 import * as express from 'express';
 ////////////////////////////////////////////////////
 import IController from '../interfaces/IController';
+import IClient from '../interfaces/user/IClient';
 import IRequestWithUser from 'interfaces/httpRequest/IRequestWithUser';
 ////////////////////////////////////////////////////
 import authMiddleware from '../middlewares/auth';
@@ -64,11 +65,16 @@ class AdminController implements IController {
         })
     }
     private getAllClients =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
-        await clientModel.find({},'-password -createdAt -updatedAt -__v' ,(err,clients)=>{
+        await clientModel.find({},'-password -createdAt -updatedAt -__v' ,(err,clients:IClient[])=>{
             if(err){
                 response.status(400).send(err);
             }
             else{
+                let returnedClients = [];
+                for(let i=0;i<clients.length;i++){
+                  const newClient = clients[i].toObject();
+                  newClient.picture 
+                }
                 response.status(200).send(clients);
             }
         })

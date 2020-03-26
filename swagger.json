@@ -41,6 +41,7 @@
     "produces": [
         "application/json"
     ],
+
     "paths": {
         "/api/Account/Login": {
             "post": {
@@ -82,9 +83,8 @@
                     }
                 }
             }
-        }
+            }
         },
-
         "/api/Account/RegisterUser": {
                 "post": {
                     "tags": [
@@ -125,7 +125,6 @@
                 }
             }
         },
-
         "/api/Account":{
                 "get":{
                     "tags":["Account"],
@@ -161,7 +160,7 @@
                     }
                 }
                 },
-                "put":{
+                "patch":{
                     "tags":["Account"],
                     "summary":"Updates the currently logged in user",
                     "requestBody": {
@@ -208,9 +207,8 @@
                     }
                 }
         },
-
         "/api/Account/ChangePassword":{
-            "put":{
+            "patch":{
                 "tags":["Account"],
                 "summary":"Updates the password of the currently logged in user",
                 "requestBody": {
@@ -255,92 +253,37 @@
                 }
             }
         },
-
-        "/api/Account/Picture":{
-            "get":{
+        "/api/Account/Helper/Register":{
+            "post":{
                 "tags":["Account"],
-                "summary":"Gets A buffer of the profile picture",
-                "responses":{
-                    "200":{
-                        "content":{
-                            "text/plain":{
-                                "schema":{
-                                    "type":"string",
-                                    "example": "Picture"
-                                }
-                            }
-                        }
-                },
-                "404": {
-                    "content":{
-                        "text/plain": {
-                            "schema":{
-                                "type": "string",
-                                "example":"Failed To Get Account"
-                            }
-                        }
-                    }
-                },
-                "401": {
-                    "content":{
-                        "text/plain": {
-                         "schema":{
-                              "$ref": "#/definitions/UnAuthorized"
-                             }
-                        }   
-                    }
-                }
-            }
-            },
-            "put":{
-                "tags":["Account"],
-                "summary":"Changes the picture of the currently logged in user",
+                "summary":"Registers new helper to the system",
                 "requestBody": {
-                    "description": "multipart/form-data value.",
                     "content": {
-                        "multipart/form-data": {
-                            "x-parser":"stream",
-                            "schema": {
-                                "type":"object",
-                                "properties":{
-                                    "picture":{
-                                        "type":"string",
-                                        "format":"binary"
-                                    }
-                                }
-                            }
-                        }
+                       "application/json":{
+                           "schema":{
+                               "$ref":"#/definitions/HelperRegister"
+                           }
+                       }
                     }
                 },
-                "responses":{
-                    "200":{
-                        "description": "A Updated User Object",
+                "responses": {
+                    "200": {
                         "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "type": "string",
-                                    "example":"Updated Successfully"
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Token"
                                 }
                             }
                         }
                     },
-                    "400": {
+                    "404": {
                         "content":{
                             "text/plain": {
                                 "schema":{
                                     "type": "string",
-                                    "example":"Failed to add picture"
+                                    "example":"Registration Failed"
                                 }
                             }
-                        }
-                      },
-                      "401": {
-                        "content":{
-                            "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
                         }
                     }
                 }
@@ -455,6 +398,52 @@
                     }
                 }
             }
+        },
+        "/api/Account/Picture":{
+            "patch":{
+                "tags":["Account"],
+                "summary":"Updates the picture of the currently logged in user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Picture"
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "200":{
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Updated Successfully"
+                                }
+                            }
+                        }
+                    },
+                    "500":{
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Failed To Update"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "content":{
+                            "text/plain": {
+                             "schema":{
+                                  "$ref": "#/definitions/UnAuthorized"
+                                 }
+                            }   
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -472,7 +461,48 @@
         "AllClients":{
             "type":"array",
             "items":{
-                "$ref": "#/definitions/Account"
+                "$ref": "#/definitions/FullAccount"
+            }
+        },
+        "FullAccount":{
+            "type": "object",
+            "properties": {
+                "name":{
+                    "type":"object",
+                    "properties":{
+                        "firstName":{
+                            "type":"string"
+                        },
+                        "lastName":{
+                            "type":"string"
+                        }
+                    }
+                 },
+                 "mobile":{
+                     "type":"string"
+                 },
+                 "email":{
+                     "type":"string"
+                 },
+                 "isApproved":{
+                     "type":"boolean"
+                 },
+                 "_id":{
+                     "type":"string"
+                 },
+                 "balance":{
+                     "type":"number"
+                 },
+                 "picture":{
+                     "type":"string",
+                     "format":"byte"
+                 },
+                 "nationality":{
+                     "type":"string"
+                 },
+                 "gender":{
+                     "type":"string"
+                 }
             }
         },
         "Account": {
@@ -503,6 +533,53 @@
                 },
                 "nationality": {
                     "type": "string"
+                }
+            }
+        },
+        "HelperRegister":{
+            "type":"object",
+            "properties":{
+                "name":{
+                   "type":"object",
+                   "properties":{
+                       "firstName":{
+                           "type":"string"
+                       },
+                       "lastName":{
+                           "type":"string"
+                       }
+                   }
+                },
+                "email":{
+                    "type":"string"
+                },
+                "password":{
+                    "type":"string"
+                },
+                "skills":{
+                    "type":"string"
+                },
+                "categories":{
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    }
+                },
+                "picture":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "frontID":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "backID":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "certificate":{
+                    "type":"string",
+                    "format":"byte"
                 }
             }
         },
@@ -556,6 +633,20 @@
                         }
                     }
                 },
+                "birthDate":{
+                    "type":"object",
+                    "properties":{
+                        "day":{
+                            "type":"number"
+                        },
+                        "month":{
+                            "type":"number"
+                        },
+                        "year":{
+                            "type":"number"
+                        }
+                    }
+                },
                 "role":{
                     "type":"string"
                 },
@@ -570,6 +661,16 @@
                 },
                 "nationality":{
                     "type":"string"
+                },
+                "picture":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "balance":{
+                    "type":"number"
+                },
+                "isApproved":{
+                    "type":"boolean"
                 }
             }
         },
@@ -582,6 +683,14 @@
                     "type":"string"
                 }
             }
+        },
+        "Picture":{
+            "properties":{
+                "picture":{
+                    "type":"string",
+                    "format":"byte"    
+                }
+            }  
         }
     }
 }

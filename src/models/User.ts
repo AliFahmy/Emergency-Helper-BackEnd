@@ -42,14 +42,13 @@ const userSchema = new mongoose.Schema({
       type:String,
   },
   mobile:{
-      type:String,
-      required:true
+      type:String
   },
   nationality:{
       type:String,
   },
   picture:{
-      type:String,
+      type:Buffer,
   },
   balance:{
     type:Number
