@@ -30,7 +30,7 @@ class AdminController implements IController {
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.post(`${this.path}/ApproveHelper`, this.approveHelper);
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        this.router.delete(`${this.path}/DeleteUser`, this.deleteUser)
+        this.router.delete(`${this.path}/DeleteUser/:id`, this.deleteUser)
     }
     private getPhoto = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         const path = request.query.path;
@@ -54,7 +54,8 @@ class AdminController implements IController {
         })
     }
     private deleteUser = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        const userID = request.body._id;
+        const userID = request.params.id;
+        console.log(userID);
         await userModel.findOneAndRemove({ _id: userID }, (err) => {
             if (err) {
 

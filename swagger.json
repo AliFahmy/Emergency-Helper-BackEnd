@@ -489,31 +489,31 @@
                 }
             }
         },
-        "/api/Admin/DeleteUser": {
+        "/api/Admin/DeleteUser/{userID}": {
             "delete": {
                 "tags": [
                     "Admin"
                 ],
                 "summary": "Delete user by id",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/definitions/DeleteUser"
-                            }
-                        }
+                "parameters": [
+                    {
+                        "name": "userID",
+                        "in": "path",
+                        "description": "User ID to delete",
+                        "required": true,
+                        "type": "string"
                     }
-                },
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "responses": {
                     "200": {
                         "content": {
-                            "application/json": {
+                            "text/plain": {
                                 "schema": {
-                                    "$ref": "#/definitions/DeleteUser"
+                                    "type": "string",
+                                    "example": "User Deleted Successfully"
                                 }
                             }
                         }
