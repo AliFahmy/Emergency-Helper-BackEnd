@@ -8,7 +8,6 @@
     "dev": "ts-node ./src/server.ts",
     "start": "nodemon ./src/server.ts"
   },
-  
   "author": "",
   "license": "ISC",
   "dependencies": {

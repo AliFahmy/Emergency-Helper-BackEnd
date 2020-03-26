@@ -3,7 +3,7 @@
     "info": {
         "version": "1.0.0",
         "title": "Emergency Helper API",
-        "description":"this is a Restful API provided for the client side of the Emergency Helper Application"
+        "description": "this is a Restful API provided for the client side of the Emergency Helper Application"
     },
     "tags": [
         {
@@ -11,11 +11,11 @@
             "description": "API for Accounts in the system"
         },
         {
-            "name":"Admin",
+            "name": "Admin",
             "description": "API for Admins in the system"
         },
         {
-            "name":"Helper",
+            "name": "Helper",
             "description": "API for Helpers in the system"
         }
     ],
@@ -25,23 +25,24 @@
     ],
     "components": {
         "securitySchemes": {
-          "bearerAuth": {
-            "type": "http",
-            "scheme": "bearer",
-            "bearerFormat": "JWT"
-          }
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
         }
-      },
-      "security": [{
-        "bearerAuth": []
-      }],
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
     "consumes": [
         "application/json"
     ],
     "produces": [
         "application/json"
     ],
-
     "paths": {
         "/api/Account/Login": {
             "post": {
@@ -64,8 +65,8 @@
                 ],
                 "responses": {
                     "200": {
-                        "content":{
-                            "application/json":{
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Token"
                                 }
@@ -73,144 +74,146 @@
                         }
                     },
                     "400": {
-                        "content":{
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Login Failed"
+                                    "example": "Login Failed"
                                 }
                             }
+                        }
                     }
                 }
-            }
             }
         },
         "/api/Account/RegisterUser": {
-                "post": {
-                    "tags": [
-                        "Account"
-                    ],
-                    "summary": "Registers Client to the database",
-                    "requestBody": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Registers Client to the database",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AccountRegistration"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/AccountRegistration"
+                                    "$ref": "#/definitions/Token"
                                 }
                             }
                         }
                     },
-                    "responses": {
-                        "200": {
-
-                            "content":{
-                                "application/json":{
-
-                                    "schema": {
-                                        "$ref": "#/definitions/Token"
-                                    }
+                    "404": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Registration Failed"
                                 }
                             }
-                        },
-                        "404": {
-                            "content":{
-                                "text/plain": {
-                                    "schema":{
-                                        "type": "string",
-                                        "example":"Registration Failed"
-                                    }
-                                }
                         }
                     }
                 }
             }
         },
-        "/api/Account":{
-                "get":{
-                    "tags":["Account"],
-                    "summary":"Gets all the data of the currently logged in user",
-                    "responses":{
-                        "200":{
-                            "content":{
-                                "application/json": {
-                                    "schema":{
-                                        "$ref": "#/definitions/AccountInformation"
-                                    }
+        "/api/Account": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Gets all the data of the currently logged in user",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AccountInformation"
                                 }
                             }
+                        }
                     },
                     "404": {
-                        "content":{
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Failed To Get Account"
+                                    "example": "Failed To Get Account"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "content":{
+                        "content": {
                             "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
+                                "schema": {
+                                    "$ref": "#/definitions/UnAuthorized"
+                                }
+                            }
                         }
                     }
                 }
+            },
+            "patch": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Updates the currently logged in user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AccountUpdate"
+                            }
+                        }
+                    }
                 },
-                "patch":{
-                    "tags":["Account"],
-                    "summary":"Updates the currently logged in user",
-                    "requestBody": {
-
+                "responses": {
+                    "200": {
                         "content": {
-                            "application/json": {
+                            "text/plain": {
                                 "schema": {
-                                    "$ref": "#/definitions/AccountUpdate"
+                                    "type": "string",
+                                    "example": "Updated Successfully"
                                 }
                             }
                         }
                     },
-                    "responses":{
-                        "200":{
-
-                            "content":{
-                                "text/plain": {
-                                    "schema":{
-                                        "type": "string",
-                                        "example":"Updated Successfully"
-                                    }
+                    "500": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Update"
                                 }
                             }
-                        },
-                        "500":{
-                            "content":{
-                                "text/plain": {
-                                    "schema":{
-                                        "type": "string",
-                                        "example":"Failed To Update"
-                                    }
+                        }
+                    },
+                    "401": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/definitions/UnAuthorized"
                                 }
-                            }
-                        },
-                        "401": {
-                            "content":{
-                                "text/plain": {
-                                 "schema":{
-                                      "$ref": "#/definitions/UnAuthorized"
-                                     }
-                                }   
                             }
                         }
                     }
                 }
+            }
         },
-        "/api/Account/ChangePassword":{
-            "patch":{
-                "tags":["Account"],
-                "summary":"Updates the password of the currently logged in user",
+        "/api/Account/ChangePassword": {
+            "patch": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Updates the password of the currently logged in user",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -220,56 +223,58 @@
                         }
                     }
                 },
-                "responses":{
-                    "200":{
-                        "content":{
+                "responses": {
+                    "200": {
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Updated Successfully"
+                                    "example": "Updated Successfully"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "content":{
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Failed To Change Password"
+                                    "example": "Failed To Change Password"
                                 }
                             }
                         }
-                      },
-                      "401": {
-                        "content":{
+                    },
+                    "401": {
+                        "content": {
                             "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
+                                "schema": {
+                                    "$ref": "#/definitions/UnAuthorized"
+                                }
+                            }
                         }
                     }
                 }
             }
         },
-        "/api/Account/Helper/Register":{
-            "post":{
-                "tags":["Account"],
-                "summary":"Registers new helper to the system",
+        "/api/Account/Helper/Register": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Registers new helper to the system",
                 "requestBody": {
                     "content": {
-                       "application/json":{
-                           "schema":{
-                               "$ref":"#/definitions/HelperRegister"
-                           }
-                       }
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/HelperRegister"
+                            }
+                        }
                     }
                 },
                 "responses": {
                     "200": {
-                        "content":{
-                            "application/json":{
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Token"
                                 }
@@ -277,11 +282,11 @@
                         }
                     },
                     "404": {
-                        "content":{
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Registration Failed"
+                                    "example": "Registration Failed"
                                 }
                             }
                         }
@@ -289,10 +294,12 @@
                 }
             }
         },
-        "/api/Helper/Category":{
-            "post":{
-                "tags":["Helper"],
-                "summary":"Inserts new helper category to the system",
+        "/api/Helper/Category": {
+            "post": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Inserts new helper category to the system",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -302,107 +309,234 @@
                         }
                     }
                 },
-                "responses":{
-                    "201":{
-                        "content":{
+                "responses": {
+                    "201": {
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Category Inserted Successfully"
+                                    "example": "Category Inserted Successfully"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "content":{
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Failed to Insert Category"
+                                    "example": "Failed to Insert Category"
                                 }
                             }
                         }
-                      },
-                      "401": {
-                        "content":{
+                    },
+                    "401": {
+                        "content": {
                             "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
+                                "schema": {
+                                    "$ref": "#/definitions/UnAuthorized"
+                                }
+                            }
                         }
                     }
-
                 }
             }
         },
-        "/api/Helper/AllCategories":{
-            "get":{
-                "tags":["Helper"],
-                "summary":"Gets all the helper categories",
-                "responses":{
-                    "200":{
-                        "content":{
+        "/api/Helper/AllCategories": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Gets all the helper categories",
+                "responses": {
+                    "200": {
+                        "content": {
                             "application/json": {
-                                "schema":{
+                                "schema": {
                                     "$ref": "#/definitions/AllCategories"
                                 }
                             }
                         }
-                },
-                "404": {
-                    "content":{
-                        "text/plain": {
-                            "schema":{
-                                "type": "string",
-                                "example":"Failed To Get Categories"
+                    },
+                    "404": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Get Categories"
+                                }
                             }
                         }
                     }
                 }
             }
-        }
         },
-        "/api/Admin/GetAllClients":{
-            "get":{
-                "tags":["Admin"],
-                "summary":"Gets all the clients in the system",
-                "responses":{
-                    "200":{
-                        "content":{
+        "/api/Admin/GetAllClients": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Gets all the clients in the system",
+                "responses": {
+                    "200": {
+                        "content": {
                             "application/json": {
-                                "schema":{
+                                "schema": {
                                     "$ref": "#/definitions/AllClients"
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Get Clients"
+                                }
+                            }
+                        }
+                    }
                 },
-                "400": {
-                    "content":{
+                "401": {
+                    "content": {
                         "text/plain": {
-                            "schema":{
-                                "type": "string",
-                                "example":"Failed To Get Clients"
+                            "schema": {
+                                "$ref": "#/definitions/UnAuthorized"
                             }
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/Admin/GetAllHelpers": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Gets all the helpers in the system",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AllHelpers"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Get Helpers"
+                                }
+                            }
+                        }
+                    }
+                },
                 "401": {
-                    "content":{
+                    "content": {
                         "text/plain": {
-                         "schema":{
-                              "$ref": "#/definitions/UnAuthorized"
-                             }
-                        }   
+                            "schema": {
+                                "$ref": "#/definitions/UnAuthorized"
+                            }
+                        }
                     }
                 }
             }
         },
-        "/api/Account/Picture":{
-            "patch":{
-                "tags":["Account"],
-                "summary":"Updates the picture of the currently logged in user",
+        "/api/Admin/ApproveHelper": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Approve helper by id",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/ApproveHelper"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/ApproveHelper"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Approve Helper"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Admin/DeleteUser": {
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete user by id",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/DeleteUser"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/DeleteUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Delete User"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/Picture": {
+            "patch": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Updates the picture of the currently logged in user",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -412,34 +546,34 @@
                         }
                     }
                 },
-                "responses":{
-                    "200":{
-                        "content":{
+                "responses": {
+                    "200": {
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Updated Successfully"
+                                    "example": "Updated Successfully"
                                 }
                             }
                         }
                     },
-                    "500":{
-                        "content":{
+                    "500": {
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Failed To Update"
+                                    "example": "Failed To Update"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "content":{
+                        "content": {
                             "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
+                                "schema": {
+                                    "$ref": "#/definitions/UnAuthorized"
+                                }
+                            }
                         }
                     }
                 }
@@ -454,55 +588,61 @@
                 }
             }
         },
-        "UnAuthorized":{
+        "UnAuthorized": {
             "type": "string",
-            "example":"Unauthorized Account"
+            "example": "Unauthorized Account"
         },
-        "AllClients":{
-            "type":"array",
-            "items":{
+        "AllClients": {
+            "type": "array",
+            "items": {
                 "$ref": "#/definitions/FullAccount"
             }
         },
-        "FullAccount":{
+        "AllHelpers": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/FullAccount"
+            }
+        },
+        "FullAccount": {
             "type": "object",
             "properties": {
-                "name":{
-                    "type":"object",
-                    "properties":{
-                        "firstName":{
-                            "type":"string"
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
                         },
-                        "lastName":{
-                            "type":"string"
+                        "lastName": {
+                            "type": "string"
                         }
                     }
-                 },
-                 "mobile":{
-                     "type":"string"
-                 },
-                 "email":{
-                     "type":"string"
-                 },
-                 "isApproved":{
-                     "type":"boolean"
-                 },
-                 "_id":{
-                     "type":"string"
-                 },
-                 "balance":{
-                     "type":"number"
-                 },
-                 "picture":{
-                     "type":"string",
-                     "format":"byte"
-                 },
-                 "nationality":{
-                     "type":"string"
-                 },
-                 "gender":{
-                     "type":"string"
-                 }
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "isApproved": {
+                    "type": "boolean"
+                },
+                "_id": {
+                    "type": "string"
+                },
+                "balance": {
+                    "type": "number"
+                },
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                }
             }
         },
         "Account": {
@@ -516,15 +656,29 @@
                 }
             }
         },
-        "AllCategories":{
-            "type":"array",
-            "items":{
+        "ApproveHelper": {
+            "properties": {
+                "_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "DeleteUser": {
+            "properties": {
+                "_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "AllCategories": {
+            "type": "array",
+            "items": {
                 "$ref": "#/definitions/Category"
             }
         },
-        "AccountUpdate":{
-            "type":"object",
-            "properties":{
+        "AccountUpdate": {
+            "type": "object",
+            "properties": {
                 "email": {
                     "type": "string"
                 },
@@ -536,161 +690,161 @@
                 }
             }
         },
-        "HelperRegister":{
-            "type":"object",
-            "properties":{
-                "name":{
-                   "type":"object",
-                   "properties":{
-                       "firstName":{
-                           "type":"string"
-                       },
-                       "lastName":{
-                           "type":"string"
-                       }
-                   }
-                },
-                "email":{
-                    "type":"string"
-                },
-                "password":{
-                    "type":"string"
-                },
-                "skills":{
-                    "type":"string"
-                },
-                "categories":{
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
-                },
-                "picture":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "frontID":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "backID":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "certificate":{
-                    "type":"string",
-                    "format":"byte"
-                }
-            }
-        },
-        "AccountRegistration":{
-            "type":"object",
-            "properties":{
-                "name":{
-                   "type":"object",
-                   "properties":{
-                       "firstName":{
-                           "type":"string"
-                       },
-                       "lastName":{
-                           "type":"string"
-                       }
-                   }
-                },
-                "mobile":{
-                    "type":"string"
-                },
-                "email":{
-                    "type":"string"
-                },
-                "password":{
-                    "type":"string"
-                },
-                "userRole":{
-                    "type":"number"
-                }
-            }
-        },
-        "Category":{
-            "type":"object",
-            "properties":{
-                "name":{
-                    "type":"string"
-                }
-            }
-        },
-        "AccountInformation":{
-            "type":"object",
-            "properties":{
-                "name":{
-                    "type":"object",
-                    "properties":{
-                        "firstName":{
-                            "type":"string"
+        "HelperRegister": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
                         },
-                        "lastName":{
-                            "type":"string"
+                        "lastName": {
+                            "type": "string"
                         }
                     }
                 },
-                "birthDate":{
-                    "type":"object",
-                    "properties":{
-                        "day":{
-                            "type":"number"
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "frontID": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "backID": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "certificate": {
+                    "type": "string",
+                    "format": "byte"
+                }
+            }
+        },
+        "AccountRegistration": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
                         },
-                        "month":{
-                            "type":"number"
-                        },
-                        "year":{
-                            "type":"number"
+                        "lastName": {
+                            "type": "string"
                         }
                     }
                 },
-                "role":{
-                    "type":"string"
+                "mobile": {
+                    "type": "string"
                 },
-                "email":{
-                    "type":"string"
+                "email": {
+                    "type": "string"
                 },
-                "gender":{
-                    "type":"string"
+                "password": {
+                    "type": "string"
                 },
-                "mobile":{
-                    "type":"string"
-                },
-                "nationality":{
-                    "type":"string"
-                },
-                "picture":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "balance":{
-                    "type":"number"
-                },
-                "isApproved":{
-                    "type":"boolean"
+                "userRole": {
+                    "type": "number"
                 }
             }
         },
-        "ChangePassword":{
-            "properties":{
-                "oldPassword":{
-                    "type":"string"
-                },
-                "newPassword":{
-                    "type":"string"
+        "Category": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
                 }
             }
         },
-        "Picture":{
-            "properties":{
-                "picture":{
-                    "type":"string",
-                    "format":"byte"    
+        "AccountInformation": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
+                        },
+                        "lastName": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "birthDate": {
+                    "type": "object",
+                    "properties": {
+                        "day": {
+                            "type": "number"
+                        },
+                        "month": {
+                            "type": "number"
+                        },
+                        "year": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "role": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "balance": {
+                    "type": "number"
+                },
+                "isApproved": {
+                    "type": "boolean"
                 }
-            }  
+            }
+        },
+        "ChangePassword": {
+            "properties": {
+                "oldPassword": {
+                    "type": "string"
+                },
+                "newPassword": {
+                    "type": "string"
+                }
+            }
+        },
+        "Picture": {
+            "properties": {
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
+                }
+            }
         }
     }
 }
