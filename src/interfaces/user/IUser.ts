@@ -15,7 +15,7 @@ interface IUser extends Document{
   gender:string;
   mobile:string;
   nationality:string;
-  picture:string;
+  picture:Buffer;
   balance:number;
   role:string;
 }

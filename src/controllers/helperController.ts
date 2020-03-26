@@ -9,7 +9,8 @@ import validationMiddleware from '../middlewares/validation';
 import categoryModel from '../models/Category';
 ////////////////////////////////////////////////////
 import CategoryDTO from '../dto/categoryDTO';
-
+////////////////////////////////////////////////////
+import HelperCategoryAlreadyExistsException from '../exceptions/HelperCategoryAlreadyExistsException';
 class HelperController implements IController {
     public path:string;
     public router:express.IRouter;
@@ -22,7 +23,7 @@ class HelperController implements IController {
     private initializeRoutes(){
         this.router.get(`${this.path}/AllCategories`,this.getAllCategories);
         ////////////////////////////////////////////////////////////////////
-        this.router.post(`${this.path}/Category`,authMiddleware,validationMiddleware(CategoryDTO),this.insertCategory);
+        this.router.post(`${this.path}/Category`,validationMiddleware(CategoryDTO),this.insertCategory);
     }
     private getAllCategories =  async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
         await categoryModel.find({},'-_id -createdAt -updatedAt -__v',(err,categories)=>{
@@ -34,15 +35,19 @@ class HelperController implements IController {
             }
         })
     }
-    private insertCategory =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
+    private insertCategory =  async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
             const categoryDTO:CategoryDTO = request.body;
-            const category = await categoryModel.create(categoryDTO)
-            if(category){
-                response.status(201).send("Created Category");
+            if(await categoryModel.findOne({name:categoryDTO.name})){
+                next(new HelperCategoryAlreadyExistsException());
+                return;
             }
-            else{
-                response.status(400).send("Failed To Create Category");    
-            }
+                const category = await categoryModel.create(categoryDTO)
+                if(category){
+                    response.status(201).send("Created Category");
+                }
+                else{
+                    response.status(400).send("Failed To Create Category");    
+                }
     }
 
 }

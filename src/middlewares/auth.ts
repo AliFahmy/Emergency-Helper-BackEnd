@@ -9,12 +9,13 @@ import userModel from '../models/User';
 
 async function authMiddleware(request: IRequestWithUser, response: Response, next: NextFunction) {
     const headers = request.headers;
-    if(headers && headers["authorization"]){
+    if(headers["authorization"]){
         const secret = process.env.JWT_SECRET;
         try{
             const verificationResponse = jwt.verify(headers['authorization'].split(" ")[1],secret) as IDataStoredInToken;
             const _id = verificationResponse._id;
             const user = await userModel.findById(_id,'-password -createdAt -updatedAt -__v');
+            // omar commented an momkn manhtagsh al if else lw al user mabyrg3losh haga fel error xD
             if(user){
                 request.user = user;
                 next();

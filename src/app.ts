@@ -10,16 +10,23 @@ import * as swaggerDocument from '../swagger.json';
 import * as path from 'path';
 
 class App {
-  public app: express.Application;
+
+  private app : express.Application;
   private PORT:any;
   
   constructor(controllers: IController[]) {
+    
     this.app = express();
     this.PORT = process.env.PORT || 5000;
+
     this.connectToDatabase();
+
     this.initializeMiddlewares();
+
     this.initializeControllers(controllers);
+
     this.initializeErrorHandling();
+    
     this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
   }
 
@@ -51,7 +58,6 @@ class App {
   this.app.use(cookieParser());
 }
 
-
  private initializeErrorHandling(){
    this.app.use(errorMiddleware);
  }
@@ -66,15 +72,19 @@ class App {
     const {
       MONGODB_URL
       } = process.env;
+
       mongoose
-        .connect(MONGODB_URL.toString(),{ useNewUrlParser: true,useUnifiedTopology:true })
+        .connect(MONGODB_URL.toString(),{ useNewUrlParser: true,useUnifiedTopology:true,useFindAndModify:false })
         .then((result)=>{
+            // handle connnection succedded
             console.log("CONNECTED TO DB")
         })
         .catch((err:Error)=>{
+            // handle error database 
             console.log(err);
         })
     }
+
   public listen() {
     this.app.listen(this.PORT, () => {
       console.log(`App listening on the port ${this.PORT}`);

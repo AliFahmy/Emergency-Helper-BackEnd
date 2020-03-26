@@ -5,5 +5,6 @@ interface IHelper extends IUser {
     isApproved:boolean;
     isActive:boolean;
     location:ILocation;
+    categories:string[];
 }
 export default IHelper;
