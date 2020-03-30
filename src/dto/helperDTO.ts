@@ -19,7 +19,7 @@ class HelperDTO {
 
     @IsString()
     public skills:string;
-  
+
     @IsBase64()
     public frontID:string;
 

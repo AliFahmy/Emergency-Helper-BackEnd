@@ -4,11 +4,9 @@ class UpdateAccountDTO {
     @IsString()
     public email :string;
 
-    @IsOptional()
     @IsString()
     public mobile:string;
 
-    @IsOptional()
     @IsString()
     public nationality:string;
     
