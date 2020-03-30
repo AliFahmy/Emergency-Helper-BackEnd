@@ -3,7 +3,7 @@
     "info": {
         "version": "1.0.0",
         "title": "Emergency Helper API",
-        "description":"this is a Restful API provided for the client side of the Emergency Helper Application"
+        "description": "this is a Restful API provided for the client side of the Emergency Helper Application"
     },
     "tags": [
         {
@@ -25,16 +25,18 @@
     ],
     "components": {
         "securitySchemes": {
-          "bearerAuth": {
-            "type": "http",
-            "scheme": "bearer",
-            "bearerFormat": "JWT"
-          }
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
         }
-      },
-      "security": [{
-        "bearerAuth": []
-      }],
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
     "consumes": [
         "application/json"
     ],
@@ -715,17 +717,55 @@
                        }
                    }
                 },
-                "mobile":{
-                    "type":"string"
+                "nationality": {
+                    "type": "string"
+                }
+            }
+        },
+        "HelperRegister": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
+                        },
+                        "lastName": {
+                            "type": "string"
+                        }
+                    }
                 },
-                "email":{
-                    "type":"string"
+                "email": {
+                    "type": "string"
                 },
-                "password":{
-                    "type":"string"
+                "password": {
+                    "type": "string"
                 },
-                "userRole":{
-                    "type":"number"
+                "skills": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "frontID": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "backID": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "certificate": {
+                    "type": "string",
+                    "format": "byte"
                 }
             }
         },
@@ -746,8 +786,8 @@
                         "firstName":{
                             "type":"string"
                         },
-                        "lastName":{
-                            "type":"string"
+                        "lastName": {
+                            "type": "string"
                         }
                     }
                 },
@@ -768,17 +808,67 @@
                 "role":{
                     "type":"string"
                 },
-                "email":{
-                    "type":"string"
+                "email": {
+                    "type": "string"
                 },
-                "gender":{
-                    "type":"string"
+                "password": {
+                    "type": "string"
                 },
-                "mobile":{
-                    "type":"string"
+                "userRole": {
+                    "type": "number"
+                }
+            }
+        },
+        "Category": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "AccountInformation": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
+                        },
+                        "lastName": {
+                            "type": "string"
+                        }
+                    }
                 },
-                "nationality":{
-                    "type":"string"
+                "birthDate": {
+                    "type": "object",
+                    "properties": {
+                        "day": {
+                            "type": "number"
+                        },
+                        "month": {
+                            "type": "number"
+                        },
+                        "year": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "role": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
                 },
                 "picture":{
                     "type":"string",

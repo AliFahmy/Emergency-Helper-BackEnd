@@ -29,6 +29,8 @@ class App {
     this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
     
     this.initializeErrorHandling();
+    
+    this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
   }
 
   private initializeMiddlewares() {
