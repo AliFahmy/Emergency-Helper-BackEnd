@@ -1,7 +1,6 @@
 import { IsString,IsBase64,IsOptional} from 'class-validator';
 
 class UpdateAccountDTO {
-    @IsOptional()
     @IsString()
     public email :string;
 
@@ -12,6 +11,9 @@ class UpdateAccountDTO {
     @IsOptional()
     @IsString()
     public nationality:string;
+    
+    @IsBase64()
+    public picture:string;
 }
 
 export default UpdateAccountDTO;

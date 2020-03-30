@@ -25,34 +25,18 @@ const requestSchema = new mongoose.Schema({
         }
     },
     date:{
-        year:{
-            type:Number,
-            required:true
-        },
-        month:{
-            type:Number,
-            required:true
-        },
-        day:{
-            type:Number,
-            required:true
-        },
-        hours:{
-            type:Number,
-            required:true
-        },
-        minutes:{
-            type:Number,
-            required:true
-        }
+        type:Date,
+        required:true
     },
     client:{
         ref: 'Client',
         type: mongoose.Schema.Types.ObjectId,
+        required:true
     },
     category:[{
         ref: 'Category',
         type: mongoose.Schema.Types.ObjectId,
+        required:true
     }],
     helper:{
         ref:'Helper',

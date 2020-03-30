@@ -11,12 +11,15 @@ class HelperDTO {
     @IsString()
     public password: string;
 
+    @IsString()
+    public mobile : string;
+
     @IsArray()
     public categories: string[];
 
     @IsString()
     public skills:string;
-
+  
     @IsBase64()
     public frontID:string;
 

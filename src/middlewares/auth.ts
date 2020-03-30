@@ -5,6 +5,8 @@ import WrongAuthenticationTokenException from '../exceptions/WrongAuthentication
 import IDataStoredInToken from '../interfaces/token/IDataStoredInToken';
 import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
 import userModel from '../models/User';
+import IUser from './../interfaces/user/IUser';
+import SomethingWentWrongException from '../exceptions/SomethingWentWrongException';
 
 
 async function authMiddleware(request: IRequestWithUser, response: Response, next: NextFunction) {
@@ -14,7 +16,11 @@ async function authMiddleware(request: IRequestWithUser, response: Response, nex
         try{
             const verificationResponse = jwt.verify(headers['authorization'].split(" ")[1],secret) as IDataStoredInToken;
             const _id = verificationResponse._id;
-            const user = await userModel.findById(_id,'-password -createdAt -updatedAt -__v');
+            const user = await userModel.findById(_id,'-password -createdAt -updatedAt -__v',(err,user:IUser)=>{
+                if(err){
+                    next(new SomethingWentWrongException());
+                }
+            });
             // omar commented an momkn manhtagsh al if else lw al user mabyrg3losh haga fel error xD
             if(user){
                 request.user = user;

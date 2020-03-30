@@ -11,6 +11,8 @@ import categoryModel from '../models/Category';
 import CategoryDTO from '../dto/categoryDTO';
 ////////////////////////////////////////////////////
 import HelperCategoryAlreadyExistsException from '../exceptions/HelperCategoryAlreadyExistsException';
+import SomethingWentWrongException from '../exceptions/SomethingWentWrongException';
+import ICategory from './../interfaces/ICategory';
 class HelperController implements IController {
     public path:string;
     public router:express.IRouter;
@@ -28,7 +30,7 @@ class HelperController implements IController {
     private getAllCategories =  async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
         await categoryModel.find({},'-_id -createdAt -updatedAt -__v',(err,categories)=>{
             if(err){
-                response.status(400).send(err);
+                next(new SomethingWentWrongException());
             }
             else{
                 response.status(200).send(categories);
@@ -37,17 +39,20 @@ class HelperController implements IController {
     }
     private insertCategory =  async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
             const categoryDTO:CategoryDTO = request.body;
-            if(await categoryModel.findOne({name:categoryDTO.name})){
+            if(await categoryModel.findOne({name:categoryDTO.name}))
+            {
                 next(new HelperCategoryAlreadyExistsException());
-                return;
             }
-                const category = await categoryModel.create(categoryDTO)
-                if(category){
-                    response.status(201).send("Created Category");
-                }
-                else{
-                    response.status(400).send("Failed To Create Category");    
-                }
+            else{
+                await categoryModel.create(categoryDTO,(err:any,category:ICategory)=>{
+                    if(err){
+                        next(new SomethingWentWrongException());
+                    }
+                    else{
+                        response.status(201).send("Created Category Successfully");
+                    }   
+                })
+            }
     }
 
 }

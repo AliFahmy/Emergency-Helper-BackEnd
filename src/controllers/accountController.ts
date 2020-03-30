@@ -31,8 +31,6 @@ import WrongCredentialsException from '../exceptions/WrongCredentialsException';
 import WrongUserRoleException from './../exceptions/WrongUserRoleException';
 import UserWithThatEmailAlreadyExistsException from '../exceptions/UserWithThatEmailAlreadyExistsException';
 import SomethingWentWrongException from './../exceptions/SomethingWentWrongException';
-import UpdateAccountException from './../exceptions/UpdateAccountException';
-import CouldntSaveToDataBaseException from './../exceptions/CouldntSaveToDataBaseException';
 import OldPasswordDosentMatchException from './../exceptions/OldPasswordDosentMatchException';
 
 
@@ -48,31 +46,27 @@ class AccountController implements IController {
     private initializeRoutes(){
 
         this.router.post(`${this.path}/Login`,validationMiddleware(LogInDto),this.login);
-
         this.router.post(`${this.path}/RegisterUser`,validationMiddleware(CreateUserDTO),this.register);
         this.router.post(`${this.path}/Helper/Register`,validationMiddleware(HelperDTO),this.helperRegistration);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.get(`${this.path}`,authMiddleware,this.getAccount);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        this.router.patch(`${this.path}`,authMiddleware,validationMiddleware(UpdateAccountDTO),this.updateAccount);
-        this.router.patch(`${this.path}/Picture`,authMiddleware,validationMiddleware(UpdatePictureDTO),this.updatePicture);
+        this.router.patch(`${this.path}`,authMiddleware,validationMiddleware(UpdateAccountDTO,true),this.updateAccount);
+        //this.router.patch(`${this.path}/Picture`,authMiddleware,validationMiddleware(UpdatePictureDTO),this.updatePicture);
         this.router.patch(`${this.path}/ChangePassword`,authMiddleware,validationMiddleware(UpdatePasswordDTO),this.updatePassword);
     }
     private helperRegistration =  async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
-        
         const userData:HelperDTO = request.body;
-        
-        
-        if( await userModel.findOne({email:userData.email})){
+        if( await userModel.findOne({email:userData.email}))
+        {
              next(new UserWithThatEmailAlreadyExistsException(userData.email));
         }
         else{
             const hashedPassword = await bcrypt.hash(userData.password,10);
             let categoriesid = [];
-            await categoryModel.find({'name':{ $in: userData.categories} },'-name -createdAt -updatedAt -__v',(err,categories)=>{
+            await categoryModel.find({'name':{ $in: userData.categories} },'-name -createdAt -updatedAt -__v',(err,categories:ICategory[])=>{
                if(err){
-                    console.log("err category find")
-                    next(err);
+                    next(new SomethingWentWrongException());
                 }
                 else{
                     for(let i=0;i<categories.length;i++){
@@ -92,8 +86,7 @@ class AccountController implements IController {
                     password:hashedPassword
                 },(err:any,helper:IHelper)=>{
                     if(err){
-                        console.log(err);
-                        next(err);
+                        next(new SomethingWentWrongException());
                     }
                     else{
                         helper.password = undefined;
@@ -127,22 +120,24 @@ class AccountController implements IController {
         const picture = Buffer.from(body.picture,'base64');
         await userModel.findByIdAndUpdate(request.user._id,{$set:{picture}},(err,user:IUser)=>{
             if(err){
-                response.status(400).send(err);
+                next(new SomethingWentWrongException());
             }
             else{
-                response.status(201).send("Updated Successfully");
+                response.status(200).send("Updated Successfully");
             }
         })
     }
     private updateAccount = async (request:IRequestWithUser,response:express.Response,next:express.NextFunction)=>{
-        let newData:UpdateAccountDTO = request.body;
-        console.log(newData)
+        let newData:any = request.body;
+        if(newData.picture){
+            newData.picture = Buffer.from(newData.picture,'base64');
+        }
         let newUser = await userModel.findByIdAndUpdate(request.user._id,{$set:newData});
         if(newUser){
                 response.status(200).send("Updated Successfuly");
             }
         else{
-                next(new UpdateAccountException(request.user.email));
+                next(new SomethingWentWrongException());
             }
     }
     private updatePassword = async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
@@ -153,9 +148,9 @@ class AccountController implements IController {
             User.password = await bcrypt.hash(newPassword.newPassword,10);
             await User.save((err)=>{
                 if(err){
-                    next(new CouldntSaveToDataBaseException())
+                    next(new SomethingWentWrongException())
                 }else{
-                    response.status(200).send("Updated Successfully");
+                    response.status(204).send("Password Updated Successfully");    
                 }
             })
         }else{
@@ -178,7 +173,6 @@ class AccountController implements IController {
             }
             else{
                 next(new WrongUserRoleException());
-                return;
             }
             try{
                 const user = await model.create({
