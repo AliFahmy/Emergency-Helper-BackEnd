@@ -11,6 +11,9 @@ class HelperDTO {
     @IsString()
     public password: string;
 
+    @IsString()
+    public mobile : string;
+
     @IsArray()
     public categories: string[];
 

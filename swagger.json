@@ -64,6 +64,7 @@
                 ],
                 "responses": {
                     "200": {
+                        "description":"Login Success",
                         "content":{
                             "application/json":{
                                 "schema": {
@@ -72,12 +73,12 @@
                             }
                         }
                     },
-                    "400": {
+                    "401": {
+                        "description":"Incorrect Email or Password",
                         "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "type": "string",
-                                    "example":"Login Failed"
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
                     }
@@ -101,29 +102,48 @@
                         }
                     },
                     "responses": {
-                        "200": {
-
+                        "201": {
+                            "description":"Registered Successfully",
                             "content":{
                                 "application/json":{
-
                                     "schema": {
                                         "$ref": "#/definitions/Token"
                                     }
                                 }
                             }
                         },
-                        "404": {
+                        "409": {
+                            "description":"Email Already Exists",
                             "content":{
-                                "text/plain": {
-                                    "schema":{
-                                        "type": "string",
-                                        "example":"Registration Failed"
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
                                     }
                                 }
+                            }
+                        },
+                        "422": {
+                            "description":"Invalid User Role",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
+                        },
+                        "500": {
+                            "description":"Server Error",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-            }
         },
         "/api/Account":{
                 "get":{
@@ -138,27 +158,8 @@
                                     }
                                 }
                             }
-                    },
-                    "404": {
-                        "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "type": "string",
-                                    "example":"Failed To Get Account"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "content":{
-                            "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
                         }
                     }
-                }
                 },
                 "patch":{
                     "tags":["Account"],
@@ -175,7 +176,7 @@
                     },
                     "responses":{
                         "200":{
-
+                            "description":"Updated Successfully",
                             "content":{
                                 "text/plain": {
                                     "schema":{
@@ -186,22 +187,13 @@
                             }
                         },
                         "500":{
+                            "description":"Server Error",
                             "content":{
-                                "text/plain": {
-                                    "schema":{
-                                        "type": "string",
-                                        "example":"Failed To Update"
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
                                     }
                                 }
-                            }
-                        },
-                        "401": {
-                            "content":{
-                                "text/plain": {
-                                 "schema":{
-                                      "$ref": "#/definitions/UnAuthorized"
-                                     }
-                                }   
                             }
                         }
                     }
@@ -221,33 +213,35 @@
                     }
                 },
                 "responses":{
-                    "200":{
+                    "204":{
+                        "description":"Password Changed",
                         "content":{
                             "text/plain": {
                                 "schema":{
                                     "type": "string",
-                                    "example":"Updated Successfully"
+                                    "example":"Password Updated Successfully"
                                 }
                             }
                         }
                     },
-                    "400": {
+                    "409": {
+                        "description":"Old Password Dosent Match",
                         "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "type": "string",
-                                    "example":"Failed To Change Password"
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
                         }
                       },
-                      "401": {
+                      "500": {
+                        "description":"Server Error",
                         "content":{
-                            "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
                         }
                     }
                 }
@@ -267,7 +261,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "201": {
+                        "description":"Helper Registered Successfully",
                         "content":{
                             "application/json":{
                                 "schema": {
@@ -276,15 +271,26 @@
                             }
                         }
                     },
-                    "404": {
-                        "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "type": "string",
-                                    "example":"Registration Failed"
+                    "409": {
+                            "description":"Email Already Exists",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
                                 }
                             }
-                        }
+                    },
+                    "500": {
+                            "description":"Server Error",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
+                        
                     }
                 }
             }
@@ -350,16 +356,17 @@
                             }
                         }
                 },
-                "404": {
+                "500": {
+                    "description":"Server Error",
                     "content":{
-                        "text/plain": {
-                            "schema":{
-                                "type": "string",
-                                "example":"Failed To Get Categories"
+                        "application/json":{
+                            "schema": {
+                                "$ref": "#/definitions/Error"
                             }
                         }
                     }
-                }
+                
+            }
             }
         }
         },
@@ -377,12 +384,12 @@
                             }
                         }
                 },
-                "400": {
+                "500": {
+                    "description":"Server Error",
                     "content":{
-                        "text/plain": {
-                            "schema":{
-                                "type": "string",
-                                "example":"Failed To Get Clients"
+                        "application/json":{
+                            "schema": {
+                                "$ref": "#/definitions/Error"
                             }
                         }
                     }
@@ -399,47 +406,124 @@
                 }
             }
         },
-        "/api/Account/Picture":{
-            "patch":{
-                "tags":["Account"],
-                "summary":"Updates the picture of the currently logged in user",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/definitions/Picture"
+        "/api/Admin/GetAllHelpers": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Gets all the helpers in the system",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AllHelpers"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Get Helpers"
+                                }
                             }
                         }
                     }
                 },
-                "responses":{
-                    "200":{
-                        "content":{
+                "401": {
+                    "content": {
+                        "text/plain": {
+                            "schema": {
+                                "$ref": "#/definitions/UnAuthorized"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Admin/ApproveHelper": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Approve helper by id",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/id"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Updated Successfully"
+                                    "example": "Helper Approved"
                                 }
                             }
                         }
                     },
-                    "500":{
-                        "content":{
+                    "400": {
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "string",
-                                    "example":"Failed To Update"
+                                    "example": "Failed To Approve Helper"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Admin/DeleteUser/{userID}": {
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete user by id",
+                "parameters": [
+                    {
+                        "name": "userID",
+                        "in": "path",
+                        "description": "User ID to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "User Deleted Successfully"
                                 }
                             }
                         }
                     },
-                    "401": {
-                        "content":{
+                    "400": {
+                        "content": {
                             "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Delete User"
+                                }
+                            }
                         }
                     }
                 }
@@ -447,9 +531,29 @@
         }
     },
     "definitions": {
+        "Error":{
+            "type": "object",
+            "properties": {
+                "status":{
+                    "type":"number",
+                    "example":500
+                },
+                "message":{
+                    "type":"string",
+                    "example":"Something Went Wrong"
+                }
+            }
+        },
         "Token": {
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "id": {
+            "properties": {
+                "_id": {
                     "type": "string"
                 }
             }
@@ -458,6 +562,12 @@
             "type": "string",
             "example":"Unauthorized Account"
         },
+        "AllHelpers": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/FullAccount"
+            }
+        },  
         "AllClients":{
             "type":"array",
             "items":{
@@ -533,6 +643,10 @@
                 },
                 "nationality": {
                     "type": "string"
+                },
+                "picture":{
+                    "type":"string",
+                    "format":"byte"
                 }
             }
         },
@@ -551,6 +665,9 @@
                    }
                 },
                 "email":{
+                    "type":"string"
+                },
+                "mobile":{
                     "type":"string"
                 },
                 "password":{

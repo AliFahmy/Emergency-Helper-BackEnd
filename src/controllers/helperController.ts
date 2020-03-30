@@ -11,6 +11,7 @@ import categoryModel from '../models/Category';
 import CategoryDTO from '../dto/categoryDTO';
 ////////////////////////////////////////////////////
 import HelperCategoryAlreadyExistsException from '../exceptions/HelperCategoryAlreadyExistsException';
+import SomethingWentWrongException from '../exceptions/SomethingWentWrongException';
 class HelperController implements IController {
     public path:string;
     public router:express.IRouter;
@@ -28,7 +29,7 @@ class HelperController implements IController {
     private getAllCategories =  async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
         await categoryModel.find({},'-_id -createdAt -updatedAt -__v',(err,categories)=>{
             if(err){
-                response.status(400).send(err);
+                next(new SomethingWentWrongException());
             }
             else{
                 response.status(200).send(categories);

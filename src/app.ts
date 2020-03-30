@@ -22,16 +22,17 @@ class App {
     this.connectToDatabase();
 
     this.initializeMiddlewares();
-
+    
+    
     this.initializeControllers(controllers);
-
-    this.initializeErrorHandling();
     
     this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
+    
+    this.initializeErrorHandling();
   }
 
   private initializeMiddlewares() {
-    this.app.use(bodyParser.json());
+    this.app.use(bodyParser.json({limit: '100mb'}));
     this.app.use(multer({storage:multer.diskStorage({
       destination:  (req:express.Request, file:Express.Multer.File, cb) => {
           cb(null,path.join(__dirname, './uploads/'))
