@@ -15,10 +15,9 @@ import userModel from '../models/User';
 import SomethingWentWrongException from '../exceptions/SomethingWentWrongException';
 
 class AdminController implements IController {
-    public path:string;
-    public router:express.IRouter;
-    
-    constructor(){
+    public path: string;
+    public router: express.IRouter;
+    constructor() {
         this.path = '/Admin';
         this.router = express.Router();
         this.router.use(authMiddleware);
@@ -30,7 +29,7 @@ class AdminController implements IController {
         this.router.get(`${this.path}/GetAllHelpers`,this.getAllHelpers)
         this.router.get(`${this.path}/GetAllClients`,this.getAllClients)
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        this.router.post(`${this.path}/ApproveHelper`,this.approveHelper);
+        this.router.post(`${this.path}/ApproveHelper`, this.approveHelper);
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.delete(`${this.path}/DeleteUser/:id`,this.deleteUser)
     }
@@ -39,14 +38,13 @@ class AdminController implements IController {
             if(err){
                next(new SomethingWentWrongException());
             }
-            else{
+            else {
                 response.status(200).send(helpers);
             }
         })
     }
     private deleteUser = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        const userID = request.params.id;
-        console.log(userID)     
+        const userID = request.params.id;    
         await userModel.findOneAndRemove({ _id: userID }, (err) => {
             if (err) {
                 next(new SomethingWentWrongException())
@@ -61,7 +59,7 @@ class AdminController implements IController {
             if(err){
                 next(new SomethingWentWrongException());
             }
-            else{
+            else {
                 let returnedClients = [];
                 for(let i=0;i<clients.length;i++){
                 const newClient = clients[i].toObject();
@@ -77,7 +75,7 @@ class AdminController implements IController {
             if(err){
                 next(new SomethingWentWrongException());
             }
-            else{
+            else {
                 response.status(200).send(helpers);
             }
         })
