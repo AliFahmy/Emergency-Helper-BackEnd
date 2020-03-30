@@ -314,31 +314,32 @@
                             "text/plain": {
                                 "schema":{
                                     "type": "string",
-                                    "example":"Category Inserted Successfully"
+                                    "example":"Created Category Successfully"
                                 }
                             }
                         }
                     },
-                    "400": {
+                      "409": {
+                        "description":"Category Already Exists",
                         "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "type": "string",
-                                    "example":"Failed to Insert Category"
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
                         }
-                      },
-                      "401": {
+                    },
+                    "500": {
+                        "description":"Server Error",
                         "content":{
-                            "text/plain": {
-                             "schema":{
-                                  "$ref": "#/definitions/UnAuthorized"
-                                 }
-                            }   
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
                         }
+                    
                     }
-
                 }
             }
         },

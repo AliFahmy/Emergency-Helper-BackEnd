@@ -33,30 +33,7 @@ class App {
 
   private initializeMiddlewares() {
     this.app.use(bodyParser.json({limit: '100mb'}));
-    this.app.use(multer({storage:multer.diskStorage({
-      destination:  (req:express.Request, file:Express.Multer.File, cb) => {
-          cb(null,path.join(__dirname, './uploads/'))
-      },
-      filename:  (req: express.Request, file: Express.Multer.File, cb: any) => {
-          cb(null,`${new Date().toISOString().replace(/:/g, '-')}-${file.originalname}`)
-      }
-  }),fileFilter: (req:express.Request,file:Express.Multer.File,cb) => {
-    if(file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)){
-        cb(null,true);
-    }
-    else{
-      return cb(new Error('This File Type Is Not Supported!'));
-    }
-}}).any());
-  this.app.use(function (req, res, next) {
-    if(req.files){
-      for(var i=0;i<req.files.length;i++){
-        req.body[req.files[i].fieldname] = req.files[i].path;
-      }
-    }
-    next();
-  })
-  this.app.use(cookieParser());
+    this.app.use(cookieParser());
 }
 
  private initializeErrorHandling(){
@@ -75,7 +52,7 @@ class App {
       } = process.env;
 
       mongoose
-        .connect(MONGODB_URL.toString(),{ useNewUrlParser: true,useUnifiedTopology:true,useFindAndModify:false })
+        .connect(MONGODB_URL.toString(),{ useNewUrlParser: true,useUnifiedTopology:true,useFindAndModify:false,useCreateIndex: true})
         .then((result)=>{
             // handle connnection succedded
             console.log("CONNECTED TO DB")
