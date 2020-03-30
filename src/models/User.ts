@@ -42,15 +42,21 @@ const userSchema = new mongoose.Schema({
       type:String,
   },
   mobile:{
-      type:String,
-      required:true
+      type:String
   },
   nationality:{
       type:String,
   },
   picture:{
-      type:String,
-  }
+      type:Buffer,
+  },
+  balance:{
+    type:Number
+  },
+  isApproved:{
+    type:Boolean,
+    default:false
+}
 },baseOptions);
  
 const userModel = mongoose.model<IUser>('User', userSchema);

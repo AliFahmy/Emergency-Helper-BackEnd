@@ -9,6 +9,14 @@
         {
             "name": "Account",
             "description": "API for Accounts in the system"
+        },
+        {
+            "name":"Admin",
+            "description": "API for Admins in the system"
+        },
+        {
+            "name":"Helper",
+            "description": "API for Helpers in the system"
         }
     ],
     "schemes": [
@@ -33,15 +41,15 @@
     "produces": [
         "application/json"
     ],
+
     "paths": {
-        "/api/account/login": {
+        "/api/Account/Login": {
             "post": {
                 "tags": [
                     "Account"
                 ],
                 "summary": "Gets A Token for user",
                 "requestBody": {
-                    "description": "Login Data",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -56,73 +64,466 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description":"Login Success",
                         "content":{
                             "application/json":{
                                 "schema": {
                                     "$ref": "#/definitions/Token"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description":"Incorrect Email or Password",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                    }
+                }
+            }
+            }
+        },
+        "/api/Account/RegisterUser": {
+                "post": {
+                    "tags": [
+                        "Account"
+                    ],
+                    "summary": "Registers Client to the database",
+                    "requestBody": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AccountRegistration"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "201": {
+                            "description":"Registered Successfully",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Token"
+                                    }
+                                }
+                            }
+                        },
+                        "409": {
+                            "description":"Email Already Exists",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
+                        },
+                        "422": {
+                            "description":"Invalid User Role",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
+                        },
+                        "500": {
+                            "description":"Server Error",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        },
+        "/api/Account":{
+                "get":{
+                    "tags":["Account"],
+                    "summary":"Gets all the data of the currently logged in user",
+                    "responses":{
+                        "200":{
+                            "content":{
+                                "application/json": {
+                                    "schema":{
+                                        "$ref": "#/definitions/AccountInformation"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "patch":{
+                    "tags":["Account"],
+                    "summary":"Updates the currently logged in user",
+                    "requestBody": {
+
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AccountUpdate"
+                                }
+                            }
+                        }
+                    },
+                    "responses":{
+                        "200":{
+                            "description":"Updated Successfully",
+                            "content":{
+                                "text/plain": {
+                                    "schema":{
+                                        "type": "string",
+                                        "example":"Updated Successfully"
+                                    }
+                                }
+                            }
+                        },
+                        "500":{
+                            "description":"Server Error",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        },
+        "/api/Account/ChangePassword":{
+            "patch":{
+                "tags":["Account"],
+                "summary":"Updates the password of the currently logged in user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/ChangePassword"
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "204":{
+                        "description":"Password Changed",
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Password Updated Successfully"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description":"Old Password Dosent Match",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                      },
+                      "500": {
+                        "description":"Server Error",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/Helper/Register":{
+            "post":{
+                "tags":["Account"],
+                "summary":"Registers new helper to the system",
+                "requestBody": {
+                    "content": {
+                       "application/json":{
+                           "schema":{
+                               "$ref":"#/definitions/HelperRegister"
+                           }
+                       }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description":"Helper Registered Successfully",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Token"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                            "description":"Email Already Exists",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
+                    },
+                    "500": {
+                            "description":"Server Error",
+                            "content":{
+                                "application/json":{
+                                    "schema": {
+                                        "$ref": "#/definitions/Error"
+                                    }
+                                }
+                            }
+                        
+                    }
+                }
+            }
+        },
+        "/api/Helper/Category":{
+            "post":{
+                "tags":["Helper"],
+                "summary":"Inserts new helper category to the system",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Category"
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "201":{
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Category Inserted Successfully"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Failed. Bad post data."
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Failed to Insert Category"
+                                }
+                            }
+                        }
+                      },
+                      "401": {
+                        "content":{
+                            "text/plain": {
+                             "schema":{
+                                  "$ref": "#/definitions/UnAuthorized"
+                                 }
+                            }   
+                        }
+                    }
+
+                }
+            }
+        },
+        "/api/Helper/AllCategories":{
+            "get":{
+                "tags":["Helper"],
+                "summary":"Gets all the helper categories",
+                "responses":{
+                    "200":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/definitions/AllCategories"
+                                }
+                            }
+                        }
+                },
+                "500": {
+                    "description":"Server Error",
+                    "content":{
+                        "application/json":{
+                            "schema": {
+                                "$ref": "#/definitions/Error"
+                            }
+                        }
+                    }
+                
+            }
+            }
+        }
+        },
+        "/api/Admin/GetAllClients":{
+            "get":{
+                "tags":["Admin"],
+                "summary":"Gets all the clients in the system",
+                "responses":{
+                    "200":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/definitions/AllClients"
+                                }
+                            }
+                        }
+                },
+                "500": {
+                    "description":"Server Error",
+                    "content":{
+                        "application/json":{
+                            "schema": {
+                                "$ref": "#/definitions/Error"
+                            }
+                        }
+                    }
+                }
+            },
+                "401": {
+                    "content":{
+                        "text/plain": {
+                         "schema":{
+                              "$ref": "#/definitions/UnAuthorized"
+                             }
+                        }   
                     }
                 }
             }
         },
-
-        "/api/account/register": {
-            "post": {
+        "/api/Admin/GetAllHelpers": {
+            "get": {
                 "tags": [
-                    "Account"
+                    "Admin"
                 ],
-                "summary": "Registers Client to the database",
-                "requestBody": {
-                    "description": "Register Information",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/definitions/AccountRegistration"
-                            }
-                        }
-                    }
-                },
+                "summary": "Gets all the helpers in the system",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "content":{
-                            "application/json":{
-
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/Token"
+                                    "$ref": "#/definitions/AllHelpers"
                                 }
                             }
                         }
                     },
-                    "404": {
-                        "description": "Failed. Couldn't Register User."
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Get Helpers"
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "content": {
+                        "text/plain": {
+                            "schema": {
+                                "$ref": "#/definitions/UnAuthorized"
+                            }
+                        }
                     }
                 }
             }
         },
-        "/api/account":{
-            "get":{
-                "tags":["Account"],
-                "summary":"Gets all the data of the currently logged in user",
-                "responses":{
-                    "200":{
-                        "description": "A User Object",
-                        "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "$ref": "#/definitions/AccountInformation"
-                                } 
+        "/api/Admin/ApproveHelper": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Approve helper by id",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/id"
                             }
-                        },
-                        "404": {
-                            "description": "Failed. Couldn't Get Information."
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Helper Approved"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Approve Helper"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Admin/DeleteUser/{userID}": {
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete user by id",
+                "parameters": [
+                    {
+                        "name": "userID",
+                        "in": "path",
+                        "description": "User ID to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "User Deleted Successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Delete User"
+                                }
+                            }
                         }
                     }
                 }
@@ -130,11 +531,88 @@
         }
     },
     "definitions": {
+        "Error":{
+            "type": "object",
+            "properties": {
+                "status":{
+                    "type":"number",
+                    "example":500
+                },
+                "message":{
+                    "type":"string",
+                    "example":"Something Went Wrong"
+                }
+            }
+        },
         "Token": {
             "properties": {
                 "token": {
                     "type": "string"
                 }
+            }
+        },
+        "id": {
+            "properties": {
+                "_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "UnAuthorized":{
+            "type": "string",
+            "example":"Unauthorized Account"
+        },
+        "AllHelpers": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/FullAccount"
+            }
+        },  
+        "AllClients":{
+            "type":"array",
+            "items":{
+                "$ref": "#/definitions/FullAccount"
+            }
+        },
+        "FullAccount":{
+            "type": "object",
+            "properties": {
+                "name":{
+                    "type":"object",
+                    "properties":{
+                        "firstName":{
+                            "type":"string"
+                        },
+                        "lastName":{
+                            "type":"string"
+                        }
+                    }
+                 },
+                 "mobile":{
+                     "type":"string"
+                 },
+                 "email":{
+                     "type":"string"
+                 },
+                 "isApproved":{
+                     "type":"boolean"
+                 },
+                 "_id":{
+                     "type":"string"
+                 },
+                 "balance":{
+                     "type":"number"
+                 },
+                 "picture":{
+                     "type":"string",
+                     "format":"byte"
+                 },
+                 "nationality":{
+                     "type":"string"
+                 },
+                 "gender":{
+                     "type":"string"
+                 }
             }
         },
         "Account": {
@@ -145,6 +623,80 @@
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "AllCategories":{
+            "type":"array",
+            "items":{
+                "$ref": "#/definitions/Category"
+            }
+        },
+        "AccountUpdate":{
+            "type":"object",
+            "properties":{
+                "email": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "picture":{
+                    "type":"string",
+                    "format":"byte"
+                }
+            }
+        },
+        "HelperRegister":{
+            "type":"object",
+            "properties":{
+                "name":{
+                   "type":"object",
+                   "properties":{
+                       "firstName":{
+                           "type":"string"
+                       },
+                       "lastName":{
+                           "type":"string"
+                       }
+                   }
+                },
+                "email":{
+                    "type":"string"
+                },
+                "mobile":{
+                    "type":"string"
+                },
+                "password":{
+                    "type":"string"
+                },
+                "skills":{
+                    "type":"string"
+                },
+                "categories":{
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    }
+                },
+                "picture":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "frontID":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "backID":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "certificate":{
+                    "type":"string",
+                    "format":"byte"
                 }
             }
         },
@@ -176,6 +728,14 @@
                 }
             }
         },
+        "Category":{
+            "type":"object",
+            "properties":{
+                "name":{
+                    "type":"string"
+                }
+            }
+        },
         "AccountInformation":{
             "type":"object",
             "properties":{
@@ -187,6 +747,20 @@
                         },
                         "lastName":{
                             "type":"string"
+                        }
+                    }
+                },
+                "birthDate":{
+                    "type":"object",
+                    "properties":{
+                        "day":{
+                            "type":"number"
+                        },
+                        "month":{
+                            "type":"number"
+                        },
+                        "year":{
+                            "type":"number"
                         }
                     }
                 },
@@ -208,8 +782,32 @@
                 "picture":{
                     "type":"string",
                     "format":"byte"
+                },
+                "balance":{
+                    "type":"number"
+                },
+                "isApproved":{
+                    "type":"boolean"
                 }
             }
+        },
+        "ChangePassword":{
+            "properties":{
+                "oldPassword":{
+                    "type":"string"
+                },
+                "newPassword":{
+                    "type":"string"
+                }
+            }
+        },
+        "Picture":{
+            "properties":{
+                "picture":{
+                    "type":"string",
+                    "format":"byte"    
+                }
+            }  
         }
     }
 }

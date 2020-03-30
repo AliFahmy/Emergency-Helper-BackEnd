@@ -15,10 +15,6 @@ const addressSchema = new mongoose.Schema({
             type:Number,
             required:true
         }
-    },
-    Client:{
-        ref: 'Client',
-        type: mongoose.Schema.Types.ObjectId,
     }
 })
 

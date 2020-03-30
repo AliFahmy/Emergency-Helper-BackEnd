@@ -1,23 +1,35 @@
-import { IsString,IsEmail,IsNumber,ValidateNested, IsBoolean, IsArray } from 'class-validator';
-import CreateUserDTO from './userDTO';
-class HelperDTO extends CreateUserDTO {
-    @IsString()
-    public bankAccount: string;
+import { IsString,IsEmail,ValidateNested,IsBase64,IsArray} from 'class-validator';
+import NameDTO from './nameDTO';
+
+class HelperDTO {
+    @ValidateNested()
+    public name: NameDTO;
+
+    @IsEmail()
+    public email: string;
 
     @IsString()
-    public cv_url: string;
-    
-    @IsBoolean()
-    public isApproved:boolean;
-
-    @IsNumber()
-    public nationalNumberId:number;
+    public password: string;
 
     @IsString()
-    public nationalCardPhoto:string;
+    public mobile : string;
 
     @IsArray()
-    public files:Express.Multer.File[];
-  
+    public categories: string[];
+
+    @IsString()
+    public skills:string;
+
+    @IsBase64()
+    public frontID:string;
+
+    @IsBase64()
+    public backID:string;
+
+    @IsBase64()
+    public certificate:string;
+
+    @IsBase64()
+    public picture:string;
 }
 export default HelperDTO;
