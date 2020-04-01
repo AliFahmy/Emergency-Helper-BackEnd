@@ -529,6 +529,44 @@
                     }
                 }
             }
+        },
+        "/api/Account/ValidateToken":{
+            "get":{
+                "tags":["Account"],
+                "summary":"Validates Token in authorization header",
+                "responses":{
+                    "200":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "type":"object",
+                                    "properties":{
+                                        "result":{
+                                            "type":"boolean",
+                                            "example":true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "type":"object",
+                                    "properties":{
+                                        "result":{
+                                            "type":"boolean",
+                                            "example":false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -726,7 +764,7 @@
                 },
                 "userRole":{
                     "type":"number"
-                }
+                }   
             }
         },
         "Category":{

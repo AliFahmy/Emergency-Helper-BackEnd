@@ -49,6 +49,7 @@ class AccountController implements IController {
         this.router.post(`${this.path}/RegisterUser`,validationMiddleware(CreateUserDTO),this.register);
         this.router.post(`${this.path}/Helper/Register`,validationMiddleware(HelperDTO),this.helperRegistration);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        this.router.get(`${this.path}/ValidateToken`,this.validateToken);
         this.router.get(`${this.path}`,authMiddleware,this.getAccount);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}`,authMiddleware,validationMiddleware(UpdateAccountDTO,true),this.updateAccount);
@@ -108,6 +109,21 @@ class AccountController implements IController {
         return {
             token: jwt.sign(dataStoredInToken,secret)
         };
+    }
+    private validateToken =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
+            if(request.headers['authorization']){
+                jwt.verify(request.headers['authorization'].split(" ")[1],process.env.JWT_SECRET,(err,decoded)=>{
+                if(err){
+                    response.status(401).send({result:false});
+                }
+                else{
+                    response.status(200).send({result:true});
+                }
+            });
+            }
+            else{
+                response.status(401).send({result:false});
+            }
     }
     private getAccount =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
             let account:IUser = await userModel.findById(request.user._id,' -password -categories -_id -createdAt -updatedAt -__v');
