@@ -1,6 +1,7 @@
 import { Document} from "mongoose";
 interface IUser extends Document{
     _id: string;
+    verificationToken:string;
     name:{
         firstName:string;
         lastName:string;
@@ -18,5 +19,6 @@ interface IUser extends Document{
   picture:Buffer;
   balance:number;
   role:string;
+  isApproved:boolean;
 }
 export default IUser;

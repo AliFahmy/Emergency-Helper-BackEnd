@@ -25,13 +25,15 @@ import LogInDto from '../dto/loginDTO';
 import HelperDTO from '../dto/helperDTO';
 import UpdateAccountDTO from '../dto/updateAccountDTO';
 import UpdatePasswordDTO from './../dto/UpdatePasswordDTO';
-import UpdatePictureDTO from './../dto/updatePictureDTO';
 /////////////////////////////////////////
 import WrongCredentialsException from '../exceptions/WrongCredentialsException';
 import WrongUserRoleException from './../exceptions/WrongUserRoleException';
 import UserWithThatEmailAlreadyExistsException from '../exceptions/UserWithThatEmailAlreadyExistsException';
 import SomethingWentWrongException from './../exceptions/SomethingWentWrongException';
 import OldPasswordDosentMatchException from './../exceptions/OldPasswordDosentMatchException';
+import UserIsNotApprovedException from './../exceptions/UserIsNotApprovedException';
+////////////////////////////////////////
+import sendEmail from '../modules/sendEmail';
 
 
 class AccountController implements IController {
@@ -51,6 +53,7 @@ class AccountController implements IController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.get(`${this.path}/ValidateToken`,this.validateToken);
         this.router.get(`${this.path}`,authMiddleware,this.getAccount);
+        this.router.get(`${this.path}/VerifyAccount/:verificationToken`,this.verifyAccount);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}`,authMiddleware,validationMiddleware(UpdateAccountDTO,true),this.updateAccount);
         //this.router.patch(`${this.path}/Picture`,authMiddleware,validationMiddleware(UpdatePictureDTO),this.updatePicture);
@@ -77,6 +80,7 @@ class AccountController implements IController {
             });
             // negrb ne3ml middleware yehwl kol al base64 le buffer 
             try{
+                const verificationToken = jwt.sign({email:userData.email},process.env.JWT_SECRET);
                 await helperModel.create({
                     ...userData,
                     picture:Buffer.from(userData.picture,'base64'),
@@ -84,15 +88,19 @@ class AccountController implements IController {
                     backID:Buffer.from(userData.backID,'base64'),
                     certificate:Buffer.from(userData.certificate,'base64'),
                     categories:categoriesid,
-                    password:hashedPassword
-                },(err:any,helper:IHelper)=>{
+                    password:hashedPassword,
+                    verificationToken:verificationToken
+                },async (err:any,helper:IHelper)=>{
                     if(err){
                         next(new SomethingWentWrongException());
                     }
                     else{
-                        helper.password = undefined;
-                        const tokenData = this.createToken(helper);
-                        response.status(201).send(tokenData);
+                        if(this.sendRegistrationMail(helper.name.firstName,helper.verificationToken,helper.email)){
+                            response.status(201).send("Registered Successfully Verify Your Email!");
+                        }
+                        else{
+                            response.status(201).send("Registered Successfully!");    
+                        }
                     }
                 });
             }
@@ -100,6 +108,13 @@ class AccountController implements IController {
                 next(new SomethingWentWrongException());
             }
         }
+    }
+    private async sendRegistrationMail(name:string,token:string,email:string){
+        const url = `https://emergency-helper.herokuapp.com/api/Account/VerifyAccount/${token}`;
+        const body = `Dear ${name},\n Thank you for registiring in Emergency Helper, in order to confirm your account please follow this link ${url}.\n Thanks \n Emergency Helper Team `
+        const sendMail = new sendEmail();
+        let response =  await sendMail.sendMail(email,"Emergency Helper Confirmation Required",body);
+        return response;
     }
     private createToken(user:IUser) : ITokenData{
         const secret = process.env.JWT_SECRET;
@@ -131,17 +146,36 @@ class AccountController implements IController {
             returnedAccount.picture = account.picture.toString('base64');
             response.status(200).send(returnedAccount);
     }
-    private updatePicture = async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
-        const body : UpdatePictureDTO = request.body;
-        const picture = Buffer.from(body.picture,'base64');
-        await userModel.findByIdAndUpdate(request.user._id,{$set:{picture}},(err,user:IUser)=>{
+    private verifyAccount =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
+        const token = request.params.verificationToken;
+        jwt.verify(token,process.env.JWT_SECRET,async (err,decoded)=>{
             if(err){
                 next(new SomethingWentWrongException());
             }
             else{
-                response.status(200).send("Updated Successfully");
+                await userModel.findOne({email:decoded['email']},async (err,user:IUser)=>{
+                    if(err){
+                        console.log(err);
+                    }
+                    else{
+                        if(user.isApproved){
+                            response.status(200).send("User Already Verified");
+                        }
+                        else{
+                            user.isApproved = true;
+                            await user.save((err)=>{
+                                if(err){
+                                    next(new SomethingWentWrongException());
+                                }
+                                else{
+                                    response.status(201).send("Verified Successfully");
+                                }
+                            })
+                        }
+                    }
+                })
             }
-        })
+        });
     }
     private updateAccount = async (request:IRequestWithUser,response:express.Response,next:express.NextFunction)=>{
         let newData:any = request.body;
@@ -191,18 +225,29 @@ class AccountController implements IController {
                 next(new WrongUserRoleException());
             }
             try{
-                const user = await model.create({
+                const verificationToken = jwt.sign({email:userData.email},process.env.JWT_SECRET);
+                await model.create({
                     ...userData,
-                    password:hashedPassword
+                    password:hashedPassword,
+                    verificationToken:verificationToken
+                },(err,user:IUser)=>{
+                    if(err){
+                        next(new SomethingWentWrongException());
+                    }
+                    else{
+                        user.password = undefined;
+                        if(this.sendRegistrationMail(user.name.firstName,user.verificationToken,user.email)){
+                            response.status(201).send("Registered Successfully Verify Your Email!");
+                        }
+                        else{
+                            response.status(201).send("Registered Successfully!");    
+                        }
+                    }
                 });
-                user.password = undefined;
-                const tokenData = this.createToken(user);
-                response.status(201).send(tokenData);
             }
             catch{
                 next(new SomethingWentWrongException());
             }
-
         }
     }
     private login = async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
@@ -212,8 +257,18 @@ class AccountController implements IController {
             const isPasswordMatching = await bcrypt.compare(logInData.password,user.password);
             if(isPasswordMatching){
                 user.password = undefined;
-                const tokenData = this.createToken(user);
-                response.status(200).send(tokenData);
+                if(user.isApproved){
+                    const tokenData = this.createToken(user);
+                    response.status(200).send(tokenData); 
+                }
+                else{
+                    if(this.sendRegistrationMail(user.name.firstName,user.verificationToken,user.email)){
+                        next(new UserIsNotApprovedException(user.email));
+                    }
+                    else{
+                        next(new SomethingWentWrongException());
+                    }
+                }
             }
             else{
                 next(new WrongCredentialsException());

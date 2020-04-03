@@ -56,6 +56,9 @@ const userSchema = new mongoose.Schema({
   isApproved:{
     type:Boolean,
     default:false
+},
+verificationToken:{
+  type:String
 }
 },baseOptions);
  

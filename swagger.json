@@ -105,9 +105,10 @@
                         "201": {
                             "description":"Registered Successfully",
                             "content":{
-                                "application/json":{
+                                "text/plain": {
                                     "schema": {
-                                        "$ref": "#/definitions/Token"
+                                        "type": "string",
+                                        "example": "Registered Successfully"
                                     }
                                 }
                             }
@@ -264,9 +265,10 @@
                     "201": {
                         "description":"Helper Registered Successfully",
                         "content":{
-                            "application/json":{
+                            "text/plain": {
                                 "schema": {
-                                    "$ref": "#/definitions/Token"
+                                    "type": "string",
+                                    "example": "Registered Successfully"
                                 }
                             }
                         }

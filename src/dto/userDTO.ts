@@ -1,5 +1,4 @@
 import { IsString,IsEmail,IsNumber,ValidateNested, } from 'class-validator';
-import BirthDateDTO from './birthDateDTO';
 import NameDTO from './nameDTO';
 
 class CreateUserDTO {
