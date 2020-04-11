@@ -1,1 +1,1 @@
-web: node --experimental-modules ./src/index.js
+web: node --experimental-modules ./src/server.ts
