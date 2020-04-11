@@ -4,10 +4,8 @@ import * as mongoose from 'mongoose';
 import IController from './interfaces/IController';
 import * as cookieParser from 'cookie-parser';
 import errorMiddleware from './middlewares/errorMiddleware';
-import * as multer from 'multer';
 import * as swaggerUi from 'swagger-ui-express';
 import * as swaggerDocument from '../swagger.json';
-import * as path from 'path';
 
 class App {
 
