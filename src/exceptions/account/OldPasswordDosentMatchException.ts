@@ -1,4 +1,4 @@
-import HttpException from './HttpException';
+import HttpException from '../HttpException';
 
 class OldPasswordDosentMatchException extends HttpException {
   constructor() {

@@ -1,12 +1,20 @@
 import * as mongoose from 'mongoose';
-import IAcceptedRequest from './../interfaces/request/IAcceptedRequest';
+import ISupportTicket from '../../interfaces/ISupportTicket';
 
 const baseOptions = {
     timestamps:true
   };
 
-const acceptedRequestSchema = new mongoose.Schema({
-    arrivesAt:{
+const supportTicketSchema = new mongoose.Schema({
+    description:{
+        type:String,
+        required:true
+    },
+    title:{
+        type:String,
+        required:true
+    },
+    date:{
         year:{
             type:Number,
             required:true
@@ -28,16 +36,12 @@ const acceptedRequestSchema = new mongoose.Schema({
             required:true
         }
     },
-    price:{
-        type:Number,
-        required:true
-    },
-    request:{
-        ref:'Request',
-        type:mongoose.Schema.Types.ObjectId
+    category:{
+        ref: 'SupportTicketCategory',
+        type: mongoose.Schema.Types.ObjectId
     }
 },baseOptions)
 
-const acceptedRequestModel = mongoose.model<IAcceptedRequest>('AcceptedRequest',acceptedRequestSchema);
-
-export default acceptedRequestModel;
+const supportTicketModel = mongoose.model<ISupportTicket>('SupportTicket', supportTicketSchema);
+ 
+export default supportTicketModel;

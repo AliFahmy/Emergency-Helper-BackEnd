@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import IFinishedRequest from './../interfaces/request/IFinishedRequest';
+import IFinishedRequest from '../../interfaces/request/IFinishedRequest';
 
 const baseOptions = {
     timestamps:true

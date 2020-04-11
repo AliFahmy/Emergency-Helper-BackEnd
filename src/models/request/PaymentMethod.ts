@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose'
-import IPaymentMethod from './../interfaces/IPaymentMethod';
+import IPaymentMethod from '../../interfaces/IPaymentMethod';
 
 const baseOptions = {
     timestamps:true

@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose'
-import IReceipt from './../interfaces/IReceipt';
+import IReceipt from '../../interfaces/IReceipt';
 
 const baseOptions = {
     timestamps:true

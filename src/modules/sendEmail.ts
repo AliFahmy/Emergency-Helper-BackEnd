@@ -1,6 +1,6 @@
 import * as nodemailer from 'nodemailer';
 
-export class sendEmail {
+class sendEmail {
     private _transporter: nodemailer.Transporter;
     constructor() {
         this._transporter = nodemailer.createTransport({
@@ -11,7 +11,7 @@ export class sendEmail {
             }
         });
     }
-    public async sendMail(to: string, subject: string, content: string){
+    public sendMail(to: string, subject: string, content: string) : Promise<boolean>{
         let options = {
             from: '"Emergency Helper" <EmergencyHelperStartup@gmail.com>',
             to: to,
@@ -22,13 +22,18 @@ export class sendEmail {
             this._transporter.sendMail(
                 options,(error, info) => {
                     if (error) {
-                        resolve(false)
+                        reject(false)
                     }
                     else{
                         resolve(true)
                     }
                 });
         })
+        }
+    public async sendRegistrationMail(name:string,token:string,email:string):Promise<boolean>{
+            const url = `https://emergency-helper.herokuapp.com/api/Account/VerifyAccount/${token}`;
+            const body = `Dear ${name},\n Thank you for registiring in Emergency Helper, in order to confirm your account please follow this link ${url}.\n Thanks \n Emergency Helper Team `
+            return await this.sendMail(email,"Emergency Helper Confirmation Required",body).then(result=>result).catch(result=>result);
         }
 }
 

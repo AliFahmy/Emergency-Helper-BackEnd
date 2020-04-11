@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import User from './User';
-import IClient from '../interfaces/user/IClient';
+import IClient from '../../interfaces/user/IClient';
 
 const Client = User.discriminator('Client',new mongoose.Schema({
     savedAddresses:[

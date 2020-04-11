@@ -8,7 +8,11 @@
     "tags": [
         {
             "name": "Account",
-            "description": "API for Accounts in the system"
+            "description": "API for Account Managment in the system"
+        },
+        {
+            "name": "Client",
+            "description": "API for Clients in the system"
         },
         {
             "name":"Admin",
@@ -43,12 +47,100 @@
     ],
 
     "paths": {
-        "/api/Account/Login": {
+        "/api/Account/ValidateToken":{
+            "get":{
+                "tags":["Account"],
+                "summary":"Validates Token in authorization header",
+                "responses":{
+                    "200":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "type":"object",
+                                    "properties":{
+                                        "result":{
+                                            "type":"boolean",
+                                            "example":true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "type":"object",
+                                    "properties":{
+                                        "result":{
+                                            "type":"boolean",
+                                            "example":false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/ChangePassword":{
+            "patch":{
+                "tags":["Account"],
+                "summary":"Updates the password of the currently logged in user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/ChangePassword"
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "200":{
+                        "description":"Password Changed",
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Password Updated Successfully"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description":"Old Password Dosent Match",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                      },
+                      "500": {
+                        "description":"Server Error",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+
+        
+        "/api/Client/Login": {
             "post": {
                 "tags": [
-                    "Account"
+                    "Client"
                 ],
-                "summary": "Gets A Token for user",
+                "summary": "Gets A Token for client",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -86,17 +178,17 @@
             }
             }
         },
-        "/api/Account/RegisterUser": {
+        "/api/Client/Register": {
                 "post": {
                     "tags": [
-                        "Account"
+                        "Client"
                     ],
                     "summary": "Registers Client to the database",
                     "requestBody": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/AccountRegistration"
+                                    "$ref": "#/definitions/ClientRegistration"
                                 }
                             }
                         }
@@ -146,16 +238,16 @@
                     }
                 }
         },
-        "/api/Account":{
+        "/api/Client":{
                 "get":{
-                    "tags":["Account"],
-                    "summary":"Gets all the data of the currently logged in user",
+                    "tags":["Client"],
+                    "summary":"Gets all the data of the currently logged in client",
                     "responses":{
                         "200":{
                             "content":{
                                 "application/json": {
                                     "schema":{
-                                        "$ref": "#/definitions/AccountInformation"
+                                        "$ref": "#/definitions/ClientInformation"
                                     }
                                 }
                             }
@@ -163,14 +255,14 @@
                     }
                 },
                 "patch":{
-                    "tags":["Account"],
-                    "summary":"Updates the currently logged in user",
+                    "tags":["Client"],
+                    "summary":"Updates the currently logged in Client",
                     "requestBody": {
 
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/AccountUpdate"
+                                    "$ref": "#/definitions/ClientUpdate"
                                 }
                             }
                         }
@@ -200,63 +292,59 @@
                     }
                 }
         },
-        "/api/Account/ChangePassword":{
-            "patch":{
-                "tags":["Account"],
-                "summary":"Updates the password of the currently logged in user",
+
+        "/api/Helper/Login": {
+            "post": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Gets A Token for helper",
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/definitions/ChangePassword"
+                                "$ref": "#/definitions/Account"
                             }
                         }
                     }
                 },
-                "responses":{
-                    "204":{
-                        "description":"Password Changed",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description":"Login Success",
                         "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "type": "string",
-                                    "example":"Password Updated Successfully"
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Token"
                                 }
                             }
                         }
                     },
-                    "409": {
-                        "description":"Old Password Dosent Match",
+                    "401": {
+                        "description":"Incorrect Email or Password",
                         "content":{
                             "application/json":{
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
                             }
-                        }
-                      },
-                      "500": {
-                        "description":"Server Error",
-                        "content":{
-                            "application/json":{
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
-                                }
-                            }
-                        }
                     }
                 }
             }
+            }
         },
-        "/api/Account/Helper/Register":{
+        "/api/Helper/Register":{
             "post":{
-                "tags":["Account"],
+                "tags":["Helper"],
                 "summary":"Registers new helper to the system",
                 "requestBody": {
                     "content": {
                        "application/json":{
                            "schema":{
-                               "$ref":"#/definitions/HelperRegister"
+                               "$ref":"#/definitions/HelperRegistration"
                            }
                        }
                     }
@@ -297,6 +385,59 @@
                 }
             }
         },
+        "/api/Helper":{
+            "get":{
+                "tags":["Helper"],
+                "summary":"Gets all the data of the currently logged in helper",
+                "responses":{
+                    "200":{
+                        "content":{
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/definitions/HelperInformation"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch":{
+                "tags":["Helper"],
+                "summary":"Updates the currently logged in Helper",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/HelperUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "200":{
+                        "description":"Updated Successfully",
+                        "content":{
+                            "text/plain": {
+                                "schema":{
+                                    "type": "string",
+                                    "example":"Updated Successfully"
+                                }
+                            }
+                        }
+                    },
+                    "500":{
+                        "description":"Server Error",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    },
         "/api/Helper/Category":{
             "post":{
                 "tags":["Helper"],
@@ -372,6 +513,51 @@
             }
             }
         }
+        },
+
+
+        "/api/Admin/Login": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Gets A Token for admin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Account"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description":"Login Success",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Token"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description":"Incorrect Email or Password",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                    }
+                }
+            }
+            }
         },
         "/api/Admin/GetAllClients":{
             "get":{
@@ -531,44 +717,6 @@
                     }
                 }
             }
-        },
-        "/api/Account/ValidateToken":{
-            "get":{
-                "tags":["Account"],
-                "summary":"Validates Token in authorization header",
-                "responses":{
-                    "200":{
-                        "content":{
-                            "application/json": {
-                                "schema":{
-                                    "type":"object",
-                                    "properties":{
-                                        "result":{
-                                            "type":"boolean",
-                                            "example":true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401":{
-                        "content":{
-                            "application/json": {
-                                "schema":{
-                                    "type":"object",
-                                    "properties":{
-                                        "result":{
-                                            "type":"boolean",
-                                            "example":false
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -673,7 +821,7 @@
                 "$ref": "#/definitions/Category"
             }
         },
-        "AccountUpdate":{
+        "ClientUpdate":{
             "type":"object",
             "properties":{
                 "email": {
@@ -691,7 +839,45 @@
                 }
             }
         },
-        "HelperRegister":{
+        "HelperUpdate":{
+            "type":"object",
+            "properties":{
+                "email": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "picture":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "bankAccount":{
+                    "type":"string"
+                },
+                "location":{
+                    "type":"object",
+                    "properties":{
+                        "locationX":{
+                            "type":"number"
+                        },
+                        "locationY":{
+                            "type":"number"
+                        }
+                    }
+                },
+                "isActive":{
+                    "type":"boolean"
+                },
+                "skills":{
+                    "type":"string"
+                }
+            }
+        },       
+        "HelperRegistration":{
             "type":"object",
             "properties":{
                 "name":{
@@ -741,7 +927,7 @@
                 }
             }
         },
-        "AccountRegistration":{
+        "ClientRegistration":{
             "type":"object",
             "properties":{
                 "name":{
@@ -763,10 +949,7 @@
                 },
                 "password":{
                     "type":"string"
-                },
-                "userRole":{
-                    "type":"number"
-                }   
+                }  
             }
         },
         "Category":{
@@ -777,7 +960,7 @@
                 }
             }
         },
-        "AccountInformation":{
+        "ClientInformation":{
             "type":"object",
             "properties":{
                 "name":{
@@ -805,9 +988,6 @@
                         }
                     }
                 },
-                "role":{
-                    "type":"string"
-                },
                 "email":{
                     "type":"string"
                 },
@@ -828,6 +1008,85 @@
                     "type":"number"
                 },
                 "isApproved":{
+                    "type":"boolean"
+                }
+            }
+        },
+        "HelperInformation":{
+            "type":"object",
+            "properties":{
+                "name":{
+                    "type":"object",
+                    "properties":{
+                        "firstName":{
+                            "type":"string"
+                        },
+                        "lastName":{
+                            "type":"string"
+                        }
+                    }
+                },
+                "birthDate":{
+                    "type":"object",
+                    "properties":{
+                        "day":{
+                            "type":"number"
+                        },
+                        "month":{
+                            "type":"number"
+                        },
+                        "year":{
+                            "type":"number"
+                        }
+                    }
+                },
+                "email":{
+                    "type":"string"
+                },
+                "gender":{
+                    "type":"string"
+                },
+                "mobile":{
+                    "type":"string"
+                },
+                "nationality":{
+                    "type":"string"
+                },
+                "picture":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "balance":{
+                    "type":"number"
+                },
+                "certificate":{
+                    "type":"string",
+                    "format":"byte"
+                },
+                "bankAccount":{
+                    "type":"string"
+                },
+                "location":{
+                    "type":"object",
+                    "properties":{
+                        "locationX":{
+                            "type":"number"
+                        },
+                        "locationY":{
+                            "type":"number"
+                        }
+                    }
+                },
+                "skills":{
+                    "type":"string"
+                },
+                "categories":{
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    }
+                },
+                "isActive":{
                     "type":"boolean"
                 }
             }

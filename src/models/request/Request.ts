@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import IRequest from './../interfaces/request/IRequest';
+import IRequest from '../../interfaces/request/IRequest';
 
 const baseOptions = {
   timestamps:true

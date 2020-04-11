@@ -1,10 +1,7 @@
 import { IsString,IsEmail,IsNumber,ValidateNested, } from 'class-validator';
-import NameDTO from './nameDTO';
+import NameDTO from '../nameDTO';
 
-class CreateUserDTO {
-  @IsNumber()
-  public userRole:number;
-  
+class ClientRegistrationDTO {
   @ValidateNested()
   public name: NameDTO;
 
@@ -16,7 +13,6 @@ class CreateUserDTO {
 
   @IsString()
   public mobile : string;
-  
 }
 
-export default CreateUserDTO;
+export default ClientRegistrationDTO;

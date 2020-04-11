@@ -1,7 +1,7 @@
 import { IsString,IsEmail,ValidateNested,IsBase64,IsArray} from 'class-validator';
-import NameDTO from './nameDTO';
+import NameDTO from '../nameDTO';
 
-class HelperDTO {
+class HelperRegistrationDTO {
     @ValidateNested()
     public name: NameDTO;
 
@@ -20,16 +20,16 @@ class HelperDTO {
     @IsString()
     public skills:string;
 
-    @IsBase64()
+    @IsString()
     public frontID:string;
 
-    @IsBase64()
+    @IsString()
     public backID:string;
 
-    @IsBase64()
+    @IsString()
     public certificate:string;
 
-    @IsBase64()
+    @IsString()
     public picture:string;
 }
-export default HelperDTO;
+export default HelperRegistrationDTO;

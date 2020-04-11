@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import User from './User';
-import IHelper from './../interfaces/user/IHelper';
+import IHelper from '../../interfaces/user/IHelper';
 
 const Helper = User.discriminator('Helper',new mongoose.Schema({
     certificate:{
@@ -33,7 +33,11 @@ const Helper = User.discriminator('Helper',new mongoose.Schema({
     skills:{
         type:String
     },
-    categories:[{
+    adminApproved:{
+        type:Boolean,
+        default:false
+    },
+    categoriesID:[{
         ref: 'Category',
         type: mongoose.Schema.Types.ObjectId,
     }]

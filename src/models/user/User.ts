@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import IUser from '../interfaces/user/IUser';
+import IUser from '../../interfaces/user/IUser';
 
 
 const baseOptions = {
