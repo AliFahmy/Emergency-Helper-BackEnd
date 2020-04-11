@@ -11,7 +11,7 @@ import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
 /////////////////////////////////////////
 import userModel from '../models/user/User';
 /////////////////////////////////////////
-import UpdatePasswordDTO from '../dto/updatePasswordDTO';
+import UpdatePasswordDTO from '../dto/UpdatePasswordDTO';
 /////////////////////////////////////////
 import SomethingWentWrongException from './../exceptions/SomethingWentWrongException';
 import OldPasswordDosentMatchException from '../exceptions/account/OldPasswordDosentMatchException';
