@@ -22,72 +22,73 @@ import UserIsNotApprovedException from '../exceptions/account/UserIsNotApprovedE
 ////////////////////////////////////////
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
+import Response from '../modules/Response';
 
 
 class ClientController implements IController {
-    public path:string;
-    public router:express.IRouter;
-    private tokenManager:TokenManager;
-    private mailer:sendEmail;
-    constructor(){
+    public path: string;
+    public router: express.IRouter;
+    private tokenManager: TokenManager;
+    private mailer: sendEmail;
+    constructor() {
         this.path = '/Client';
         this.router = express.Router();
         this.tokenManager = new TokenManager();
         this.mailer = new sendEmail();
         this.initializeRoutes();
     }
-    private initializeRoutes(){
-        this.router.post(`${this.path}/Login`,validationMiddleware(LogInDto),this.login);
-        this.router.post(`${this.path}/Register`,validationMiddleware(ClientRegistrationDTO),this.register);
+    private initializeRoutes() {
+        this.router.post(`${this.path}/Login`, validationMiddleware(LogInDto), this.login);
+        this.router.post(`${this.path}/Register`, validationMiddleware(ClientRegistrationDTO), this.register);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        this.router.get(`${this.path}`,authMiddleware,this.getAccount);
+        this.router.get(`${this.path}`, authMiddleware, this.getAccount);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        this.router.patch(`${this.path}`,authMiddleware,validationMiddleware(UpdateClientDTO),this.updateAccount);
+        this.router.patch(`${this.path}`, authMiddleware, validationMiddleware(UpdateClientDTO), this.updateAccount);
     }
-    private getAccount =  async (request:IRequestWithUser,response:express.Response,next:express.NextFunction) =>{
-            let account:IUser = await clientModel.findById(request.user._id,' -password  -verificationToken -_id -createdAt -updatedAt -__v');
-            let returnedAccount = account.toObject();
-            returnedAccount.picture = account.picture.toString('base64');
-            response.status(200).send(returnedAccount);
+    private getAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+        let account: IUser = await clientModel.findById(request.user._id, ' -password  -verificationToken -_id -createdAt -updatedAt -__v');
+        let returnedAccount = account.toObject();
+        returnedAccount.picture = account.picture.toString('base64');
+        response.status(200).send(new Response(undefined,{returnedAccount}).getData());
     }
-    private updateAccount = async (request:IRequestWithUser,response:express.Response,next:express.NextFunction)=>{
-        let newData:UpdateClientDTO = request.body;
-        if(newData.picture){
-            newData.picture = Buffer.from(newData.picture,'base64');
+    private updateAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+        let newData: UpdateClientDTO = request.body;
+        if (newData.picture) {
+            newData.picture = Buffer.from(newData.picture, 'base64');
         }
-        let newUser = await clientModel.findByIdAndUpdate(request.user._id,{$set:newData});
-        if(newUser){
-                response.status(200).send("Updated Successfuly");
-            }
-        else{
-                next(new SomethingWentWrongException());
-            }
+        let newUser = await clientModel.findByIdAndUpdate(request.user._id, { $set: newData });
+        if (newUser) {
+            response.status(200).send(new Response('Updated Successfuly!').getData());
+        }
+        else {
+            next(new SomethingWentWrongException());
+        }
     }
-    private register = async (request:express.Request,response:express.Response,next:express.NextFunction) => {
-        const userData:ClientRegistrationDTO = request.body;
-        if( await clientModel.findOne({email:userData.email})){
+    private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        const userData: ClientRegistrationDTO = request.body;
+        if (await clientModel.findOne({ email: userData.email })) {
             next(new UserWithThatEmailAlreadyExistsException(userData.email));
         }
-        else{
-            const hashedPassword = await bcrypt.hash(userData.password,10);
-            try{
-                const verificationToken = this.tokenManager.getToken({email:userData.email});
+        else {
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
+            try {
+                const verificationToken = this.tokenManager.getToken({ email: userData.email });
                 await clientModel.create({
                     ...userData,
-                    password:hashedPassword,
-                    verificationToken:verificationToken
-                },(err:any,user:IUser)=>{
-                    if(err){
+                    password: hashedPassword,
+                    verificationToken: verificationToken
+                }, (err: any, user: IUser) => {
+                    if (err) {
                         next(new SomethingWentWrongException());
                     }
-                    else{
+                    else {
                         user.password = undefined;
-                        this.mailer.sendRegistrationMail(user.name.firstName,user.verificationToken,user.email)
-                        .then(result=>{
-                            response.status(201).send("Client Registered Successfully,Please Verify Your Email!");
-                        }).catch(result=>{
-                            response.status(201).send("Registered Successfully!");    
-                        });
+                        this.mailer.sendRegistrationMail(user.name.firstName, user.verificationToken, user.email)
+                            .then(result => {
+                                response.status(201).send(new Response('Client Registered Successfully\nPlease Verify Your Email!').getData());
+                            }).catch(result => {
+                                response.status(201).send(new Response('Registered Successfully!').getData());
+                            });
                     }
                 });
             }
@@ -96,31 +97,31 @@ class ClientController implements IController {
             }
         }
     }
-    private login = async (request:express.Request,response:express.Response,next:express.NextFunction) =>{
-        const logInData:LogInDto = request.body;
-        const user = await clientModel.findOne({email:logInData.email});
-        if(user){
-            const isPasswordMatching = await bcrypt.compare(logInData.password,user.password);
-            if(isPasswordMatching){
+    private login = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        const logInData: LogInDto = request.body;
+        const user = await clientModel.findOne({ email: logInData.email });
+        if (user) {
+            const isPasswordMatching = await bcrypt.compare(logInData.password, user.password);
+            if (isPasswordMatching) {
                 user.password = undefined;
-                if(user.isApproved){
-                    const token = this.tokenManager.getToken({_id:user._id});
-                    response.status(200).send({token}); 
+                if (user.isApproved) {
+                    const token = this.tokenManager.getToken({ _id: user._id });
+                    response.status(200).send(new Response('Login success', { token }).getData());
                 }
-                else{
-                    this.mailer.sendRegistrationMail(user.name.firstName,user.verificationToken,user.email)
-                    .then(result=>{
-                        next(new UserIsNotApprovedException(user.email));
-                    }).catch(result=>{
-                        next(new SomethingWentWrongException());
-                    });
+                else {
+                    this.mailer.sendRegistrationMail(user.name.firstName, user.verificationToken, user.email)
+                        .then(result => {
+                            next(new UserIsNotApprovedException(user.email));
+                        }).catch(result => {
+                            next(new SomethingWentWrongException());
+                        });
                 }
             }
-            else{
+            else {
                 next(new WrongCredentialsException());
             }
         }
-        else{
+        else {
             next(new WrongCredentialsException());
         }
     }
