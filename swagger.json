@@ -58,10 +58,16 @@
                                 "schema":{
                                     "type":"object",
                                     "properties":{
-                                        "result":{
-                                            "type":"boolean",
-                                            "example":true
+                                        "payload":{
+                                            "type":"object",
+                                            "properties":{
+                                                "result":{
+                                                    "type":"boolean",
+                                                    "example":true
+                                                }
+                                            }
                                         }
+                                       
                                     }
                                 }
                             }
@@ -70,14 +76,8 @@
                     "401":{
                         "content":{
                             "application/json": {
-                                "schema":{
-                                    "type":"object",
-                                    "properties":{
-                                        "result":{
-                                            "type":"boolean",
-                                            "example":false
-                                        }
-                                    }
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
                         }
@@ -100,15 +100,19 @@
                 },
                 "responses":{
                     "200":{
-                        "description":"Password Changed",
                         "content":{
-                            "text/plain": {
-                                "schema":{
-                                    "type": "string",
-                                    "example":"Password Updated Successfully"
+                            "application/json": {
+                            "schema":{
+                                "type":"object",
+                                "properties":{
+                                    "message":{
+                                        "type":"string",
+                                        "example":"Password Updated Successfully"
+                                    }
                                 }
                             }
                         }
+                    }
                     },
                     "409": {
                         "description":"Old Password Dosent Match",
@@ -318,7 +322,21 @@
                         "content":{
                             "application/json":{
                                 "schema": {
-                                    "$ref": "#/definitions/Token"
+                                    "type":"object",
+                                    "properties":{
+                                        "message":{
+                                            "type":"string",
+                                            "example":"Login Succeded"
+                                        },
+                                        "payload":{
+                                            "type":"object",
+                                            "properties":{
+                                                "token":{
+                                                    "type":"string"
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -355,8 +373,13 @@
                         "content":{
                             "text/plain": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "Registered Successfully"
+                                    "type": "object",
+                                    "properties":{
+                                        "message":{
+                                            "type":"string",
+                                            "example":"Helper Registered Successfully"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -419,8 +442,13 @@
                         "content":{
                             "text/plain": {
                                 "schema":{
-                                    "type": "string",
-                                    "example":"Updated Successfully"
+                                    "type": "object",
+                                    "properties":{
+                                        "message":{
+                                            "type":"string",
+                                            "example":"Updated Successfully"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -454,12 +482,17 @@
                 "responses":{
                     "201":{
                         "content":{
-                            "text/plain": {
+                            "application/json":{
                                 "schema":{
-                                    "type": "string",
-                                    "example":"Created Category Successfully"
+                                    "type":"object",
+                                    "properties":{
+                                        "message":{
+                                            "type":"string"
+                                        }
+                                    }
                                 }
                             }
+                            
                         }
                     },
                       "409": {
@@ -816,9 +849,19 @@
             }
         },
         "AllCategories":{
-            "type":"array",
-            "items":{
-                "$ref": "#/definitions/Category"
+            "type":"object",
+            "properties":{
+                "payload":{
+                    "type":"object",
+                    "properties":{
+                        "categories":{
+                            "type":"array",
+                            "items":{
+                                "$ref": "#/definitions/Category"
+                            }
+                        }
+                    }
+                }
             }
         },
         "ClientUpdate":{
@@ -1015,79 +1058,84 @@
         "HelperInformation":{
             "type":"object",
             "properties":{
-                "name":{
+                "payload":{
                     "type":"object",
                     "properties":{
-                        "firstName":{
+                        "name":{
+                            "type":"object",
+                            "properties":{
+                                "firstName":{
+                                    "type":"string"
+                                },
+                                "lastName":{
+                                    "type":"string"
+                                }
+                            }
+                        },
+                        "birthDate":{
+                            "type":"object",
+                            "properties":{
+                                "day":{
+                                    "type":"number"
+                                },
+                                "month":{
+                                    "type":"number"
+                                },
+                                "year":{
+                                    "type":"number"
+                                }
+                            }
+                        },
+                        "email":{
                             "type":"string"
                         },
-                        "lastName":{
+                        "gender":{
                             "type":"string"
-                        }
-                    }
-                },
-                "birthDate":{
-                    "type":"object",
-                    "properties":{
-                        "day":{
+                        },
+                        "mobile":{
+                            "type":"string"
+                        },
+                        "nationality":{
+                            "type":"string"
+                        },
+                        "picture":{
+                            "type":"string",
+                            "format":"byte"
+                        },
+                        "balance":{
                             "type":"number"
                         },
-                        "month":{
-                            "type":"number"
+                        "certificate":{
+                            "type":"string",
+                            "format":"byte"
                         },
-                        "year":{
-                            "type":"number"
+                        "bankAccount":{
+                            "type":"string"
+                        },
+                        "location":{
+                            "type":"object",
+                            "properties":{
+                                "locationX":{
+                                    "type":"number"
+                                },
+                                "locationY":{
+                                    "type":"number"
+                                }
+                            }
+                        },
+                        "skills":{
+                            "type":"string"
+                        },
+                        "categories":{
+                            "type":"array",
+                            "items":{
+                                "type":"string"
+                            }
+                        },
+                        "isActive":{
+                            "type":"boolean"
                         }
                     }
-                },
-                "email":{
-                    "type":"string"
-                },
-                "gender":{
-                    "type":"string"
-                },
-                "mobile":{
-                    "type":"string"
-                },
-                "nationality":{
-                    "type":"string"
-                },
-                "picture":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "balance":{
-                    "type":"number"
-                },
-                "certificate":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "bankAccount":{
-                    "type":"string"
-                },
-                "location":{
-                    "type":"object",
-                    "properties":{
-                        "locationX":{
-                            "type":"number"
-                        },
-                        "locationY":{
-                            "type":"number"
-                        }
-                    }
-                },
-                "skills":{
-                    "type":"string"
-                },
-                "categories":{
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
-                },
-                "isActive":{
-                    "type":"boolean"
                 }
             }
         },

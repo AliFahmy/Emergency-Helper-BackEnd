@@ -170,9 +170,7 @@ class HelperController implements IController {
         }).catch(err => {
             account.categories = [];
         });
-        console.log(account.categories);
         let returnedAccount = account.toObject();
-        console.log(returnedAccount);
         returnedAccount.picture = account.picture.toString('base64');
         returnedAccount.certificate = account.certificate.toString('base64');
         returnedAccount.frontID = account.frontID.toString('base64');
