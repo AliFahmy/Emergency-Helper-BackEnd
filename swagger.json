@@ -3,7 +3,7 @@
     "info": {
         "version": "1.0.0",
         "title": "Emergency Helper API",
-        "description":"this is a Restful API provided for the client side of the Emergency Helper Application"
+        "description": "this is a Restful API provided for the client side of the Emergency Helper Application"
     },
     "tags": [
         {
@@ -15,11 +15,11 @@
             "description": "API for Clients in the system"
         },
         {
-            "name":"Admin",
+            "name": "Admin",
             "description": "API for Admins in the system"
         },
         {
-            "name":"Helper",
+            "name": "Helper",
             "description": "API for Helpers in the system"
         }
     ],
@@ -29,52 +29,54 @@
     ],
     "components": {
         "securitySchemes": {
-          "bearerAuth": {
-            "type": "http",
-            "scheme": "bearer",
-            "bearerFormat": "JWT"
-          }
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
         }
-      },
-      "security": [{
-        "bearerAuth": []
-      }],
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
     "consumes": [
         "application/json"
     ],
     "produces": [
         "application/json"
     ],
-
     "paths": {
-        "/api/Account/ValidateToken":{
-            "get":{
-                "tags":["Account"],
-                "summary":"Validates Token in authorization header",
-                "responses":{
-                    "200":{
-                        "content":{
+        "/api/Account/ValidateToken": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Validates Token in authorization header",
+                "responses": {
+                    "200": {
+                        "content": {
                             "application/json": {
-                                "schema":{
-                                    "type":"object",
-                                    "properties":{
-                                        "payload":{
-                                            "type":"object",
-                                            "properties":{
-                                                "result":{
-                                                    "type":"boolean",
-                                                    "example":true
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "result": {
+                                                    "type": "boolean",
+                                                    "example": true
                                                 }
                                             }
                                         }
-                                       
                                     }
                                 }
                             }
                         }
                     },
-                    "401":{
-                        "content":{
+                    "401": {
+                        "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
@@ -85,10 +87,12 @@
                 }
             }
         },
-        "/api/Account/ChangePassword":{
-            "patch":{
-                "tags":["Account"],
-                "summary":"Updates the password of the currently logged in user",
+        "/api/Account/ChangePassword": {
+            "patch": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Updates the password of the currently logged in user",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -98,36 +102,36 @@
                         }
                     }
                 },
-                "responses":{
-                    "200":{
-                        "content":{
+                "responses": {
+                    "200": {
+                        "content": {
                             "application/json": {
-                            "schema":{
-                                "type":"object",
-                                "properties":{
-                                    "message":{
-                                        "type":"string",
-                                        "example":"Password Updated Successfully"
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password Updated Successfully"
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
                     },
                     "409": {
-                        "description":"Old Password Dosent Match",
-                        "content":{
-                            "application/json":{
+                        "description": "Old Password Dosent Match",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
                             }
                         }
-                      },
-                      "500": {
-                        "description":"Server Error",
-                        "content":{
-                            "application/json":{
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
@@ -137,8 +141,6 @@
                 }
             }
         },
-
-        
         "/api/Client/Login": {
             "post": {
                 "tags": [
@@ -160,143 +162,169 @@
                 ],
                 "responses": {
                     "200": {
-                        "description":"Login Success",
-                        "content":{
-                            "application/json":{
+                        "description": "Login Success",
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/Token"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login Succeded"
+                                        },
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description":"Incorrect Email or Password",
-                        "content":{
-                            "application/json":{
+                        "description": "Incorrect Email or Password",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
                             }
+                        }
                     }
                 }
-            }
             }
         },
         "/api/Client/Register": {
-                "post": {
-                    "tags": [
-                        "Client"
-                    ],
-                    "summary": "Registers Client to the database",
-                    "requestBody": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/ClientRegistration"
-                                }
-                            }
-                        }
-                    },
-                    "responses": {
-                        "201": {
-                            "description":"Registered Successfully",
-                            "content":{
-                                "text/plain": {
-                                    "schema": {
-                                        "type": "string",
-                                        "example": "Registered Successfully"
-                                    }
-                                }
-                            }
-                        },
-                        "409": {
-                            "description":"Email Already Exists",
-                            "content":{
-                                "application/json":{
-                                    "schema": {
-                                        "$ref": "#/definitions/Error"
-                                    }
-                                }
-                            }
-                        },
-                        "422": {
-                            "description":"Invalid User Role",
-                            "content":{
-                                "application/json":{
-                                    "schema": {
-                                        "$ref": "#/definitions/Error"
-                                    }
-                                }
-                            }
-                        },
-                        "500": {
-                            "description":"Server Error",
-                            "content":{
-                                "application/json":{
-                                    "schema": {
-                                        "$ref": "#/definitions/Error"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-        },
-        "/api/Client":{
-                "get":{
-                    "tags":["Client"],
-                    "summary":"Gets all the data of the currently logged in client",
-                    "responses":{
-                        "200":{
-                            "content":{
-                                "application/json": {
-                                    "schema":{
-                                        "$ref": "#/definitions/ClientInformation"
-                                    }
-                                }
+            "post": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Registers Client to the database",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/ClientRegistration"
                             }
                         }
                     }
                 },
-                "patch":{
-                    "tags":["Client"],
-                    "summary":"Updates the currently logged in Client",
-                    "requestBody": {
-
+                "responses": {
+                    "201": {
+                        "description": "Registered Successfully",
                         "content": {
-                            "application/json": {
+                            "text/plain": {
                                 "schema": {
-                                    "$ref": "#/definitions/ClientUpdate"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Registered Successfully"
+                                        }
+                                    }
                                 }
                             }
                         }
                     },
-                    "responses":{
-                        "200":{
-                            "description":"Updated Successfully",
-                            "content":{
-                                "text/plain": {
-                                    "schema":{
-                                        "type": "string",
-                                        "example":"Updated Successfully"
-                                    }
+                    "409": {
+                        "description": "Email Already Exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
-                        },
-                        "500":{
-                            "description":"Server Error",
-                            "content":{
-                                "application/json":{
-                                    "schema": {
-                                        "$ref": "#/definitions/Error"
-                                    }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid User Role",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
                         }
                     }
                 }
+            }
         },
-
+        "/api/Client": {
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Gets all the data of the currently logged in client",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/ClientInformation"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Updates the currently logged in Client",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/ClientUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated Successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Updated Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Helper/Login": {
             "post": {
                 "tags": [
@@ -318,21 +346,21 @@
                 ],
                 "responses": {
                     "200": {
-                        "description":"Login Success",
-                        "content":{
-                            "application/json":{
+                        "description": "Login Success",
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "type":"object",
-                                    "properties":{
-                                        "message":{
-                                            "type":"string",
-                                            "example":"Login Succeded"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login Succeded"
                                         },
-                                        "payload":{
-                                            "type":"object",
-                                            "properties":{
-                                                "token":{
-                                                    "type":"string"
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string"
                                                 }
                                             }
                                         }
@@ -342,42 +370,44 @@
                         }
                     },
                     "401": {
-                        "description":"Incorrect Email or Password",
-                        "content":{
-                            "application/json":{
+                        "description": "Incorrect Email or Password",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
                             }
+                        }
                     }
                 }
             }
-            }
         },
-        "/api/Helper/Register":{
-            "post":{
-                "tags":["Helper"],
-                "summary":"Registers new helper to the system",
+        "/api/Helper/Register": {
+            "post": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Registers new helper to the system",
                 "requestBody": {
                     "content": {
-                       "application/json":{
-                           "schema":{
-                               "$ref":"#/definitions/HelperRegistration"
-                           }
-                       }
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/HelperRegistration"
+                            }
+                        }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description":"Helper Registered Successfully",
-                        "content":{
+                        "description": "Helper Registered Successfully",
+                        "content": {
                             "text/plain": {
                                 "schema": {
                                     "type": "object",
-                                    "properties":{
-                                        "message":{
-                                            "type":"string",
-                                            "example":"Helper Registered Successfully"
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Helper Registered Successfully"
                                         }
                                     }
                                 }
@@ -385,38 +415,39 @@
                         }
                     },
                     "409": {
-                            "description":"Email Already Exists",
-                            "content":{
-                                "application/json":{
-                                    "schema": {
-                                        "$ref": "#/definitions/Error"
-                                    }
+                        "description": "Email Already Exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
+                        }
                     },
                     "500": {
-                            "description":"Server Error",
-                            "content":{
-                                "application/json":{
-                                    "schema": {
-                                        "$ref": "#/definitions/Error"
-                                    }
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
-                        
+                        }
                     }
                 }
             }
         },
-        "/api/Helper":{
-            "get":{
-                "tags":["Helper"],
-                "summary":"Gets all the data of the currently logged in helper",
-                "responses":{
-                    "200":{
-                        "content":{
+        "/api/Helper": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Gets all the data of the currently logged in helper",
+                "responses": {
+                    "200": {
+                        "content": {
                             "application/json": {
-                                "schema":{
+                                "schema": {
                                     "$ref": "#/definitions/HelperInformation"
                                 }
                             }
@@ -424,9 +455,11 @@
                     }
                 }
             },
-            "patch":{
-                "tags":["Helper"],
-                "summary":"Updates the currently logged in Helper",
+            "patch": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Updates the currently logged in Helper",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -436,27 +469,27 @@
                         }
                     }
                 },
-                "responses":{
-                    "200":{
-                        "description":"Updated Successfully",
-                        "content":{
+                "responses": {
+                    "200": {
+                        "description": "Updated Successfully",
+                        "content": {
                             "text/plain": {
-                                "schema":{
+                                "schema": {
                                     "type": "object",
-                                    "properties":{
-                                        "message":{
-                                            "type":"string",
-                                            "example":"Updated Successfully"
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Updated Successfully"
                                         }
                                     }
                                 }
                             }
                         }
                     },
-                    "500":{
-                        "description":"Server Error",
-                        "content":{
-                            "application/json":{
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
@@ -465,11 +498,13 @@
                     }
                 }
             }
-    },
-        "/api/Helper/Category":{
-            "post":{
-                "tags":["Helper"],
-                "summary":"Inserts new helper category to the system",
+        },
+        "/api/Helper/Category": {
+            "post": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Inserts new helper category to the system",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -479,26 +514,25 @@
                         }
                     }
                 },
-                "responses":{
-                    "201":{
-                        "content":{
-                            "application/json":{
-                                "schema":{
-                                    "type":"object",
-                                    "properties":{
-                                        "message":{
-                                            "type":"string"
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
                                         }
                                     }
                                 }
                             }
-                            
                         }
                     },
-                      "409": {
-                        "description":"Category Already Exists",
-                        "content":{
-                            "application/json":{
+                    "409": {
+                        "description": "Category Already Exists",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
@@ -506,49 +540,47 @@
                         }
                     },
                     "500": {
-                        "description":"Server Error",
-                        "content":{
-                            "application/json":{
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
                             }
                         }
-                    
                     }
                 }
             }
         },
-        "/api/Helper/AllCategories":{
-            "get":{
-                "tags":["Helper"],
-                "summary":"Gets all the helper categories",
-                "responses":{
-                    "200":{
-                        "content":{
+        "/api/Helper/AllCategories": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Gets all the helper categories",
+                "responses": {
+                    "200": {
+                        "content": {
                             "application/json": {
-                                "schema":{
+                                "schema": {
                                     "$ref": "#/definitions/AllCategories"
                                 }
                             }
                         }
-                },
-                "500": {
-                    "description":"Server Error",
-                    "content":{
-                        "application/json":{
-                            "schema": {
-                                "$ref": "#/definitions/Error"
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
                             }
                         }
                     }
-                
+                }
             }
-            }
-        }
         },
-
-
         "/api/Admin/Login": {
             "post": {
                 "tags": [
@@ -570,60 +602,76 @@
                 ],
                 "responses": {
                     "200": {
-                        "description":"Login Success",
-                        "content":{
-                            "application/json":{
+                        "description": "Login Success",
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/Token"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login Succeded"
+                                        },
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description":"Incorrect Email or Password",
-                        "content":{
-                            "application/json":{
+                        "description": "Incorrect Email or Password",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
                             }
+                        }
                     }
                 }
             }
-            }
         },
-        "/api/Admin/GetAllClients":{
-            "get":{
-                "tags":["Admin"],
-                "summary":"Gets all the clients in the system",
-                "responses":{
-                    "200":{
-                        "content":{
+        "/api/Admin/GetAllClients": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Gets all the clients in the system",
+                "responses": {
+                    "200": {
+                        "content": {
                             "application/json": {
-                                "schema":{
+                                "schema": {
                                     "$ref": "#/definitions/AllClients"
                                 }
                             }
                         }
-                },
-                "500": {
-                    "description":"Server Error",
-                    "content":{
-                        "application/json":{
-                            "schema": {
-                                "$ref": "#/definitions/Error"
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
                             }
                         }
                     }
-                }
-            },
+                },
                 "401": {
-                    "content":{
+                    "content": {
                         "text/plain": {
-                         "schema":{
-                              "$ref": "#/definitions/UnAuthorized"
-                             }
-                        }   
+                            "schema": {
+                                "$ref": "#/definitions/UnAuthorized"
+                            }
+                        }
                     }
                 }
             }
@@ -688,10 +736,15 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "application/json": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "Helper Approved"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Helper Approved Successfully"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -730,10 +783,15 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "application/json": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "User Deleted Successfully"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User Deleted Successfully"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -753,16 +811,16 @@
         }
     },
     "definitions": {
-        "Error":{
+        "Error": {
             "type": "object",
             "properties": {
-                "status":{
-                    "type":"number",
-                    "example":500
+                "status": {
+                    "type": "number",
+                    "example": 500
                 },
-                "message":{
-                    "type":"string",
-                    "example":"Something Went Wrong"
+                "message": {
+                    "type": "string",
+                    "example": "Something Went Wrong"
                 }
             }
         },
@@ -780,61 +838,71 @@
                 }
             }
         },
-        "UnAuthorized":{
+        "UnAuthorized": {
             "type": "string",
-            "example":"Unauthorized Account"
+            "example": "Unauthorized Account"
         },
         "AllHelpers": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/FullAccount"
-            }
-        },  
-        "AllClients":{
-            "type":"array",
-            "items":{
-                "$ref": "#/definitions/FullAccount"
-            }
-        },
-        "FullAccount":{
             "type": "object",
             "properties": {
-                "name":{
-                    "type":"object",
-                    "properties":{
-                        "firstName":{
-                            "type":"string"
+                "payload": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FullAccount"
+                    }
+                }
+            }
+        },
+        "AllClients": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FullAccount"
+                    }
+                }
+            }
+        },
+        "FullAccount": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
                         },
-                        "lastName":{
-                            "type":"string"
+                        "lastName": {
+                            "type": "string"
                         }
                     }
-                 },
-                 "mobile":{
-                     "type":"string"
-                 },
-                 "email":{
-                     "type":"string"
-                 },
-                 "isApproved":{
-                     "type":"boolean"
-                 },
-                 "_id":{
-                     "type":"string"
-                 },
-                 "balance":{
-                     "type":"number"
-                 },
-                 "picture":{
-                     "type":"string",
-                     "format":"byte"
-                 },
-                 "nationality":{
-                     "type":"string"
-                 },
-                 "gender":{
-                     "type":"string"
-                 }
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "isApproved": {
+                    "type": "boolean"
+                },
+                "_id": {
+                    "type": "string"
+                },
+                "balance": {
+                    "type": "number"
+                },
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                }
             }
         },
         "Account": {
@@ -848,15 +916,15 @@
                 }
             }
         },
-        "AllCategories":{
-            "type":"object",
-            "properties":{
-                "payload":{
-                    "type":"object",
-                    "properties":{
-                        "categories":{
-                            "type":"array",
-                            "items":{
+        "AllCategories": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "categories": {
+                            "type": "array",
+                            "items": {
                                 "$ref": "#/definitions/Category"
                             }
                         }
@@ -864,9 +932,9 @@
                 }
             }
         },
-        "ClientUpdate":{
-            "type":"object",
-            "properties":{
+        "ClientUpdate": {
+            "type": "object",
+            "properties": {
                 "email": {
                     "type": "string"
                 },
@@ -876,15 +944,15 @@
                 "nationality": {
                     "type": "string"
                 },
-                "picture":{
-                    "type":"string",
-                    "format":"byte"
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
                 }
             }
         },
-        "HelperUpdate":{
-            "type":"object",
-            "properties":{
+        "HelperUpdate": {
+            "type": "object",
+            "properties": {
                 "email": {
                     "type": "string"
                 },
@@ -894,268 +962,273 @@
                 "nationality": {
                     "type": "string"
                 },
-                "picture":{
-                    "type":"string",
-                    "format":"byte"
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
                 },
-                "bankAccount":{
-                    "type":"string"
+                "bankAccount": {
+                    "type": "string"
                 },
-                "location":{
-                    "type":"object",
-                    "properties":{
-                        "locationX":{
-                            "type":"number"
+                "location": {
+                    "type": "object",
+                    "properties": {
+                        "locationX": {
+                            "type": "number"
                         },
-                        "locationY":{
-                            "type":"number"
+                        "locationY": {
+                            "type": "number"
                         }
                     }
                 },
-                "isActive":{
-                    "type":"boolean"
+                "isActive": {
+                    "type": "boolean"
                 },
-                "skills":{
-                    "type":"string"
-                }
-            }
-        },       
-        "HelperRegistration":{
-            "type":"object",
-            "properties":{
-                "name":{
-                   "type":"object",
-                   "properties":{
-                       "firstName":{
-                           "type":"string"
-                       },
-                       "lastName":{
-                           "type":"string"
-                       }
-                   }
-                },
-                "email":{
-                    "type":"string"
-                },
-                "mobile":{
-                    "type":"string"
-                },
-                "password":{
-                    "type":"string"
-                },
-                "skills":{
-                    "type":"string"
-                },
-                "categories":{
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
-                },
-                "picture":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "frontID":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "backID":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "certificate":{
-                    "type":"string",
-                    "format":"byte"
+                "skills": {
+                    "type": "string"
                 }
             }
         },
-        "ClientRegistration":{
-            "type":"object",
-            "properties":{
-                "name":{
-                   "type":"object",
-                   "properties":{
-                       "firstName":{
-                           "type":"string"
-                       },
-                       "lastName":{
-                           "type":"string"
-                       }
-                   }
-                },
-                "mobile":{
-                    "type":"string"
-                },
-                "email":{
-                    "type":"string"
-                },
-                "password":{
-                    "type":"string"
-                }  
-            }
-        },
-        "Category":{
-            "type":"object",
-            "properties":{
-                "name":{
-                    "type":"string"
-                }
-            }
-        },
-        "ClientInformation":{
-            "type":"object",
-            "properties":{
-                "name":{
-                    "type":"object",
-                    "properties":{
-                        "firstName":{
-                            "type":"string"
+        "HelperRegistration": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
                         },
-                        "lastName":{
-                            "type":"string"
+                        "lastName": {
+                            "type": "string"
                         }
                     }
                 },
-                "birthDate":{
-                    "type":"object",
-                    "properties":{
-                        "day":{
-                            "type":"number"
-                        },
-                        "month":{
-                            "type":"number"
-                        },
-                        "year":{
-                            "type":"number"
-                        }
+                "email": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 },
-                "email":{
-                    "type":"string"
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
                 },
-                "gender":{
-                    "type":"string"
+                "frontID": {
+                    "type": "string",
+                    "format": "byte"
                 },
-                "mobile":{
-                    "type":"string"
+                "backID": {
+                    "type": "string",
+                    "format": "byte"
                 },
-                "nationality":{
-                    "type":"string"
-                },
-                "picture":{
-                    "type":"string",
-                    "format":"byte"
-                },
-                "balance":{
-                    "type":"number"
-                },
-                "isApproved":{
-                    "type":"boolean"
+                "certificate": {
+                    "type": "string",
+                    "format": "byte"
                 }
             }
         },
-        "HelperInformation":{
-            "type":"object",
-            "properties":{
-                "payload":{
-                    "type":"object",
-                    "properties":{
-                        "name":{
-                            "type":"object",
-                            "properties":{
-                                "firstName":{
-                                    "type":"string"
+        "ClientRegistration": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "firstName": {
+                            "type": "string"
+                        },
+                        "lastName": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "Category": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "ClientInformation": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "object",
+                            "properties": {
+                                "firstName": {
+                                    "type": "string"
                                 },
-                                "lastName":{
-                                    "type":"string"
+                                "lastName": {
+                                    "type": "string"
                                 }
                             }
                         },
-                        "birthDate":{
-                            "type":"object",
-                            "properties":{
-                                "day":{
-                                    "type":"number"
+                        "birthDate": {
+                            "type": "object",
+                            "properties": {
+                                "day": {
+                                    "type": "number"
                                 },
-                                "month":{
-                                    "type":"number"
+                                "month": {
+                                    "type": "number"
                                 },
-                                "year":{
-                                    "type":"number"
+                                "year": {
+                                    "type": "number"
                                 }
                             }
                         },
-                        "email":{
-                            "type":"string"
+                        "email": {
+                            "type": "string"
                         },
-                        "gender":{
-                            "type":"string"
+                        "gender": {
+                            "type": "string"
                         },
-                        "mobile":{
-                            "type":"string"
+                        "mobile": {
+                            "type": "string"
                         },
-                        "nationality":{
-                            "type":"string"
+                        "nationality": {
+                            "type": "string"
                         },
-                        "picture":{
-                            "type":"string",
-                            "format":"byte"
+                        "picture": {
+                            "type": "string",
+                            "format": "byte"
                         },
-                        "balance":{
-                            "type":"number"
+                        "balance": {
+                            "type": "number"
                         },
-                        "certificate":{
-                            "type":"string",
-                            "format":"byte"
-                        },
-                        "bankAccount":{
-                            "type":"string"
-                        },
-                        "location":{
-                            "type":"object",
-                            "properties":{
-                                "locationX":{
-                                    "type":"number"
-                                },
-                                "locationY":{
-                                    "type":"number"
-                                }
-                            }
-                        },
-                        "skills":{
-                            "type":"string"
-                        },
-                        "categories":{
-                            "type":"array",
-                            "items":{
-                                "type":"string"
-                            }
-                        },
-                        "isActive":{
-                            "type":"boolean"
+                        "isApproved": {
+                            "type": "boolean"
                         }
                     }
                 }
             }
         },
-        "ChangePassword":{
-            "properties":{
-                "oldPassword":{
-                    "type":"string"
-                },
-                "newPassword":{
-                    "type":"string"
+        "HelperInformation": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "object",
+                            "properties": {
+                                "firstName": {
+                                    "type": "string"
+                                },
+                                "lastName": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "birthDate": {
+                            "type": "object",
+                            "properties": {
+                                "day": {
+                                    "type": "number"
+                                },
+                                "month": {
+                                    "type": "number"
+                                },
+                                "year": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "gender": {
+                            "type": "string"
+                        },
+                        "mobile": {
+                            "type": "string"
+                        },
+                        "nationality": {
+                            "type": "string"
+                        },
+                        "picture": {
+                            "type": "string",
+                            "format": "byte"
+                        },
+                        "balance": {
+                            "type": "number"
+                        },
+                        "certificate": {
+                            "type": "string",
+                            "format": "byte"
+                        },
+                        "bankAccount": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "object",
+                            "properties": {
+                                "locationX": {
+                                    "type": "number"
+                                },
+                                "locationY": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "skills": {
+                            "type": "string"
+                        },
+                        "categories": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "isActive": {
+                            "type": "boolean"
+                        }
+                    }
                 }
             }
         },
-        "Picture":{
-            "properties":{
-                "picture":{
-                    "type":"string",
-                    "format":"byte"    
+        "ChangePassword": {
+            "properties": {
+                "oldPassword": {
+                    "type": "string"
+                },
+                "newPassword": {
+                    "type": "string"
                 }
-            }  
+            }
+        },
+        "Picture": {
+            "properties": {
+                "picture": {
+                    "type": "string",
+                    "format": "byte"
+                }
+            }
         }
     }
 }
