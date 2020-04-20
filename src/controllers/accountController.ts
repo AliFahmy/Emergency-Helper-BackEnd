@@ -57,6 +57,7 @@ class AccountController implements IController {
                             user.isApproved = true;
                             await user.save((err) => {
                                 if (err) {
+                                    console.log(err);
                                     next(new SomethingWentWrongException());
                                 }
                                 else {
