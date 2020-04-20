@@ -2,7 +2,7 @@ import * as jwt from 'jsonwebtoken';
 export default class TokenManager {
     private secret:string;
     constructor(){
-        this.secret = process.env.JWT_SECRET;
+        this.secret = new Buffer(process.env.JWT_SECRET, 'base64');
     }
     public getToken(data={}){
         return jwt.sign(data,this.secret)
