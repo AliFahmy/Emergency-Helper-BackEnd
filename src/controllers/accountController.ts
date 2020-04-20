@@ -68,6 +68,7 @@ class AccountController implements IController {
                     }
                 })
             }).catch(result => {
+                console.log(result);
                 next(new SomethingWentWrongException());
             });
     }
