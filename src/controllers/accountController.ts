@@ -19,7 +19,7 @@ import OldPasswordDosentMatchException from '../exceptions/account/OldPasswordDo
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
-
+import * as jwt from 'jsonwebtoken';
 class AccountController implements IController {
     public path: string;
     public router: express.IRouter;
@@ -43,6 +43,7 @@ class AccountController implements IController {
     }
     private verifyAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         const token = request.params.verificationToken;
+        console.log(jwt.verify(token,process.env.JWT_SECRET));
         this.tokenManager.validateToken(token)
             .then(async decoded => {
                 await userModel.findOne({ email: decoded['email'] }, async (err, user: IUser) => {
