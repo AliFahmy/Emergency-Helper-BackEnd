@@ -49,6 +49,7 @@ class ClientController implements IController {
     private getAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         await clientModel.findById(request.user._id, ' -password  -verificationToken -_id -createdAt -updatedAt -__v',(err:any,client:IClient)=>{
             if(err){
+                console.log(err);
                 next(new SomethingWentWrongException());
             }
             else{
