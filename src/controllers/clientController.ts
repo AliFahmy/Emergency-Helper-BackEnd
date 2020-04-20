@@ -7,6 +7,7 @@ import authMiddleware from '../middlewares/auth';
 /////////////////////////////////////////
 import IController from '../interfaces/IController';
 import IUser from '../interfaces/user/IUser';
+import IClient from '../interfaces/user/IClient';
 import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
 /////////////////////////////////////////
 import clientModel from '../models/user/Client';
@@ -46,10 +47,16 @@ class ClientController implements IController {
         this.router.patch(`${this.path}`, authMiddleware, validationMiddleware(UpdateClientDTO), this.updateAccount);
     }
     private getAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        let account: IUser = await clientModel.findById(request.user._id, ' -password  -verificationToken -_id -createdAt -updatedAt -__v');
-        let returnedAccount = account.toObject();
-        returnedAccount.picture = account.picture.toString('base64');
-        response.status(200).send(new Response(undefined,{returnedAccount}).getData());
+        await clientModel.findById(request.user._id, ' -password  -verificationToken -_id -createdAt -updatedAt -__v',(err:any,client:IClient)=>{
+            if(err){
+                next(new SomethingWentWrongException());
+            }
+            else{
+                let returnedAccount = client.toObject();
+                returnedAccount.picture = client.picture.toString('base64');
+                response.status(200).send(new Response(undefined,{returnedAccount}).getData());        
+            }
+        });
     }
     private updateAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         let newData: UpdateClientDTO = request.body;
