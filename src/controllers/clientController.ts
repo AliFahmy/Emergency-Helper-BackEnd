@@ -90,6 +90,7 @@ class ClientController implements IController {
                         next(new SomethingWentWrongException());
                     }
                     else {
+                        
                         user.password = undefined;
                         this.mailer.sendRegistrationMail(user.name.firstName, user.verificationToken, user.email)
                             .then(result => {
