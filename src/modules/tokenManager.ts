@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 export default class TokenManager {
-    private secret:string;
+    private secret:Buffer;
     constructor(){
         this.secret = new Buffer(process.env.JWT_SECRET, 'base64');
     }
