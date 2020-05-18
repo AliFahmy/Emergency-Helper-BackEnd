@@ -9,9 +9,11 @@ import IRequestWithUser from 'interfaces/httpRequest/IRequestWithUser';
 ////////////////////////////////////////////////////
 import authMiddleware from '../middlewares/auth';
 import validationMiddleware from '../middlewares/validation';
+import {awsService} from '../middlewares/upload';
 ///////////////////////////////////////////////////
 import categoryModel from '../models/Category';
 import helperModel from '../models/user/Helper';
+import userModel from '../models/user/User';
 ////////////////////////////////////////////////////
 import CategoryDTO from '../dto/categoryDTO';
 import LogInDto from './../dto/loginDTO';
@@ -45,7 +47,12 @@ class HelperController implements IController {
         this.router.get(`${this.path}`, authMiddleware, this.getAccount);
         ////////////////////////////////////////////////////////////////////
         this.router.post(`${this.path}/Login`, validationMiddleware(LogInDto), this.login);
-        this.router.post(`${this.path}/Register`, validationMiddleware(HelperRegistrationDTO), this.register);
+        this.router
+        .post(`${this.path}/Register`,
+        awsService.fields([{name:'frontID',maxCount:1},{name:'backID',maxCount:1},{name:'picture',maxCount:1},{name:'certificate',maxCount:1}]),
+        validationMiddleware(HelperRegistrationDTO), 
+        this.register);
+
         this.router.post(`${this.path}/Category`, validationMiddleware(CategoryDTO), this.insertCategory);
         ////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}`, authMiddleware, validationMiddleware(updateHelperDTO, true), this.updateAccount);
@@ -106,53 +113,58 @@ class HelperController implements IController {
     }
     private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const userData: HelperRegistrationDTO = request.body;
-        if (await helperModel.findOne({ email: userData.email })) {
-            next(new UserWithThatEmailAlreadyExistsException(userData.email));
+        const files = request.files as Express.Multer.File[];
+        if(files === undefined){
+            next(new SomethingWentWrongException('Error: No File Selected!'))
         }
-        else {
-            const hashedPassword = await bcrypt.hash(userData.password, 10);
-            let categoriesid = [];
-            await categoryModel.find({ 'name': { $in: userData.categories } }, '-name -createdAt -updatedAt -__v', (err, categories: ICategory[]) => {
-                if (err) {
-                    next(new SomethingWentWrongException());
-                }
-                else {
-                    for (let i = 0; i < categories.length; i++) {
-                        categoriesid.push(categories[i]._id);
-                    }
-                }
-            });
-            // negrb ne3ml middleware yehwl kol al base64 le buffer 
-            try {
-                const verificationToken = this.tokenManager.getToken({ email: userData.email });
-                await helperModel.create({
-                    ...userData,
-                    picture: Buffer.from(userData.picture, 'base64'),
-                    frontID: Buffer.from(userData.frontID, 'base64'),
-                    backID: Buffer.from(userData.backID, 'base64'),
-                    certificate: Buffer.from(userData.certificate, 'base64'),
-                    categories: categoriesid,
-                    password: hashedPassword,
-                    verificationToken: verificationToken
-                }, async (err: any, helper: IHelper) => {
+        else{
+            if (await userModel.findOne({ email: userData.email })) {
+                next(new UserWithThatEmailAlreadyExistsException(userData.email));
+            }
+            else {
+                const hashedPassword = await bcrypt.hash(userData.password, 10);
+                let categoriesid = [];
+                await categoryModel.find({ 'name': { $in: userData.categories } }, '-name -createdAt -updatedAt -__v', (err, categories: ICategory[]) => {
                     if (err) {
-                        next(new SomethingWentWrongException());
+                        next(new SomethingWentWrongException(err));
                     }
                     else {
-                        if (this.mailer.sendRegistrationMail(helper.name.firstName, helper.verificationToken, helper.email)) {
-                            response.status(201).send(new Response('Helper Registered Successfully\nPlease Verify Your Email!').getData());
-
-                        }
-                        else {
-                            response.status(201).send(new Response('Helper Registered Successfully!').getData());
+                        for (let i = 0; i < categories.length; i++) {
+                            categoriesid.push(categories[i]._id);
                         }
                     }
                 });
-            }
-            catch{
-                next(new SomethingWentWrongException());
+                try {
+                    const verificationToken = this.tokenManager.getToken({ email: userData.email });
+                    await helperModel.create({
+                        ...userData,
+                        picture: files['picture'][0].location,
+                        frontID: files['frontID'][0].location,
+                        backID: files['backID'][0].location,
+                        certificate: files['certificate'][0].location,
+                        categoriesID: categoriesid,
+                        password: hashedPassword,
+                        verificationToken: verificationToken
+                    }, async (err: any, helper: IHelper) => {
+                        if (err) {
+                            next(new SomethingWentWrongException(err));
+                        }
+                        else {
+                            if (this.mailer.sendRegistrationMail(helper.name.firstName, helper.verificationToken, helper.email)) {
+                                response.status(201).send(new Response("Helper Registered Successfully \n Please Verify Your Email!").getData());
+                            }
+                            else {
+                                response.status(201).send(new Response('Helper Registered Successfully!').getData());
+                            }
+                        }
+                    });
+                }
+                catch(err){
+                    next(new SomethingWentWrongException(err));
+                }
             }
         }
+        
     }
     private getCategories = async (categories: Types.ObjectId[]): Promise<string[]> => {
         let Categories: string[] = [];

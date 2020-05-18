@@ -1,8 +1,8 @@
 import HttpException from './HttpException';
 
 class SomethingWentWrongException extends HttpException {
-  constructor() {
-    super(500, 'Something Went Wrong');
+  constructor(error?:string) {
+    super(500, error? error : 'Something Went Wrong');
   }
 }
 

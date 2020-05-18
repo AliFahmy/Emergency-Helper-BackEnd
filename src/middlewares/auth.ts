@@ -15,18 +15,15 @@ async function authMiddleware(request: IRequestWithUser, response: Response, nex
         try{
             const verificationResponse =  jwt.verify(headers['authorization'].split(" ")[1],secret) as IDataStoredInToken;
             const _id = verificationResponse._id;
-            const user = await userModel.findById(_id,'-password -createdAt -updatedAt -__v',(err,user:IUser)=>{
+            await userModel.findById(_id,'-password -createdAt -updatedAt -__v',(err,user:IUser)=>{
                 if(err){
                     next(new SomethingWentWrongException());
                 }
+                else{
+                    request.user = user;
+                    next();
+                }
             });
-            // omar commented an momkn manhtagsh al if else lw al user mabyrg3losh haga fel error xD
-            if(user){
-                request.user = user;
-                next();
-            }else{
-                next(new WrongAuthenticationTokenException());
-            }
         }catch(error){
             next(new WrongAuthenticationTokenException());
         }

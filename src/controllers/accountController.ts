@@ -19,7 +19,6 @@ import OldPasswordDosentMatchException from '../exceptions/account/OldPasswordDo
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
-
 class AccountController implements IController {
     public path: string;
     public router: express.IRouter;
@@ -37,6 +36,7 @@ class AccountController implements IController {
         this.router.get(`${this.path}/VerifyAccount/:verificationToken`, this.verifyAccount);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}/ChangePassword`, authMiddleware, validationMiddleware(UpdatePasswordDTO), this.updatePassword);
+        /////////////////////////////////////////////////////////////////////
     }
     private validateToken = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         response.status(200).send(new Response(undefined, { result: true }).getData());
@@ -50,7 +50,7 @@ class AccountController implements IController {
                         next(err);
                     }
                     else {
-                        if (user.isApproved) {
+                        if (user.isApproved){
                             response.status(200).send(new Response('User Already Verified!').getData());
                         }
                         else {
@@ -87,6 +87,5 @@ class AccountController implements IController {
             next(new OldPasswordDosentMatchException())
         }
     }
-
 }
 export default AccountController;

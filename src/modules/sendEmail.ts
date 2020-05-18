@@ -32,7 +32,7 @@ class sendEmail {
         }
     public async sendRegistrationMail(name:string,token:string,email:string):Promise<boolean>{
             const url = `https://emergency-helper.herokuapp.com/api/Account/VerifyAccount/${token}`;
-            const body = `Dear ${name},\n Thank you for registiring in Emergency Helper, in order to confirm your account please follow this link ${url}.\n Thanks \n Emergency Helper Team `
+            const body = `Dear ${name},\n Thank you for registiring in Emergency Helper, in order to confirm your account please follow this link ${url} .\n Thanks \n Emergency Helper Team `
             return await this.sendMail(email,"Emergency Helper Confirmation Required",body).then(result=>result).catch(result=>result);
         }
 }

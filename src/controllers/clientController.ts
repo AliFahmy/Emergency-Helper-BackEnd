@@ -7,9 +7,11 @@ import authMiddleware from '../middlewares/auth';
 /////////////////////////////////////////
 import IController from '../interfaces/IController';
 import IUser from '../interfaces/user/IUser';
+import IClient from '../interfaces/user/IClient';
 import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
 /////////////////////////////////////////
 import clientModel from '../models/user/Client';
+import userModel from '../models/user/User';
 /////////////////////////////////////////
 import ClientRegistrationDTO from '../dto/clientDTO/clientRegistrationDTO';
 import LogInDto from '../dto/loginDTO';
@@ -46,10 +48,16 @@ class ClientController implements IController {
         this.router.patch(`${this.path}`, authMiddleware, validationMiddleware(UpdateClientDTO), this.updateAccount);
     }
     private getAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        let account: IUser = await clientModel.findById(request.user._id, ' -password  -verificationToken -_id -createdAt -updatedAt -__v');
-        let returnedAccount = account.toObject();
-        returnedAccount.picture = account.picture.toString('base64');
-        response.status(200).send(new Response(undefined,{returnedAccount}).getData());
+        await clientModel.findById(request.user._id, ' -password  -verificationToken -_id -createdAt -updatedAt -__v',(err:any,client:IClient)=>{
+            if(err){
+                next(new SomethingWentWrongException());
+            }
+            else{
+                let returnedAccount = client.toObject();
+                returnedAccount.picture = client.picture.toString('base64');
+                response.status(200).send(new Response(undefined,{returnedAccount}).getData());        
+            }
+        });
     }
     private updateAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         let newData: UpdateClientDTO = request.body;
@@ -66,7 +74,7 @@ class ClientController implements IController {
     }
     private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const userData: ClientRegistrationDTO = request.body;
-        if (await clientModel.findOne({ email: userData.email })) {
+        if (await userModel.findOne({ email: userData.email })) {
             next(new UserWithThatEmailAlreadyExistsException(userData.email));
         }
         else {

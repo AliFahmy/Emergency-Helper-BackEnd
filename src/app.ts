@@ -1,11 +1,10 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as mongoose from 'mongoose';
-import IController from './interfaces/IController';
-import * as cookieParser from 'cookie-parser';
-import errorMiddleware from './middlewares/errorMiddleware';
 import * as swaggerUi from 'swagger-ui-express';
 import * as swaggerDocument from '../swagger.json';
+import IController from './interfaces/IController';
+import errorMiddleware from './middlewares/errorMiddleware';
 
 class App {
 
@@ -17,8 +16,7 @@ class App {
     this.app = express();
     this.PORT = process.env.PORT || 5000;
 
-    this.connectToDatabase();
-
+    
     this.initializeMiddlewares();
     
     
@@ -27,11 +25,11 @@ class App {
     this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
     
     this.initializeErrorHandling();
+    this.connectToDatabase();
   }
 
   private initializeMiddlewares() {
     this.app.use(bodyParser.json({limit: '100mb'}));
-    this.app.use(cookieParser());
 }
 
  private initializeErrorHandling(){

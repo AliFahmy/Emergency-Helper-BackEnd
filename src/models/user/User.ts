@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
       type:String,
   },
   picture:{
-      type:Buffer,
+      type:String,
   },
   balance:{
     type:Number

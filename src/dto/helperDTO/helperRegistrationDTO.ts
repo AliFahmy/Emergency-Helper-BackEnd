@@ -19,17 +19,5 @@ class HelperRegistrationDTO {
 
     @IsString()
     public skills:string;
-
-    @IsString()
-    public frontID:string;
-
-    @IsString()
-    public backID:string;
-
-    @IsString()
-    public certificate:string;
-
-    @IsString()
-    public picture:string;
 }
 export default HelperRegistrationDTO;
