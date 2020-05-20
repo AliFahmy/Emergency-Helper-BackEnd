@@ -5,7 +5,7 @@ import IClient from '../../interfaces/user/IClient';
 const Client = User.discriminator('Client',new mongoose.Schema({
     savedAddresses:[
         {
-            ref: 'Addresses',
+            ref: 'ClientAddress',
             type: mongoose.Schema.Types.ObjectId,
         }
     ]

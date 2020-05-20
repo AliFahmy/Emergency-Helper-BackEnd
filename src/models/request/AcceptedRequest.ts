@@ -7,26 +7,8 @@ const baseOptions = {
 
 const acceptedRequestSchema = new mongoose.Schema({
     arrivesAt:{
-        year:{
-            type:Number,
-            required:true
-        },
-        month:{
-            type:Number,
-            required:true
-        },
-        day:{
-            type:Number,
-            required:true
-        },
-        hours:{
-            type:Number,
-            required:true
-        },
-        minutes:{
-            type:Number,
-            required:true
-        }
+        type:Date,
+        required:true
     },
     price:{
         type:Number,

@@ -3,10 +3,10 @@ import User from './User';
 import IHelper from '../../interfaces/user/IHelper';
 
 const Helper = User.discriminator('Helper',new mongoose.Schema({
-    certificate:{
+    certificate:[{
         type:String,
         required:true
-    },
+    }],
     bankAccount:{
         type:String
     },
@@ -23,24 +23,25 @@ const Helper = User.discriminator('Helper',new mongoose.Schema({
         default:false
     },
     location:{
-        locationX:{
+        longitude:{
             type:Number
         },
-        locationY:{
+        altitude:{
             type:Number
         }
     },
     skills:{
-        type:String
+        type:String,
+        required:true
     },
     adminApproved:{
         type:Boolean,
         default:false
     },
-    categoriesID:[{
+    category:{
         ref: 'Category',
-        type: mongoose.Schema.Types.ObjectId,
-    }]
+        type: String,
+    }
 }));
 
 const helperModel = mongoose.model<IHelper>('Helper');

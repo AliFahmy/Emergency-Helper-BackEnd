@@ -8,15 +8,10 @@ interface IUser extends Document{
     }
   email: string;
   password: string;
-  birthDate: {
-    day:number,
-    month:number,
-    year:number
-  };
+  birthDate: Date;
   gender:string;
   mobile:string;
-  nationality:string;
-  picture:Buffer;
+  profilePicture:Buffer;
   balance:number;
   role:string;
   isApproved:boolean;

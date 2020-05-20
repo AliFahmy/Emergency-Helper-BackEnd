@@ -19,6 +19,9 @@ import OldPasswordDosentMatchException from '../exceptions/account/OldPasswordDo
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
+import clientModel from './../models/user/Client';
+import helperModel from './../models/user/Helper';
+import WrongCredentialsException from './../exceptions/account/WrongCredentialsException';
 class AccountController implements IController {
     public path: string;
     public router: express.IRouter;
@@ -33,7 +36,7 @@ class AccountController implements IController {
     }
     private initializeRoutes() {
         this.router.get(`${this.path}/ValidateToken`, authMiddleware, this.validateToken);
-        this.router.get(`${this.path}/VerifyAccount/:verificationToken`, this.verifyAccount);
+        this.router.get(`${this.path}/VerifyAccount/:verificationToken/:role`, this.verifyAccount);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}/ChangePassword`, authMiddleware, validationMiddleware(UpdatePasswordDTO), this.updatePassword);
         /////////////////////////////////////////////////////////////////////
@@ -43,9 +46,21 @@ class AccountController implements IController {
     }
     private verifyAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         const token = request.params.verificationToken;
+        const role = request.params.role;
+        let model = undefined;
+        if(role === 'Client'){
+            model = clientModel;            
+        }
+        else if(role === 'Helper'){
+            model = helperModel
+        }
+        else{
+            next(new WrongCredentialsException())
+            return;
+        }
         this.tokenManager.validateToken(token)
             .then(async decoded => {
-                await userModel.findOne({ email: decoded['email'] }, async (err, user: IUser) => {
+                await model.findOne({ email: decoded['email'] }, async (err:any, user: IUser) => {
                     if (err) {
                         next(err);
                     }

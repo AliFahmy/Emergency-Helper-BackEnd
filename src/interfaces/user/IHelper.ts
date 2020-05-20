@@ -5,11 +5,12 @@ interface IHelper extends IUser {
     bankAccount: string;
     isApproved:boolean;
     isActive:boolean;
+    adminApproved:boolean;
+    skills:string;
     location:ILocation;
-    certificate:Buffer;
-    frontID:Buffer;
-    backID:Buffer;
-    categories:string[];
-    categoriesID:Types.ObjectId[];
+    certificate:string;
+    frontID:string;
+    backID:string;
+    category:string;
 }
 export default IHelper;

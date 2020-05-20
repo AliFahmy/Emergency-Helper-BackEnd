@@ -16,7 +16,7 @@ const receiptSchema = new mongoose.Schema({
     },
     paymentMethod:{
         ref:'PaymentMethod',
-        type:mongoose.Schema.Types.ObjectId
+        type:String
     },
     requestID:{
         ref:'Request',

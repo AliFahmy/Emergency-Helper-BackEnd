@@ -1,4 +1,4 @@
-import { IsString,IsEmail,ValidateNested,IsBase64,IsArray} from 'class-validator';
+import { IsString,IsEmail,ValidateNested} from 'class-validator';
 import NameDTO from '../nameDTO';
 
 class HelperRegistrationDTO {
@@ -14,8 +14,8 @@ class HelperRegistrationDTO {
     @IsString()
     public mobile : string;
 
-    @IsArray()
-    public categories: string[];
+    @IsString()
+    public category: string;
 
     @IsString()
     public skills:string;

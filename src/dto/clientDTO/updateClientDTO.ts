@@ -1,6 +1,11 @@
-import { IsString} from 'class-validator';
+import { IsString,ValidateNested,IsDate} from 'class-validator';
+import NameDTO from '../nameDTO';
 
 class UpdateClientDTO {
+    
+    @ValidateNested()
+    public name: NameDTO;
+  
     @IsString()
     public email :string;
 
@@ -8,10 +13,11 @@ class UpdateClientDTO {
     public mobile:string;
 
     @IsString()
-    public nationality:string;
+    public gender:string;
+
+    @IsDate()
+    public birthDate:Date;
     
-    @IsString()
-    public picture:any;
 }
 
 export default UpdateClientDTO;

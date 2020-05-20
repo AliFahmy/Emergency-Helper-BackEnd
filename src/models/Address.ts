@@ -2,16 +2,19 @@ import * as mongoose from 'mongoose';
 import IAddress from 'interfaces/user/IAddress';
 
 const addressSchema = new mongoose.Schema({
+    name:{
+        type:String
+    },
     addressName:{
         type:String,
         required:true
     },
     location:{
-        locationX:{
+        longitude:{
             type:Number,
             required:true
         },
-        locationY:{
+        altitude:{
             type:Number,
             required:true
         }

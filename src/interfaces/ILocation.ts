@@ -1,6 +1,6 @@
 import { Document} from "mongoose";
  interface ILocation extends Document{
-    locationX : string;
-    locationY : string;
+    longitude : number;
+    altitude : number;
 }
 export default ILocation;
