@@ -2,9 +2,9 @@ import { IsString } from 'class-validator';
 
 class NameDTO {
   @IsString()
-  public firstName : number;
+  public firstName : string;
   @IsString()
-  public lastName: number;
+  public lastName: string;
 
 }
 

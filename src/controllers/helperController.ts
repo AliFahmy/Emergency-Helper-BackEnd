@@ -153,7 +153,7 @@ class HelperController implements IController {
                                 const verificationToken = this.tokenManager.getToken({ email: userData.email });
                                 await helperModel.create({
                                     ...userData,
-                                    picture: files['picture'][0].location,
+                                    picture: files['profilePicture'][0].location,
                                     frontID: files['frontID'][0].location,
                                     backID: files['backID'][0].location,
                                     certificate: files['certificate'][0].location,
