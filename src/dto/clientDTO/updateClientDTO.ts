@@ -17,7 +17,7 @@ class UpdateClientDTO {
     @IsString()
     public gender:string;
 
-    @IsDateString()
+    @IsString()
     public birthDate:Date;
     
 }
