@@ -1,4 +1,4 @@
-import { IsString,ValidateNested,IsDate} from 'class-validator';
+import { IsString,ValidateNested,IsDate, IsDateString} from 'class-validator';
 
 class UpdateClientDTO {
     
@@ -17,7 +17,7 @@ class UpdateClientDTO {
     @IsString()
     public gender:string;
 
-    @IsDate()
+    @IsDateString()
     public birthDate:Date;
     
 }
