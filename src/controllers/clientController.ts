@@ -8,14 +8,14 @@ import authMiddleware from '../middlewares/auth';
 import IController from '../interfaces/IController';
 import IUser from '../interfaces/user/IUser';
 import IClient from '../interfaces/user/IClient';
-import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
+import IRequestWithClient from '../interfaces/httpRequest/IRequestWithClient';
 /////////////////////////////////////////
 import clientModel from '../models/user/Client';
-import userModel from '../models/user/User';
 /////////////////////////////////////////
 import ClientRegistrationDTO from '../dto/clientDTO/clientRegistrationDTO';
 import LogInDto from '../dto/loginDTO';
 import UpdateClientDTO from '../dto/clientDTO/updateClientDTO';
+import AddAddressDTO from './../dto/clientDTO/AddAddressDTO';
 /////////////////////////////////////////
 import WrongCredentialsException from '../exceptions/account/WrongCredentialsException';
 import UserWithThatEmailAlreadyExistsException from '../exceptions/account/UserWithThatEmailAlreadyExistsException';
@@ -26,7 +26,7 @@ import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
 import { awsService } from './../middlewares/upload';
-
+import IAddress from './../interfaces/user/IAddress';
 
 class ClientController implements IController {
     public path: string;
@@ -43,14 +43,17 @@ class ClientController implements IController {
     private initializeRoutes() {
         this.router.post(`${this.path}/Login`, validationMiddleware(LogInDto), this.login);
         this.router.post(`${this.path}/Register`, validationMiddleware(ClientRegistrationDTO), this.register);
+        this.router.post(`${this.path}/Address`,authMiddleware, validationMiddleware(AddAddressDTO), this.addAddress);
+        
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.get(`${this.path}`, authMiddleware, this.getAccount);
+        this.router.get(`${this.path}/SavedAddresses`, authMiddleware, this.getSavedAddresses);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        this.router.patch(`${this.path}`, authMiddleware,awsService.single('profilePicture'), validationMiddleware(UpdateClientDTO), this.updateAccount);
+        this.router.patch(`${this.path}`, authMiddleware,awsService.single('profilePicture'), validationMiddleware(UpdateClientDTO,true), this.updateAccount);
     }
-    private getAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+    private getAccount = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
         await clientModel
-        .findById(request.user._id, ' -password -role -verificationToken -_id -createdAt -updatedAt -__v')
+        .findById(request.user._id, '-password -role -isApproved -verificationToken -_id -createdAt -updatedAt -__v')
         .then((client:IClient)=>{
             response.status(200).send(new Response(undefined, { ...client.toObject() }).getData());
         })
@@ -58,7 +61,38 @@ class ClientController implements IController {
             next(new SomethingWentWrongException(err));
         })
     }
-    private updateAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+    private getSavedAddresses = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
+       await clientModel.findById(request.user._id,{savedAddresses:1})
+       .then((client:IClient)=>{
+           if(client){
+            response.status(200).send(new Response(undefined, {savedAddresses:client.savedAddresses}).getData());
+           }
+           else{
+               next(new SomethingWentWrongException())
+           }
+       })
+       .catch(err=>{
+           next(new SomethingWentWrongException(err))
+       })
+    }
+    private addAddress = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
+        const address:IAddress = request.body;
+        request.user.savedAddresses.push(address);
+        await request.user.save()
+        .then((client:IClient)=>{
+            if(client){
+                response.status(201).send(new Response("Address Added Successfully", undefined).getData());
+            }
+            else{
+                next(new SomethingWentWrongException())
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
+
+    }
+    private updateAccount = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
         let newData: UpdateClientDTO = request.body;
         let newObj = newData;
         request.file ? newObj['profilePicture'] = request.file['location'] : null;
@@ -94,7 +128,7 @@ class ClientController implements IController {
                     })
                     .then(async(client: IClient) => {
                         client.password = undefined;
-                        await this.mailer.sendRegistrationMail(client.name.firstName, client.verificationToken, client.email,client.role)
+                        await this.mailer.sendRegistrationMail(client.firstName, client.verificationToken, client.email,client.role)
                                 .then(result => {
                                     response.status(201).send(new Response('Client Registered Successfully\nPlease Verify Your Email!').getData());
                                 }).catch(result => {
@@ -124,7 +158,7 @@ class ClientController implements IController {
                         response.status(200).send(new Response('Login success', { token }).getData());            
                     }
                     else{
-                        await this.mailer.sendRegistrationMail(client.name.firstName, client.verificationToken, client.email,client.role)
+                        await this.mailer.sendRegistrationMail(client.firstName, client.verificationToken, client.email,client.role)
                         .then(result => {
                             next(new UserIsNotApprovedException(client.email));
                         }).catch(result => {
@@ -148,5 +182,6 @@ class ClientController implements IController {
         next(new SomethingWentWrongException(err))
     })
     }
+
 }
 export default ClientController;

@@ -14,6 +14,9 @@ function validationMiddleware<T>(type: any,skipMissingProperties = false): expre
         } else {
           next();
         }
+      })
+      .catch(err=>{
+        console.log(err)
       });
   };
 }

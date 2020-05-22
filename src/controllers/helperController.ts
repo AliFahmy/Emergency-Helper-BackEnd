@@ -111,7 +111,7 @@ class HelperController implements IController {
                             response.status(200).send(new Response('Login Success', { token }).getData());
                         }
                         else{
-                            await this.mailer.sendRegistrationMail(helper.name.firstName, helper.verificationToken, helper.email,helper.role)
+                            await this.mailer.sendRegistrationMail(helper.firstName, helper.verificationToken, helper.email,helper.role)
                             .then((sent:boolean)=>{
                                 if(sent){
                                     next(new UserIsNotApprovedException(helper.email))
@@ -135,6 +135,7 @@ class HelperController implements IController {
     private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const userData: HelperRegistrationDTO = request.body;
         const files = request.files as Express.Multer.File[];
+        console.log("file uploaded")
         if(files === undefined){
             next(new SomethingWentWrongException('Error: No Files Selected!'))
         }
@@ -162,7 +163,7 @@ class HelperController implements IController {
                                 })
                                 .then(async (helper:IHelper)=>{
                                     if(helper){
-                                        await this.mailer.sendRegistrationMail(helper.name.firstName, helper.verificationToken, helper.email,helper.role)
+                                        await this.mailer.sendRegistrationMail(helper.firstName, helper.verificationToken, helper.email,helper.role)
                                         .then((sent:boolean)=>{
                                             if(sent){
                                                 response.status(201).send(new Response("Helper Registered Successfully \n Please Verify Your Email!").getData());

@@ -21,7 +21,12 @@
         {
             "name": "Helper",
             "description": "API for Helpers in the system"
+        },
+        {
+            "name": "General",
+            "description": "API for General EndPoints in the system"
         }
+
     ],
     "schemes": [
         "http",
@@ -241,12 +246,90 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "Invalid User Role",
+                    "500": {
+                        "description": "Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Client/Address": {
+            "post": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Addess new Address",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Address"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Added Address Successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Added Address Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Client/SavedAddresses": {
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Gets all saved addresses",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "payload":{
+                                            "type":"object",
+                                            "properties":{
+                                                "savedAddresses":{
+                                                    "type":"array",
+                                                    "items":{
+                                                        "$ref": "#/definitions/Address"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                   
                                 }
                             }
                         }
@@ -389,6 +472,10 @@
                     "Helper"
                 ],
                 "summary": "Registers new helper to the system",
+                "consumes": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -809,6 +896,79 @@
                     }
                 }
             }
+        },
+        "/api/General/AboutUs": {
+            "post": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Inserts new Section to the About us",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AboutUsSection"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Gets all the About Us Sections",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "payload":{
+                                            "type":"object",
+                                            "properties":{
+                                                "sections":{
+                                                    "type":"array",
+                                                    "items":{
+                                                        "$ref": "#/definitions/AboutUsSection"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -868,16 +1028,11 @@
         "FullAccount": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "object",
-                    "properties": {
-                        "firstName": {
-                            "type": "string"
-                        },
-                        "lastName": {
-                            "type": "string"
-                        }
-                    }
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
                 },
                 "mobile": {
                     "type": "string"
@@ -917,6 +1072,39 @@
                 }
             }
         },
+        "Address": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "addressName": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "object",
+                    "properties":{
+                        "longitude":{
+                            "type":"number"
+                        },
+                        "altitude":{
+                            "type":"number"
+                        }
+                    }
+                }
+            }
+        },
+        "AboutUsSection":{
+            "type":"object",
+            "properties":{
+                "title":{
+                    "type":"string"
+                },
+                "description":{
+                    "type":"string"
+                }
+            }
+        },
         "AllCategories": {
             "type": "object",
             "properties": {
@@ -936,16 +1124,11 @@
         "ClientUpdate": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "object",
-                    "properties": {
-                        "firstName": {
-                            "type": "string"
-                        },
-                        "lastName": {
-                            "type": "string"
-                        }
-                    }
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -954,7 +1137,9 @@
                     "type": "string"
                 },
                 "birthDate": {
-                    "type": "string"
+                    "type": "string",
+                    "format":"date",
+                    "example":"2017-07-21"
                 },
                 "gender": {
                     "type": "string"
@@ -968,16 +1153,11 @@
         "HelperUpdate": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "object",
-                    "properties": {
-                        "firstName": {
-                            "type": "string"
-                        },
-                        "lastName": {
-                            "type": "string"
-                        }
-                    }
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -1014,16 +1194,11 @@
         "HelperRegistration": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "object",
-                    "properties": {
-                        "firstName": {
-                            "type": "string"
-                        },
-                        "lastName": {
-                            "type": "string"
-                        }
-                    }
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -1061,16 +1236,11 @@
         "ClientRegistration": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "object",
-                    "properties": {
-                        "firstName": {
-                            "type": "string"
-                        },
-                        "lastName": {
-                            "type": "string"
-                        }
-                    }
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
                 },
                 "mobile": {
                     "type": "string"
@@ -1097,16 +1267,11 @@
                 "payload": {
                     "type": "object",
                     "properties": {
-                        "name": {
-                            "type": "object",
-                            "properties": {
-                                "firstName": {
-                                    "type": "string"
-                                },
-                                "lastName": {
-                                    "type": "string"
-                                }
-                            }
+                        "firstName": {
+                            "type": "string"
+                        },
+                        "lastName": {
+                            "type": "string"
                         },
                         "birthDate": {
                             "type": "string"
@@ -1134,17 +1299,12 @@
                 "payload": {
                     "type": "object",
                     "properties": {
-                        "name": {
-                            "type": "object",
-                            "properties": {
-                                "firstName": {
+                            "firstName": {
                                     "type": "string"
                                 },
                                 "lastName": {
                                     "type": "string"
-                                }
-                            }
-                        },
+                                },
                         "birthDate": {
                             "type": "string"
                         },

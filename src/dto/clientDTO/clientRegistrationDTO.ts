@@ -1,9 +1,11 @@
 import { IsString,IsEmail,IsNumber,ValidateNested, } from 'class-validator';
-import NameDTO from '../nameDTO';
 
 class ClientRegistrationDTO {
-  @ValidateNested()
-  public name: NameDTO;
+  @IsString()
+  public firstName: string;
+
+  @IsString()
+  public lastName: string;
 
   @IsEmail()
   public email: string;

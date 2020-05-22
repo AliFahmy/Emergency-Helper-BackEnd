@@ -1,10 +1,12 @@
 import { IsString,ValidateNested,IsDate} from 'class-validator';
-import NameDTO from '../nameDTO';
 
 class UpdateClientDTO {
     
-    @ValidateNested()
-    public name: NameDTO;
+    @IsString()
+    public firstName: string;
+  
+    @IsString()
+    public lastName: string;
   
     @IsString()
     public email :string;
