@@ -9,9 +9,11 @@ import IRequestWithUser from 'interfaces/httpRequest/IRequestWithUser';
 ////////////////////////////////////////////////////
 import authMiddleware from '../middlewares/auth';
 import validationMiddleware from '../middlewares/validation';
+import {awsService} from '../middlewares/upload';
 ///////////////////////////////////////////////////
 import categoryModel from '../models/Category';
 import helperModel from '../models/user/Helper';
+import userModel from '../models/user/User';
 ////////////////////////////////////////////////////
 import CategoryDTO from '../dto/categoryDTO';
 import LogInDto from './../dto/loginDTO';
@@ -45,151 +47,174 @@ class HelperController implements IController {
         this.router.get(`${this.path}`, authMiddleware, this.getAccount);
         ////////////////////////////////////////////////////////////////////
         this.router.post(`${this.path}/Login`, validationMiddleware(LogInDto), this.login);
-        this.router.post(`${this.path}/Register`, validationMiddleware(HelperRegistrationDTO), this.register);
+        this.router
+        .post(`${this.path}/Register`,
+        awsService.fields([{name:'frontID',maxCount:1},{name:'backID',maxCount:1},{name:'profilePicture',maxCount:1},{name:'certificate',maxCount:1}]),
+        validationMiddleware(HelperRegistrationDTO), 
+        this.register);
+
         this.router.post(`${this.path}/Category`, validationMiddleware(CategoryDTO), this.insertCategory);
         ////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}`, authMiddleware, validationMiddleware(updateHelperDTO, true), this.updateAccount);
     }
     private getAllCategories = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        await categoryModel.find({}, '-_id -createdAt -updatedAt -__v', (err, categories) => {
-            if (err) {
-                next(new SomethingWentWrongException());
-            }
-            else {
+        await categoryModel.find({}, '-_id -createdAt -updatedAt -__v')
+        .then((categories:ICategory[])=>{
+            if(categories){
                 response.status(200).send(new Response(undefined, { categories }).getData());
             }
+            else{
+                next(new SomethingWentWrongException())
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
         })
     }
     private insertCategory = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const categoryDTO: CategoryDTO = request.body;
-        if (await categoryModel.findOne({ name: categoryDTO.name })) {
-            next(new HelperCategoryAlreadyExistsException());
-        }
-        else {
-            await categoryModel.create(categoryDTO, (err: any, category: ICategory) => {
-                if (err) {
-                    next(new SomethingWentWrongException());
-                }
-                else {
-                    response.status(201).send(new Response('Created Category Successfully').getData());
-                }
-            })
-        }
+        await categoryModel.findOne({ name: categoryDTO.name })
+        .then(async(category:ICategory)=>{
+            if(category){
+                next(new HelperCategoryAlreadyExistsException());        
+            }
+            else{
+                await categoryModel.create(categoryDTO)
+                .then((category:ICategory)=>{
+                    if(category){
+                        response.status(201).send(new Response('Created Category Successfully').getData());
+                    }
+                    else{
+                        next(new SomethingWentWrongException());
+                    }
+                })
+                .catch(err=>{
+                    next(new SomethingWentWrongException(err))
+                })
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
     }
     private login = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const logInData: LogInDto = request.body;
-        const user = await helperModel.findOne({ email: logInData.email });
-        if (user) {
-            const isPasswordMatching = await bcrypt.compare(logInData.password, user.password);
-            if (isPasswordMatching) {
-                user.password = undefined;
-                if (user.isApproved) {
-                    const token = this.tokenManager.getToken({ _id: user._id });
-                    response.status(200).send(new Response('Login Success', { token }).getData());
-                }
-                else {
-                    if (this.mailer.sendRegistrationMail(user.name.firstName, user.verificationToken, user.email)) {
-                        next(new UserIsNotApprovedException(user.email));
+        await helperModel.findOne({ email: logInData.email })
+        .then(async (helper:IHelper)=>{
+            if(helper){
+                await bcrypt.compare(logInData.password, helper.password)
+                .then(async (isPasswordMatching:boolean)=>{
+                    if(isPasswordMatching){
+                        helper.password = undefined;
+                        if (helper.isApproved) {
+                            const token = this.tokenManager.getToken({ _id: helper._id });
+                            response.status(200).send(new Response('Login Success', { token }).getData());
+                        }
+                        else{
+                            await this.mailer.sendRegistrationMail(helper.firstName, helper.verificationToken, helper.email,helper.role)
+                            .then((sent:boolean)=>{
+                                if(sent){
+                                    next(new UserIsNotApprovedException(helper.email))
+                                }
+                                else{
+                                    next(new SomethingWentWrongException())
+                                }
+                            })
+                            .catch(err=>{
+                                next(new SomethingWentWrongException(err))
+                            })
+                        }
                     }
-                    else {
-                        next(new SomethingWentWrongException());
-                    }
-                }
+                })
             }
-            else {
-                next(new WrongCredentialsException());
-            }
-        }
-        else {
-            next(new WrongCredentialsException());
-        }
+        })
+        .catch((err=>{
+            next(new SomethingWentWrongException(err))
+        }))
     }
     private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const userData: HelperRegistrationDTO = request.body;
-        if (await helperModel.findOne({ email: userData.email })) {
-            next(new UserWithThatEmailAlreadyExistsException(userData.email));
+        const files = request.files as Express.Multer.File[];
+        console.log("file uploaded")
+        if(files === undefined){
+            next(new SomethingWentWrongException('Error: No Files Selected!'))
         }
-        else {
-            const hashedPassword = await bcrypt.hash(userData.password, 10);
-            let categoriesid = [];
-            await categoryModel.find({ 'name': { $in: userData.categories } }, '-name -createdAt -updatedAt -__v', (err, categories: ICategory[]) => {
-                if (err) {
-                    next(new SomethingWentWrongException());
+        else{
+            await helperModel.findOne({ email: userData.email })
+            .then(async(helper:IHelper)=>{
+                if(helper){
+                    next(new UserWithThatEmailAlreadyExistsException(userData.email));
                 }
-                else {
-                    for (let i = 0; i < categories.length; i++) {
-                        categoriesid.push(categories[i]._id);
-                    }
-                }
-            });
-            // negrb ne3ml middleware yehwl kol al base64 le buffer 
-            try {
-                const verificationToken = this.tokenManager.getToken({ email: userData.email });
-                await helperModel.create({
-                    ...userData,
-                    picture: Buffer.from(userData.picture, 'base64'),
-                    frontID: Buffer.from(userData.frontID, 'base64'),
-                    backID: Buffer.from(userData.backID, 'base64'),
-                    certificate: Buffer.from(userData.certificate, 'base64'),
-                    categories: categoriesid,
-                    password: hashedPassword,
-                    verificationToken: verificationToken
-                }, async (err: any, helper: IHelper) => {
-                    if (err) {
-                        next(new SomethingWentWrongException());
-                    }
-                    else {
-                        if (this.mailer.sendRegistrationMail(helper.name.firstName, helper.verificationToken, helper.email)) {
-                            response.status(201).send(new Response('Helper Registered Successfully\nPlease Verify Your Email!').getData());
-
-                        }
-                        else {
-                            response.status(201).send(new Response('Helper Registered Successfully!').getData());
-                        }
-                    }
-                });
+                else{
+                    await bcrypt.hash(userData.password, 10)
+                    .then(async (hashedPassword:string)=>{
+                        await categoryModel.findOne({ 'name': userData.category }, '-createdAt -updatedAt -__v')
+                        .then(async(category:ICategory)=>{
+                            if(category){
+                                const verificationToken = this.tokenManager.getToken({ email: userData.email });
+                                await helperModel.create({
+                                    ...userData,
+                                    picture: files['profilePicture'][0].location,
+                                    frontID: files['frontID'][0].location,
+                                    backID: files['backID'][0].location,
+                                    certificate: files['certificate'][0].location,
+                                    password: hashedPassword,
+                                    verificationToken: verificationToken
+                                })
+                                .then(async (helper:IHelper)=>{
+                                    if(helper){
+                                        await this.mailer.sendRegistrationMail(helper.firstName, helper.verificationToken, helper.email,helper.role)
+                                        .then((sent:boolean)=>{
+                                            if(sent){
+                                                response.status(201).send(new Response("Helper Registered Successfully \n Please Verify Your Email!").getData());
+                                            }
+                                            else{
+                                                response.status(201).send(new Response('Helper Registered Successfully!').getData());
+                                            }
+                                        })
+                                        .catch(err=>{
+                                            next(new SomethingWentWrongException(err))
+                                        })
+                                    }
+                                    else{
+                                        next(new SomethingWentWrongException());
+                                    }
+                                })
+                                .catch(err=>{
+                                    next(new SomethingWentWrongException(err))
+                                })
+                            }   
+                            else{
+                                next("Helper Category Dosen't Exist")
+                            }
+                        })
+                        .catch(err=>{
+                            next(new SomethingWentWrongException(err))
+                        })
+                })
             }
-            catch{
-                next(new SomethingWentWrongException());
-            }
-        }
+        })
     }
-    private getCategories = async (categories: Types.ObjectId[]): Promise<string[]> => {
-        let Categories: string[] = [];
-        for (var i = 0; i < categories.length; i++) {
-            await categoryModel.findById(categories[i], (err, category: ICategory) => {
-                Categories.push(category.name);
-            });
-        }
-        return Categories;
     }
     private getAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        let account: IHelper = await helperModel.findById(request.user._id, ' -password -_id -createdAt -updatedAt -__v');
-        await this.getCategories(account.categoriesID).then((categories: string[]) => {
-            account.categories = categories.slice();
-        }).catch(err => {
-            account.categories = [];
-        });
-        let returnedAccount = account.toObject();
-        returnedAccount.picture = account.picture.toString('base64');
-        returnedAccount.certificate = account.certificate.toString('base64');
-        returnedAccount.frontID = account.frontID.toString('base64');
-        returnedAccount.backID = account.backID.toString('base64');
-        response.status(200).send(new Response(undefined, { returnedAccount }).getData());
+        response.status(200).send(new Response(undefined, {...request.user}).getData());
     }
     private updateAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         let newData: updateHelperDTO = request.body;
-        if (newData.picture) {
-            newData.picture = Buffer.from(newData.picture, 'base64');
-        }
-        /// lazem ne3ml middleware le hewar al base64 da 3ashan keda msh haynf3
-        let newUser = await helperModel.findByIdAndUpdate(request.user._id, { $set: newData });
-        if (newUser) {
-            response.status(200).send(new Response('Updated Successfuly!').getData());
-        }
-        else {
-            next(new SomethingWentWrongException());
-        }
+        let newObj = newData;
+        request.file ? newObj['profilePicture'] = request.file['location'] : null;
+        await helperModel.findByIdAndUpdate(request.user._id, { $set: newData })
+        .then((helper:IHelper)=>{
+            if(helper){
+                response.status(200).send(new Response('Updated Successfuly!').getData());
+            }
+            else{
+                next(new SomethingWentWrongException())
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
     }
 }
 

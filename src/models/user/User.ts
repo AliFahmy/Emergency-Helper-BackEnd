@@ -1,7 +1,6 @@
 import * as mongoose from 'mongoose';
 import IUser from '../../interfaces/user/IUser';
 
-
 const baseOptions = {
   discriminatorKey: 'role',
   collection:'User',
@@ -9,26 +8,16 @@ const baseOptions = {
 };
 
 const userSchema = new mongoose.Schema({
-  name:{
-      firstName:{
-        type: String,
-        required: true
-      },
+    firstName:{
+      type: String,
+      required: true
+          },
       lastName:{
           type: String,
           required:true
-      }
-  },
+      },
   birthDate:{
-    day:{
-      type:Number,
-    },
-    month:{
-      type:Number,
-    },
-    year:{
-      type:Number,
-    }
+    type:Date
   },
   email:{
       type: String,
@@ -44,14 +33,12 @@ const userSchema = new mongoose.Schema({
   mobile:{
       type:String
   },
-  nationality:{
+  profilePicture:{
       type:String,
   },
-  picture:{
-      type:Buffer,
-  },
   balance:{
-    type:Number
+    type:Number,
+    default:0
   },
   isApproved:{
     type:Boolean,
