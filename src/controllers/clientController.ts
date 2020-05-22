@@ -54,7 +54,6 @@ class ClientController implements IController {
             }
             else{
                 let returnedAccount = client.toObject();
-                returnedAccount.picture = client.picture.toString('base64');
                 response.status(200).send(new Response(undefined,{returnedAccount}).getData());        
             }
         });
