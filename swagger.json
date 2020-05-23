@@ -27,10 +27,9 @@
             "description": "API for General EndPoints in the system"
         },
         {
-            "name":"Request",
-            "description":"API for Request Endpoints"
-        }        
-
+            "name": "Request",
+            "description": "API for Request Endpoints"
+        }
     ],
     "schemes": [
         "http",
@@ -134,6 +133,175 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/SupportCategory": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Inserts new support category to the system",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Category"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category Created Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Category Already Exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/AllSupportCategories": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Gets all the support categories",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AllCategories"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/GetTickets": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Gets Client Ssupport Tickets",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "formatedSupportTickets": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/Ticket"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/CreateSupportTicket": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Create New Support Ticket",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/NewTicket"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ticket Created Successfully"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -319,21 +487,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type":"object",
-                                    "properties":{
-                                        "payload":{
-                                            "type":"object",
-                                            "properties":{
-                                                "savedAddresses":{
-                                                    "type":"array",
-                                                    "items":{
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "savedAddresses": {
+                                                    "type": "array",
+                                                    "items": {
                                                         "$ref": "#/definitions/Address"
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                   
                                 }
                             }
                         }
@@ -953,14 +1120,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type":"object",
-                                    "properties":{
-                                        "payload":{
-                                            "type":"object",
-                                            "properties":{
-                                                "sections":{
-                                                    "type":"array",
-                                                    "items":{
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "sections": {
+                                                    "type": "array",
+                                                    "items": {
                                                         "$ref": "#/definitions/AboutUsSection"
                                                     }
                                                 }
@@ -974,7 +1141,7 @@
                 }
             }
         },
-        "/api/Request":{
+        "/api/Request": {
             "post": {
                 "tags": [
                     "Request"
@@ -1017,7 +1184,7 @@
                 }
             }
         },
-        "/api/Request/ActiveRequest":{
+        "/api/Request/ActiveRequest": {
             "get": {
                 "tags": [
                     "Request"
@@ -1036,7 +1203,7 @@
                 }
             }
         },
-        "/api/Request/CancelRequest":{
+        "/api/Request/CancelRequest": {
             "post": {
                 "tags": [
                     "Request"
@@ -1046,7 +1213,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/definitions/id"        
+                                "$ref": "#/definitions/id"
                             }
                         }
                     }
@@ -1102,7 +1269,7 @@
             }
         },
         "id": {
-            "type":"object",
+            "type": "object",
             "properties": {
                 "_id": {
                     "type": "string"
@@ -1193,25 +1360,25 @@
                 },
                 "location": {
                     "type": "object",
-                    "properties":{
-                        "longitude":{
-                            "type":"number"
+                    "properties": {
+                        "longitude": {
+                            "type": "number"
                         },
-                        "altitude":{
-                            "type":"number"
+                        "altitude": {
+                            "type": "number"
                         }
                     }
                 }
             }
         },
-        "AboutUsSection":{
-            "type":"object",
-            "properties":{
-                "title":{
-                    "type":"string"
+        "AboutUsSection": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
                 },
-                "description":{
-                    "type":"string"
+                "description": {
+                    "type": "string"
                 }
             }
         },
@@ -1248,8 +1415,8 @@
                 },
                 "birthDate": {
                     "type": "string",
-                    "format":"date",
-                    "example":"2017-07-21"
+                    "format": "date",
+                    "example": "2017-07-21"
                 },
                 "gender": {
                     "type": "string"
@@ -1409,12 +1576,12 @@
                 "payload": {
                     "type": "object",
                     "properties": {
-                            "firstName": {
-                                    "type": "string"
-                                },
-                                "lastName": {
-                                    "type": "string"
-                                },
+                        "firstName": {
+                            "type": "string"
+                        },
+                        "lastName": {
+                            "type": "string"
+                        },
                         "birthDate": {
                             "type": "string"
                         },
@@ -1457,8 +1624,8 @@
                         "isActive": {
                             "type": "string"
                         },
-                        "balance":{
-                           "type":"string" 
+                        "balance": {
+                            "type": "string"
                         }
                     }
                 }
@@ -1482,63 +1649,92 @@
                 }
             }
         },
-        "NewRequest":{
-            "type":"object",
-            "properties":{
-                "payload":{
-                    "type":"object",
-                    "properties":{
-                        "description":{
-                            "type":"string"
+        "NewRequest": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "description": {
+                            "type": "string"
                         },
-                        "location":{
-                            "type":"object",
-                            "properties":{
-                                "longitude":{
-                                    "type":"number"
+                        "location": {
+                            "type": "object",
+                            "properties": {
+                                "longitude": {
+                                    "type": "number"
                                 },
-                                "latitude":{
-                                    "type":"number"
+                                "latitude": {
+                                    "type": "number"
                                 }
                             }
                         },
-                        "category":{
-                            "type":"string"
+                        "category": {
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "Request":{
-            "type":"object",
-            "properties":{
-                "location":{
-                    "type":"object",
-                            "properties":{
-                                "longitude":{
-                                    "type":"number"
-                                },
-                                "latitude":{
-                                    "type":"number"
-                                }
-                            }
+        "Request": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "object",
+                    "properties": {
+                        "longitude": {
+                            "type": "number"
+                        },
+                        "latitude": {
+                            "type": "number"
+                        }
+                    }
                 },
-                "isCanceled":{
-                    "type":"boolean"
+                "isCanceled": {
+                    "type": "boolean"
                 },
-                "_id":{
-                    "type":"string"
+                "_id": {
+                    "type": "string"
                 },
-                "description":{
-                    "type":"string"
+                "description": {
+                    "type": "string"
                 },
-                "category":{
-                    "type":"string"
+                "category": {
+                    "type": "string"
                 },
-                "date":{
-                    "type":"string",
-                    "format":"date"
+                "date": {
+                    "type": "string",
+                    "format": "date"
                 }
+            }
+        },
+        "Ticket": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "NewTicket": {
+        "type": "object",
+        "properties": {
+            "description": {
+                "type": "string"
+            },
+            "request": {
+                "type": "string",
+                "required": "false"
+            },
+            "category": {
+                "type": "string"
             }
         }
     }

@@ -15,5 +15,6 @@ interface IUser extends Document{
     role:string;
     isApproved:boolean;
     requests:string[]
+    supportTickets:string[]
 }
 export default IUser;

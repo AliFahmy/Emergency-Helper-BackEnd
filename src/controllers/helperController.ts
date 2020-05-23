@@ -13,8 +13,9 @@ import {awsService} from '../middlewares/upload';
 ///////////////////////////////////////////////////
 import categoryModel from '../models/Category';
 import helperModel from '../models/user/Helper';
-import userModel from '../models/user/User';
+
 ////////////////////////////////////////////////////
+
 import CategoryDTO from '../dto/categoryDTO';
 import LogInDto from './../dto/loginDTO';
 import updateHelperDTO from './../dto/helperDTO/updateHelperDTO';
@@ -29,6 +30,7 @@ import HelperCategoryAlreadyExistsException from '../exceptions/helper/HelperCat
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
+
 
 class HelperController implements IController {
     public path: string;
