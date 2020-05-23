@@ -13,6 +13,6 @@ const supportTicketCategorySchema = new mongoose.Schema({
 },baseOptions)
 
 
-const categoryModel = mongoose.model<ISupportTicketCategory>('Category',supportTicketCategorySchema);
+const categoryModel = mongoose.model<ISupportTicketCategory>('SupportCategories',supportTicketCategorySchema);
 
 export default categoryModel;

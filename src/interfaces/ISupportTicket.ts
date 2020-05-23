@@ -4,5 +4,6 @@ interface ISupportTicket extends Document{
     date:Date;
     category:string;
     request:string;
+    _id:string;
 }
 export default ISupportTicket;
