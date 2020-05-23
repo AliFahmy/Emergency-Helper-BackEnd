@@ -19,7 +19,11 @@ const finishedRequestSchema = new mongoose.Schema({
         ref:'Receipt',
         type:mongoose.Schema.Types.ObjectId,
         required:true
-    }
+    },
+    helper:{
+        ref:'Helper',
+        type:mongoose.Schema.Types.ObjectId
+    },
 },baseOptions)
 
 const finishedRequestModel = mongoose.model<IFinishedRequest>('FinishedRequest',finishedRequestSchema);

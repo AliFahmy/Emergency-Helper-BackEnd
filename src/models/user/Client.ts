@@ -28,6 +28,7 @@ const Client = User.discriminator('Client',new mongoose.Schema({
         type:String,
         default:"https://emergencyhelper.s3.eu-west-3.amazonaws.com/profilePictureTemplate.png"
     }
+    
 }));
 
 const clientModel = mongoose.model<IClient>('Client');

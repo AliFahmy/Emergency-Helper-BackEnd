@@ -25,7 +25,11 @@
         {
             "name": "General",
             "description": "API for General EndPoints in the system"
-        }
+        },
+        {
+            "name":"Request",
+            "description":"API for Request Endpoints"
+        }        
 
     ],
     "schemes": [
@@ -969,6 +973,111 @@
                     }
                 }
             }
+        },
+        "/api/Request":{
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Create New Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/NewRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/ActiveRequest":{
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Gets Current User Active Request",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Request"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/CancelRequest":{
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Cancel Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/id"        
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -993,6 +1102,7 @@
             }
         },
         "id": {
+            "type":"object",
             "properties": {
                 "_id": {
                     "type": "string"
@@ -1369,6 +1479,65 @@
                 "picture": {
                     "type": "string",
                     "format": "byte"
+                }
+            }
+        },
+        "NewRequest":{
+            "type":"object",
+            "properties":{
+                "payload":{
+                    "type":"object",
+                    "properties":{
+                        "description":{
+                            "type":"string"
+                        },
+                        "location":{
+                            "type":"object",
+                            "properties":{
+                                "longitude":{
+                                    "type":"number"
+                                },
+                                "latitude":{
+                                    "type":"number"
+                                }
+                            }
+                        },
+                        "category":{
+                            "type":"string"
+                        }
+                    }
+                }
+            }
+        },
+        "Request":{
+            "type":"object",
+            "properties":{
+                "location":{
+                    "type":"object",
+                            "properties":{
+                                "longitude":{
+                                    "type":"number"
+                                },
+                                "latitude":{
+                                    "type":"number"
+                                }
+                            }
+                },
+                "isCanceled":{
+                    "type":"boolean"
+                },
+                "_id":{
+                    "type":"string"
+                },
+                "description":{
+                    "type":"string"
+                },
+                "category":{
+                    "type":"string"
+                },
+                "date":{
+                    "type":"string",
+                    "format":"date"
                 }
             }
         }
