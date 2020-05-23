@@ -1721,20 +1721,20 @@
                     "type": "string"
                 }
             }
-        }
-    },
-    "NewTicket": {
-        "type": "object",
-        "properties": {
-            "description": {
-                "type": "string"
-            },
-            "request": {
-                "type": "string",
-                "required": "false"
-            },
-            "category": {
-                "type": "string"
+        },
+        "NewTicket": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "request": {
+                    "type": "string",
+                    "required": "false"
+                },
+                "category": {
+                    "type": "string"
+                }
             }
         }
     }
