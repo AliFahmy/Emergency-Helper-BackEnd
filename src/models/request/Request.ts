@@ -38,8 +38,12 @@ const requestSchema = new mongoose.Schema({
         type: String,
         required:true
     },
-    helper:{
-        ref:'Helper',
+    acceptedRequestID:{
+        ref:'AcceptedRequest',
+        type:mongoose.Schema.Types.ObjectId
+    },
+    finishedRequestID:{
+        ref:'FinishedRequest',
         type:mongoose.Schema.Types.ObjectId
     },
     supportTickets:[{

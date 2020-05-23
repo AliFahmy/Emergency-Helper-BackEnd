@@ -46,7 +46,15 @@ const userSchema = new mongoose.Schema({
 },
 verificationToken:{
   type:String
-}
+},
+activeRequest:{
+  ref:'Request',
+  type:mongoose.Types.ObjectId  
+},
+requests:[{
+  ref:'Request',
+  type:mongoose.Types.ObjectId
+}]
 },baseOptions);
  
 const userModel = mongoose.model<IUser>('User', userSchema);

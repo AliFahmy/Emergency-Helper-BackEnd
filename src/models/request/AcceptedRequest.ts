@@ -17,7 +17,11 @@ const acceptedRequestSchema = new mongoose.Schema({
     request:{
         ref:'Request',
         type:mongoose.Schema.Types.ObjectId
-    }
+    },
+    helper:{
+        ref:'Helper',
+        type:mongoose.Schema.Types.ObjectId
+    },
 },baseOptions)
 
 const acceptedRequestModel = mongoose.model<IAcceptedRequest>('AcceptedRequest',acceptedRequestSchema);

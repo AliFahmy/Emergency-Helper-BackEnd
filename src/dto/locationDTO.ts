@@ -2,9 +2,9 @@ import { IsNumber } from 'class-validator';
 
 class LocationDTO {
   @IsNumber()
-  public locationX : number;
+  public longitude  : number;
   @IsNumber()
-  public locationY: number;
+  public latitude: number;
 
 }
 
