@@ -2,28 +2,33 @@ import * as mongoose from 'mongoose';
 import ISupportTicket from '../../interfaces/ISupportTicket';
 
 const baseOptions = {
-    timestamps:true
-  };
+    timestamps: true
+};
 
 const supportTicketSchema = new mongoose.Schema({
-    description:{
-        type:String,
-        required:true
+    description: {
+        type: String,
+        required: true
     },
-    date:{
-        type:Date,
-        required:true
+    date: {
+        type: Date,
+        required: true
     },
-    category:{
+    category: {
         ref: 'SupportTicketCategory',
         type: String
     },
-    request:{
+    request: {
         ref: 'Request',
-        type: mongoose.Schema.Types.ObjectId    
-    }
-},baseOptions)
+        type: mongoose.Schema.Types.ObjectId
+    },
+    client: {
+        ref: 'Client',
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+}, baseOptions)
 
 const supportTicketModel = mongoose.model<ISupportTicket>('SupportTicket', supportTicketSchema);
- 
+
 export default supportTicketModel;
