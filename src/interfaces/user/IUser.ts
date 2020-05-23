@@ -1,4 +1,5 @@
 import { Document} from "mongoose";
+import IRequest from '../request/IRequest'
 interface IUser extends Document{
     _id: string;
     verificationToken:string;
@@ -13,5 +14,6 @@ interface IUser extends Document{
     balance:number;
     role:string;
     isApproved:boolean;
+    requests:string[]
 }
 export default IUser;
