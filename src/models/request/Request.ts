@@ -12,14 +12,14 @@ const requestSchema = new mongoose.Schema({
     },
     isCanceled:{
         type:Boolean,
-        required:true
+        default:false
     },
     location:{
-        locationX:{
+        longitude:{
             type:Number,
             required:true
         },
-        locationY:{
+        latitude:{
             type:Number,
             required:true
         }
@@ -33,20 +33,23 @@ const requestSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required:true
     },
-    category:[{
+    category:{
         ref: 'Category',
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         required:true
-    }],
-    helper:{
-        ref:'Helper',
+    },
+    acceptedRequestID:{
+        ref:'AcceptedRequest',
+        type:mongoose.Schema.Types.ObjectId
+    },
+    finishedRequestID:{
+        ref:'FinishedRequest',
         type:mongoose.Schema.Types.ObjectId
     },
     supportTickets:[{
         ref:'SupportTicket',
         type:mongoose.Schema.Types.ObjectId
     }]
-
 },baseOptions);
  
 const requestModel = mongoose.model<IRequest>('Request', requestSchema);

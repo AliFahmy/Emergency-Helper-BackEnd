@@ -1,67 +1,66 @@
 import * as mongoose from 'mongoose';
 import IUser from '../../interfaces/user/IUser';
 
-
 const baseOptions = {
   discriminatorKey: 'role',
-  collection:'User',
-  timestamps:true
+  collection: 'User',
+  timestamps: true
 };
 
 const userSchema = new mongoose.Schema({
-  name:{
-      firstName:{
-        type: String,
-        required: true
-      },
-      lastName:{
-          type: String,
-          required:true
-      }
+  firstName: {
+    type: String,
+    required: true
   },
-  birthDate:{
-    day:{
-      type:Number,
-    },
-    month:{
-      type:Number,
-    },
-    year:{
-      type:Number,
-    }
+  lastName: {
+    type: String,
+    required: true
   },
-  email:{
-      type: String,
-      required: true
+  birthDate: {
+    type: Date
+  },
+  email: {
+    type: String,
+    required: true
   },
   password: {
-    type:String,
-    required:true
+    type: String,
+    required: true
   },
-  gender:{
-      type:String,
+  gender: {
+    type: String,
   },
-  mobile:{
-      type:String
+  mobile: {
+    type: String
   },
-  nationality:{
-      type:String,
+  profilePicture: {
+    type: String,
   },
-  picture:{
-      type:Buffer,
+  balance: {
+    type: Number,
+    default: 0
   },
-  balance:{
-    type:Number
+  isApproved: {
+    type: Boolean,
+    default: false
   },
-  isApproved:{
-    type:Boolean,
-    default:false
-},
-verificationToken:{
-  type:String
-}
-},baseOptions);
- 
+  verificationToken: {
+    type: String
+  },
+  activeRequest: {
+    ref: 'Request',
+    type: mongoose.Types.ObjectId
+  },
+  requests: [{
+    ref: 'Request',
+    type: mongoose.Types.ObjectId
+  }],
+  supportTickets: [{
+    ref: 'supportTickets',
+    type: mongoose.Types.ObjectId,
+  }]
+}, baseOptions);
+
 const userModel = mongoose.model<IUser>('User', userSchema);
- 
+
 export default userModel;

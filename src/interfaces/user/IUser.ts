@@ -1,24 +1,20 @@
 import { Document} from "mongoose";
+import IRequest from '../request/IRequest'
 interface IUser extends Document{
     _id: string;
     verificationToken:string;
-    name:{
-        firstName:string;
-        lastName:string;
-    }
-  email: string;
-  password: string;
-  birthDate: {
-    day:number,
-    month:number,
-    year:number
-  };
-  gender:string;
-  mobile:string;
-  nationality:string;
-  picture:Buffer;
-  balance:number;
-  role:string;
-  isApproved:boolean;
+    firstName:string;
+    lastName:string;
+    email: string;
+    password: string;
+    birthDate: Date;
+    gender:string;
+    mobile:string;
+    profilePicture:Buffer;
+    balance:number;
+    role:string;
+    isApproved:boolean;
+    requests:string[]
+    supportTickets:string[]
 }
 export default IUser;

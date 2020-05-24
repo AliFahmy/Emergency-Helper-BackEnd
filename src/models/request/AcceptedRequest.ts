@@ -7,26 +7,8 @@ const baseOptions = {
 
 const acceptedRequestSchema = new mongoose.Schema({
     arrivesAt:{
-        year:{
-            type:Number,
-            required:true
-        },
-        month:{
-            type:Number,
-            required:true
-        },
-        day:{
-            type:Number,
-            required:true
-        },
-        hours:{
-            type:Number,
-            required:true
-        },
-        minutes:{
-            type:Number,
-            required:true
-        }
+        type:Date,
+        required:true
     },
     price:{
         type:Number,
@@ -35,7 +17,11 @@ const acceptedRequestSchema = new mongoose.Schema({
     request:{
         ref:'Request',
         type:mongoose.Schema.Types.ObjectId
-    }
+    },
+    helper:{
+        ref:'Helper',
+        type:mongoose.Schema.Types.ObjectId
+    },
 },baseOptions)
 
 const acceptedRequestModel = mongoose.model<IAcceptedRequest>('AcceptedRequest',acceptedRequestSchema);

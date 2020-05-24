@@ -1,6 +1,13 @@
-import { IsString} from 'class-validator';
+import { IsString, IsISO8601} from 'class-validator';
 
 class UpdateClientDTO {
+    
+    @IsString()
+    public firstName: string;
+  
+    @IsString()
+    public lastName: string;
+  
     @IsString()
     public email :string;
 
@@ -8,10 +15,11 @@ class UpdateClientDTO {
     public mobile:string;
 
     @IsString()
-    public nationality:string;
+    public gender:string;
+
+    @IsISO8601()
+    public birthDate:Date;
     
-    @IsString()
-    public picture:any;
 }
 
 export default UpdateClientDTO;

@@ -1,6 +1,9 @@
-import { IsString,IsEmail,IsNumber,ValidateNested, } from 'class-validator';
+import { IsString,IsEmail,IsNumber } from 'class-validator';
 
-class ClientRegistrationDTO {
+class CreateTicketDTO {
+  @IsNumber()
+  public userRole:number;
+  
   @IsString()
   public firstName: string;
 
@@ -15,6 +18,7 @@ class ClientRegistrationDTO {
 
   @IsString()
   public mobile : string;
+  
 }
 
-export default ClientRegistrationDTO;
+export default CreateTicketDTO;

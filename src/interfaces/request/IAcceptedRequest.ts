@@ -1,8 +1,9 @@
-import IRequestDate from './../date/IRequestDate';
 import { Document } from 'mongoose';
 interface IAcceptedRequest extends Document{
-    date: IRequestDate;
+    date: Date;
     price:Number;
+    request:string;
+    helper:string;
 }
 
 export default IAcceptedRequest;

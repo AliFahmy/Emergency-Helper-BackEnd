@@ -1,7 +1,9 @@
-import IRequestDate from './../date/IRequestDate';
 import { Document } from 'mongoose';
 interface IFinishedRequest extends Document{
-    date: IRequestDate;
+    date: Date;
+    request:string;
+    receipt:string;
+    helper:string;
 }
 
 export default IFinishedRequest;

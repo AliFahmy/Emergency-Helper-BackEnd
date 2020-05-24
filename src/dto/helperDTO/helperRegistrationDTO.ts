@@ -1,10 +1,12 @@
-import { IsString,IsEmail,ValidateNested,IsBase64,IsArray} from 'class-validator';
-import NameDTO from '../nameDTO';
+import { IsString,IsEmail,ValidateNested} from 'class-validator';
 
 class HelperRegistrationDTO {
-    @ValidateNested()
-    public name: NameDTO;
-
+    @IsString()
+    public firstName: string;
+  
+    @IsString()
+    public lastName: string;
+  
     @IsEmail()
     public email: string;
 
@@ -14,22 +16,10 @@ class HelperRegistrationDTO {
     @IsString()
     public mobile : string;
 
-    @IsArray()
-    public categories: string[];
+    @IsString()
+    public category: string;
 
     @IsString()
     public skills:string;
-
-    @IsString()
-    public frontID:string;
-
-    @IsString()
-    public backID:string;
-
-    @IsString()
-    public certificate:string;
-
-    @IsString()
-    public picture:string;
 }
 export default HelperRegistrationDTO;

@@ -7,35 +7,23 @@ const baseOptions = {
 
 const finishedRequestSchema = new mongoose.Schema({
     finishDate:{
-        year:{
-            type:Number,
-            required:true
-        },
-        month:{
-            type:Number,
-            required:true
-        },
-        day:{
-            type:Number,
-            required:true
-        },
-        hours:{
-            type:Number,
-            required:true
-        },
-        minutes:{
-            type:Number,
-            required:true
-        }
+        type:Date,
+        required:true
     },
     request:{
         ref:'Request',
-        type:mongoose.Schema.Types.ObjectId
+        type:mongoose.Schema.Types.ObjectId,
+        required:true
     },
     receipt:{
         ref:'Receipt',
+        type:mongoose.Schema.Types.ObjectId,
+        required:true
+    },
+    helper:{
+        ref:'Helper',
         type:mongoose.Schema.Types.ObjectId
-    }
+    },
 },baseOptions)
 
 const finishedRequestModel = mongoose.model<IFinishedRequest>('FinishedRequest',finishedRequestSchema);

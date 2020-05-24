@@ -8,7 +8,6 @@ export default class TokenManager {
         return jwt.sign(data,this.secret)
     }
     public validateToken(token:any):Promise<any>{
-        console.log(typeof(token));
         return new Promise((resolve,reject)=>{
             jwt.verify(token,this.secret,(err:any,decoded)=>{
                 if(err){

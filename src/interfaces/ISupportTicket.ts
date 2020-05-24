@@ -1,8 +1,9 @@
 import { Document } from 'mongoose';
-import IRequestDate from './date/IRequestDate';
 interface ISupportTicket extends Document{
     description:string;
-    title:string;
-    date:IRequestDate;
+    date:Date;
+    category:string;
+    request:string;
+    _id:string;
 }
 export default ISupportTicket;
