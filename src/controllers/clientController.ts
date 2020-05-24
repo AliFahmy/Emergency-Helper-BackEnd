@@ -95,6 +95,7 @@ class ClientController implements IController {
     private updateAccount = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
         let newData: UpdateClientDTO = request.body;
         let newObj = newData;
+        console.log(request.file)
         request.file ? newObj['profilePicture'] = request.file['location'] : null;
         await clientModel
         .findByIdAndUpdate(request.user._id, { $set: newData })
