@@ -14,6 +14,7 @@ export const awsService = multer({
      bucket: 'emergencyhelper',
      acl: 'public-read',
      key: function (req, file, cb) {
+      console.log(file)
       cb(null, path.basename( file.originalname, path.extname( file.originalname ) ) + '-' + Date.now() + path.extname( file.originalname ) )
      }
     }),
