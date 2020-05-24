@@ -11,6 +11,7 @@ export default class TokenManager {
         return new Promise((resolve,reject)=>{
             jwt.verify(token,this.secret,(err:any,decoded)=>{
                 if(err){
+                    console.log(err);
                     reject(false);
                 }
                 else{

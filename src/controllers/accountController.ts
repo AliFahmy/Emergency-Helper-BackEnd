@@ -31,7 +31,7 @@ import SupportCategoryAlreadyExistsException from './../exceptions/account/Suppo
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
-
+import * as jwt from 'jsonwebtoken';
 class AccountController implements IController {
     public path: string;
     public router: express.IRouter;
@@ -187,6 +187,7 @@ class AccountController implements IController {
                             user.isApproved = true;
                             await user.save((err) => {
                                 if (err) {
+                                    console.log(err);
                                     next(new SomethingWentWrongException());
                                 }
                                 else {
@@ -197,6 +198,7 @@ class AccountController implements IController {
                     }
                 })
             }).catch(result => {
+                console.log(result);
                 next(new SomethingWentWrongException());
             });
     }
