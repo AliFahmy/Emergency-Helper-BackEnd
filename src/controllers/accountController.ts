@@ -11,6 +11,7 @@ import IUser from '../interfaces/user/IUser';
 import ISupportTicketCategory from '../interfaces/ISupportTicketCategory';
 import ISupportTicket from '../interfaces/ISupportTicket';
 import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
+
 /////////////////////////////////////////
 import userModel from '../models/user/User';
 import clientModel from './../models/user/Client';
@@ -21,6 +22,7 @@ import supportTicketModel from '../models/request/SupportTicket';
 import UpdatePasswordDTO from '../dto/UpdatePasswordDTO';
 import SupportCategoryDTO from '../dto/SupportCategoryDTO';
 import CreateSupportTicketDTO from '../dto/CreateSupportTicketDTO';
+import MessageDTO from '../dto/MessageDTO';
 /////////////////////////////////////////
 import SomethingWentWrongException from './../exceptions/SomethingWentWrongException';
 import OldPasswordDosentMatchException from '../exceptions/account/OldPasswordDosentMatchException';
@@ -49,14 +51,53 @@ class AccountController implements IController {
         this.router.get(`${this.path}/VerifyAccount/:verificationToken/:role`, this.verifyAccount);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}/ChangePassword`, authMiddleware, validationMiddleware(UpdatePasswordDTO), this.updatePassword);
-        /////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.post(`${this.path}/SupportCategory`, authMiddleware, validationMiddleware(SupportCategoryDTO), this.insertSupportCategory);
         this.router.get(`${this.path}/AllSupportCategories`, authMiddleware, this.getAllSupportCategories);
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.get(`${this.path}/GetTickets`, authMiddleware, this.getTickets);
         this.router.post(`${this.path}/CreateSupportTicket`, authMiddleware, validationMiddleware(CreateSupportTicketDTO, true), this.CreateSupportTicket);
-
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        this.router.post(`${this.path}/AddMessage`, authMiddleware, validationMiddleware(MessageDTO), this.addMessage);
+        this.router.get(`${this.path}/GetTicketMsgs/:id`, authMiddleware, this.GetTicketMsgs);
 
     }
+    private GetTicketMsgs = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+        const ticketID = request.params.id;
+        await supportTicketModel.findById(ticketID)
+            .then(async (ticket) => {
+                if (ticket) {
+                    response.status(200).send(new Response(undefined, { ...ticket.toObject().messages }).getData());
+                }
+                else {
+                    next(new SomethingWentWrongException())
+                }
+            })
+            .catch(err => {
+                next(new SomethingWentWrongException(err))
+            })
+    }
+    private addMessage = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+        const message: MessageDTO = request.body;
+        const newMessage = { message: message.message, date: new Date(), senderRole: request.user.role, senderID: request.user._id, senderName: request.user.firstName + " " + request.user.lastName }
+
+        await supportTicketModel.findById(message.ticketID)
+            .then(async (ticket) => {
+                if (ticket) {
+                    ticket.messages.push(newMessage)
+                    ticket.save().then(() => {
+                        response.status(200).send(new Response('Added Message Succesfully', undefined).getData());
+                    })
+                        .catch(err => {
+                            next(new SomethingWentWrongException(err))
+                        })
+                }
+            })
+            .catch(err => {
+                next(new SomethingWentWrongException(err))
+            })
+    }
+
     private validateToken = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         response.status(200).send(new Response(undefined, { result: true }).getData());
     }
