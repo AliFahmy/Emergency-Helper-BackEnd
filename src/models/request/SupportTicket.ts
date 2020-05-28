@@ -27,6 +27,27 @@ const supportTicketSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    messages: [{
+        senderID: {
+            ref: 'users',
+            type: mongoose.Types.ObjectId
+        },
+        senderName: {
+            type: String
+        },
+        message: {
+            type: String
+        },
+        senderRole: {
+            type: String
+        },
+        date: {
+            type: Date
+        }
+    }],
+    closed: {
+        type: Boolean
+    }
 }, baseOptions)
 
 const supportTicketModel = mongoose.model<ISupportTicket>('SupportTicket', supportTicketSchema);

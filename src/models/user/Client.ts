@@ -17,7 +17,7 @@ const Client = User.discriminator('Client',new mongoose.Schema({
                     type:Number,
                     required:true
                 },
-                altitude:{
+                latitude:{
                     type:Number,
                     required:true
                 }

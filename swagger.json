@@ -319,6 +319,96 @@
                 }
             }
         },
+        "/api/Account/AddMessage": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Add new message to the ticket",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/NewMessage"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Message created Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/GetTicketMsgs/{id}": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "gets ticket messages with passed id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fetched Messages Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/Messages"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Client/Login": {
             "post": {
                 "tags": [
@@ -1068,6 +1158,50 @@
                 }
             }
         },
+        "/api/Admin/AddMessage": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add new message to the ticket",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AdminMessage"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Message created Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/General/AboutUs": {
             "post": {
                 "tags": [
@@ -1280,6 +1414,35 @@
             "type": "string",
             "example": "Unauthorized Account"
         },
+        "Message": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string",
+                    "format":"date"
+                },
+                "senderRole": {
+                    "type": "string"
+                },
+                "senderName": {
+                    "type": "string"
+                }
+            }
+        },
+        "Messages": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Message"
+                    }
+                }
+            }
+        },
         "AllHelpers": {
             "type": "object",
             "properties": {
@@ -1364,10 +1527,38 @@
                         "longitude": {
                             "type": "number"
                         },
-                        "altitude": {
+                        "latitude": {
                             "type": "number"
                         }
                     }
+                }
+            }
+        },
+        "NewMessage": {
+            "type": "object",
+            "properties": {
+                "ticketID": {
+                    "type": "string",
+                    "description": "reference ObjectID of the ticket"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "AdminMessage": {
+            "type": "object",
+            "properties": {
+                "ticketID": {
+                    "type": "string",
+                    "description": "reference ObjectID of the ticket"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "closed": {
+                    "type": "boolean",
+                    "example": "false"
                 }
             }
         },
