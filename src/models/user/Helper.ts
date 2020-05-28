@@ -26,7 +26,7 @@ const Helper = User.discriminator('Helper',new mongoose.Schema({
         longitude:{
             type:Number
         },
-        altitude:{
+        latitude:{
             type:Number
         }
     },
