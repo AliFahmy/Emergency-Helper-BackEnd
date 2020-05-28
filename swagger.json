@@ -987,6 +987,61 @@
                 }
             }
         },
+        "/api/Admin/Register": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Registers Admin to the database for testing purposes only",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AdminRegistration"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registered Successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Admin Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Email Already Exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Admin/GetAllClients": {
             "get": {
                 "tags": [
@@ -1422,7 +1477,7 @@
                 },
                 "date": {
                     "type": "string",
-                    "format":"date"
+                    "format": "date"
                 },
                 "senderRole": {
                     "type": "string"
@@ -1708,6 +1763,23 @@
                     "type": "string"
                 },
                 "lastName": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "AdminRegistration": {
+            "type": "object",
+            "properties": {
+                "name": {
                     "type": "string"
                 },
                 "mobile": {
