@@ -29,7 +29,7 @@ const supportTicketSchema = new mongoose.Schema({
     },
     messages: [{
         senderID: {
-            ref: 'users',
+            ref: 'User',
             type: mongoose.Types.ObjectId
         },
         senderName: {
