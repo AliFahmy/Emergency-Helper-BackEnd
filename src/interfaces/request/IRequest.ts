@@ -1,4 +1,5 @@
 import ILocation from './../ILocation';
+import IOffer from './IOffer';
 import { Document } from 'mongoose';
 interface IRequest extends Document{
     _id:string;
@@ -10,6 +11,7 @@ interface IRequest extends Document{
     client:string;
     acceptedRequestID:string;
     finishedRequestID:string;
+    offers:IOffer[]
     
 }
 

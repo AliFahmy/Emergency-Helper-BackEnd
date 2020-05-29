@@ -987,6 +987,61 @@
                 }
             }
         },
+        "/api/Admin/Register": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Registers Admin to the database for testing purposes only",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AdminRegistration"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registered Successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Admin Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Email Already Exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Admin/GetAllClients": {
             "get": {
                 "tags": [
@@ -1379,7 +1434,131 @@
                     }
                 }
             }
+        },
+        "/api/Request/MakeOffer": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Makes Helper Offer For Client's Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Offer"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/AcceptOffer": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Accepts Helper Offer",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                               "type":"object",
+                               "properties":{
+                                   "offerID":{
+                                    "type":"string"
+                                   }
+                               }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/ViewOffers": {
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "View Client's Active Request Offers",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "payload":{
+                                            "type":"object",
+                                            "properties":{
+                                                "offers":{
+                                                    "type":"array",
+                                                    "items":{
+                                                        "$ref":"#/definitions/Offer"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
+
     },
     "definitions": {
         "Error": {
@@ -1392,6 +1571,28 @@
                 "message": {
                     "type": "string",
                     "example": "Something Went Wrong"
+                }
+            }
+        },
+        "Offer": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "object",
+                    "properties":{
+                        "from":{
+                            "type":"number"
+                        },
+                        "to":{
+                            "type":"number"
+                        }
+                    }
+                },
+                "requestID": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
                 }
             }
         },
@@ -1422,7 +1623,7 @@
                 },
                 "date": {
                     "type": "string",
-                    "format":"date"
+                    "format": "date"
                 },
                 "senderRole": {
                     "type": "string"
@@ -1708,6 +1909,23 @@
                     "type": "string"
                 },
                 "lastName": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "AdminRegistration": {
+            "type": "object",
+            "properties": {
+                "name": {
                     "type": "string"
                 },
                 "mobile": {

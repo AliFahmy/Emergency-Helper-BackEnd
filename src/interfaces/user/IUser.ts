@@ -14,7 +14,8 @@ interface IUser extends Document{
     balance:number;
     role:string;
     isApproved:boolean;
-    requests:string[]
-    supportTickets:string[]
+    requests:string[];
+    supportTickets:string[];
+    activeRequest:string;
 }
 export default IUser;

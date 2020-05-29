@@ -20,9 +20,11 @@ import supportTicketModel from '../models/request/SupportTicket';
 ///////////////////////////////////////////////////
 import LogInDto from '../dto/loginDTO';
 import AdminMessageDTO from '../dto/AdminMessageDTO'
+import AdminRegistrationDTO from '../dto/AdminRegistrationDTO';
 //////////////////////////////////////////////////
 import SomethingWentWrongException from '../exceptions/SomethingWentWrongException';
 import WrongCredentialsException from '../exceptions/account/WrongCredentialsException';
+import UserWithThatEmailAlreadyExistsException from '../exceptions/account/UserWithThatEmailAlreadyExistsException';
 ////////////////////////////////////////
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
@@ -45,12 +47,39 @@ class AdminController implements IController {
         this.router.get(`${this.path}/GetAllHelpers`, adminMiddleware, this.getAllHelpers)
         this.router.get(`${this.path}/GetAllClients`, adminMiddleware, this.getAllClients)
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+        this.router.post(`${this.path}/Register`, validationMiddleware(AdminRegistrationDTO), this.register);
         this.router.post(`${this.path}/Login`, validationMiddleware(LogInDto), this.login);
         this.router.post(`${this.path}/ApproveHelper`, adminMiddleware, this.approveHelper);
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         this.router.delete(`${this.path}/DeleteUser/:id`, adminMiddleware, this.deleteUser)
         this.router.post(`${this.path}/AddMessage`, adminMiddleware, validationMiddleware(AdminMessageDTO), this.addMessage);
 
+    }
+    private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        const userData: AdminRegistrationDTO = request.body;
+        await adminModel
+            .findOne({ email: userData.email })
+            .then(async (value: IAdmin) => {
+                if (value) {
+                    next(new UserWithThatEmailAlreadyExistsException(userData.email));
+                }
+                else {
+                    const hashedPassword = await bcrypt.hash(userData.password, 10);
+                    await adminModel.create({
+                        ...userData,
+                        password: hashedPassword,
+                    })
+                        .then(async (admin: IAdmin) => {
+                            admin.password = undefined;
+                            response.status(201).send(new Response('Admin Successfully!').getData());
+                        })
+                        .catch(err => {
+                            next(new SomethingWentWrongException(err));
+                        })
+                }
+            }).catch(err => {
+                next(new SomethingWentWrongException(err));
+            })
     }
     private addMessage = async (request: IRequestWithAdmin, response: express.Response, next: express.NextFunction) => {
         const message: AdminMessageDTO = request.body;
