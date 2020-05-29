@@ -28,6 +28,33 @@ const requestSchema = new mongoose.Schema({
         type:Date,
         required:true
     },
+    offers:[
+        {
+            helperID:{
+                ref:'Helper',
+                type:mongoose.Schema.Types.ObjectId,
+                required:true
+            },
+            price:{
+                from:{
+                    type:Number,
+                    required:true    
+                },
+                to:{
+                    type:Number,
+                    required:true    
+                }
+            },
+            description:{
+                type:String,
+                required:true
+            },
+            isAccepted:{
+                type:Boolean,
+                default:false
+            }
+        }
+    ],
     client:{
         ref: 'Client',
         type: mongoose.Schema.Types.ObjectId,

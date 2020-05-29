@@ -7,12 +7,17 @@ const baseOptions = {
 
 const acceptedRequestSchema = new mongoose.Schema({
     arrivesAt:{
-        type:Date,
-        required:true
+        type:Date
     },
     price:{
+       from:{
         type:Number,
         required:true
+       }, 
+       to:{
+        type:Number,
+        required:true
+       } 
     },
     request:{
         ref:'Request',

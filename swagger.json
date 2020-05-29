@@ -1434,7 +1434,131 @@
                     }
                 }
             }
+        },
+        "/api/Request/MakeOffer": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Makes Helper Offer For Client's Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Offer"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/AcceptOffer": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Accepts Helper Offer",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                               "type":"object",
+                               "properties":{
+                                   "offerID":{
+                                    "type":"string"
+                                   }
+                               }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/ViewOffers": {
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "View Client's Active Request Offers",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "payload":{
+                                            "type":"object",
+                                            "properties":{
+                                                "offers":{
+                                                    "type":"array",
+                                                    "items":{
+                                                        "$ref":"#/definitions/Offer"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
+
     },
     "definitions": {
         "Error": {
@@ -1447,6 +1571,28 @@
                 "message": {
                     "type": "string",
                     "example": "Something Went Wrong"
+                }
+            }
+        },
+        "Offer": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "object",
+                    "properties":{
+                        "from":{
+                            "type":"number"
+                        },
+                        "to":{
+                            "type":"number"
+                        }
+                    }
+                },
+                "requestID": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
                 }
             }
         },
