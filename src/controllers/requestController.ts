@@ -87,20 +87,19 @@ class RequestController implements IController {
         .then(async(req:IRequest)=>{
             if(req){
                 if(req.isCanceled){
+                    response.status(200).send(new Response("Request Is Already Canceled").getData()); 
+                }
+                else{
                     request.user.activeRequest = undefined;
                     await request.user.save()
                     .then((user:IUser)=>{
                         if(user){
-                            response.status(200).send(new Response("Request Is Already Canceled").getData());
+                            response.status(200).send(new Response("Canceled Request").getData());
                         }
                         else{
                             next(new HttpException(400,"Couldnt Save User"))
                         }
                     })
-                    
-                }
-                else{
-                    response.status(200).send(new Response("Canceled Request").getData());
                 }
             }
             else{
