@@ -1798,9 +1798,7 @@
         "NewRequest": {
             "type": "object",
             "properties": {
-                "payload": {
-                    "type": "object",
-                    "properties": {
+            
                         "description": {
                             "type": "string"
                         },
@@ -1818,8 +1816,7 @@
                         "category": {
                             "type": "string"
                         }
-                    }
-                }
+                
             }
         },
         "Request": {
