@@ -27,6 +27,7 @@ import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
 import { awsService } from './../middlewares/upload';
 import IAddress from './../interfaces/user/IAddress';
+import ILocation from './../interfaces/ILocation';
 
 class ClientController implements IController {
     public path: string;
@@ -52,32 +53,36 @@ class ClientController implements IController {
         this.router.patch(`${this.path}`, authMiddleware,awsService.single('profilePicture'), validationMiddleware(UpdateClientDTO,true), this.updateAccount);
     }
     private getAccount = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
-        await clientModel
-        .findById(request.user._id, '-password -role -isApproved -verificationToken -_id -createdAt -updatedAt -__v')
-        .then((client:IClient)=>{
-            response.status(200).send(new Response(undefined, { ...client.toObject() }).getData());
-        })
-        .catch(err=>{
-            next(new SomethingWentWrongException(err));
-        })
+        const {firstName,lastName,birthDate,email,gender,mobile,profilePicture} = request.user;
+        response.status(200).send(new Response(undefined, {firstName,lastName,birthDate,email,gender,mobile,profilePicture}).getData());
     }
-    private getSavedAddresses = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
-       await clientModel.findById(request.user._id,{savedAddresses:1})
-       .then((client:IClient)=>{
-           if(client){
-            response.status(200).send(new Response(undefined, {savedAddresses:client.savedAddresses}).getData());
-           }
-           else{
-               next(new SomethingWentWrongException())
-           }
-       })
-       .catch(err=>{
-           next(new SomethingWentWrongException(err))
-       })
+    private formateGeoAddresses = (addresses:IAddress[]) =>{
+        let savedAddresses = []
+            for(let i=0;i<addresses.length;i++){
+                savedAddresses.push({
+                    name:addresses[i].name,
+                    addressName:addresses[i].addressName,
+                    location:{
+                        longitude:addresses[i].location.coordinates[0],
+                        latitude:addresses[i].location.coordinates[1]
+                    }
+                })
+            }
+        return savedAddresses;
+    }
+    private getSavedAddresses = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {    
+        response.status(200).send(new Response(undefined, {savedAddresses:this.formateGeoAddresses(request.user.savedAddresses)}).getData());
     }
     private addAddress = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
-        const address:IAddress = request.body;
-        request.user.savedAddresses.push(address);
+        const address:AddAddressDTO = request.body;
+        const addressGeoFormat = {
+            ...address,
+            location:{
+                type:"Point",
+                coordinates:[address.location.longitude,address.location.latitude]
+            }
+        }
+        request.user.savedAddresses.push(addressGeoFormat);
         await request.user.save()
         .then((client:IClient)=>{
             if(client){

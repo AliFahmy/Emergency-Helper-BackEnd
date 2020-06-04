@@ -53,7 +53,8 @@ const userSchema = new mongoose.Schema({
   },
   requests: [{
     ref: 'Request',
-    type: mongoose.Types.ObjectId
+    type: mongoose.Types.ObjectId,
+    unique:true
   }],
   supportTickets: [{
     ref: 'supportTickets',

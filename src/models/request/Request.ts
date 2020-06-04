@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import IRequest from '../../interfaces/request/IRequest';
+import GeoSchema from './../GeoSchema';
 
 const baseOptions = {
   timestamps:true
@@ -10,49 +11,26 @@ const requestSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    isCanceled:{
-        type:Boolean,
-        default:false
-    },
-    location:{
-        longitude:{
-            type:Number,
-            required:true
+    canceledState:{
+        isCanceled:{
+            type:Boolean,
+            default:false
         },
-        latitude:{
-            type:Number,
-            required:true
+        canceledUser:{
+            ref:'User',
+            type:mongoose.Schema.Types.ObjectId
         }
     },
+    location:GeoSchema,
+    
     date:{
         type:Date,
         required:true
     },
     offers:[
         {
-            helperID:{
-                ref:'Helper',
-                type:mongoose.Schema.Types.ObjectId,
-                required:true
-            },
-            price:{
-                from:{
-                    type:Number,
-                    required:true    
-                },
-                to:{
-                    type:Number,
-                    required:true    
-                }
-            },
-            description:{
-                type:String,
-                required:true
-            },
-            isAccepted:{
-                type:Boolean,
-                default:false
-            }
+            ref:'RequestOffer',
+            type:mongoose.Schema.Types.ObjectId
         }
     ],
     client:{
@@ -65,13 +43,40 @@ const requestSchema = new mongoose.Schema({
         type: String,
         required:true
     },
-    acceptedRequestID:{
-        ref:'AcceptedRequest',
-        type:mongoose.Schema.Types.ObjectId
+    acceptedState:{
+        acceptedOffer:{
+                ref:'RequestOffer',
+                type:mongoose.Schema.Types.ObjectId
+        },
+        helperArrivalDate:{
+            type:Date
+        }
     },
-    finishedRequestID:{
-        ref:'FinishedRequest',
-        type:mongoose.Schema.Types.ObjectId
+    finishedState:{
+        isFinished:{
+            type:Boolean,
+            default:false
+        },
+        paymentMethod:{
+            ref:"PaymentMethod",
+            type:mongoose.Schema.Types.ObjectId
+        },
+        items:{
+            type:String,
+        },
+        totalPrice:{
+            type:Number
+        },
+        isPaid:{
+            type:Boolean,
+            default:false
+        },
+        clientRate:{
+            type:Number
+        },
+        helperRate:{
+            type:Number
+        }
     },
     supportTickets:[{
         ref:'SupportTicket',
@@ -79,6 +84,8 @@ const requestSchema = new mongoose.Schema({
     }]
 },baseOptions);
  
+
+
 const requestModel = mongoose.model<IRequest>('Request', requestSchema);
  
 export default requestModel;
