@@ -1523,6 +1523,20 @@
                     "Request"
                 ],
                 "summary": "Cancel Current User Active Request",
+                "requestBody":{
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"object",
+                                "properties":{
+                                    "message":{
+                                        "type":"string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "content": {
