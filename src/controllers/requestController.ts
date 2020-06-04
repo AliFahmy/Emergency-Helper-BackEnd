@@ -35,7 +35,7 @@ class RequestController implements IController {
     }
     private initializeRoutes() {
         this.router.post(`${this.path}`, authMiddleware,validationMiddleware(RequestDTO), this.createRequest);
-        this.router.post(`${this.path}/CancelRequest`, authMiddleware, this.cancelRequest);
+        this.router.post(`${this.path}/CancelRequest`, authMiddleware,validationMiddleware(CancelRequestDTO,true), this.cancelRequest);
         this.router.post(`${this.path}/MakeOffer`, authMiddleware,validationMiddleware(MakeOfferDTO), this.makeOffer);
         this.router.post(`${this.path}/AcceptOffer`, authMiddleware,validationMiddleware(AcceptOfferDTO), this.acceptOffer);
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -84,8 +84,9 @@ class RequestController implements IController {
         }
     }
     private cancelRequest = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+        const {message} = request.body;
         if(request.user.activeRequest){
-            await requestModel.findByIdAndUpdate(request.user.activeRequest,{ $set: {canceledState: {isCanceled:true,canceledUser:request.user._id} }})
+            await requestModel.findByIdAndUpdate(request.user.activeRequest,{ $set: {canceledState: {isCanceled:true,canceledUser:request.user._id,message:message} }})
         .then(async(req:IRequest)=>{
             if(req){
                     request.user.activeRequest = undefined;
