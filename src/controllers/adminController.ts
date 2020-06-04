@@ -130,7 +130,7 @@ class AdminController implements IController {
             })
     }
     private getPendingHelpers = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        await helperModel.find({ isApproved: false }, '-password -createdAt -updatedAt -__v')
+        await helperModel.find({ adminApproved: false,isApproved:true }, '-password -createdAt -updatedAt -__v')
             .then((helpers: IHelper[]) => {
                 if (helpers) {
                     response.status(200).send(new Response(undefined, { helpers }).getData());
@@ -187,7 +187,7 @@ class AdminController implements IController {
         await helperModel.findById(helperID)
             .then(async (helper: IHelper) => {
                 if (helper) {
-                    helper.isApproved = true;
+                    helper.adminApproved = true;
                     await helper.save()
                         .then((helper: IHelper) => {
                             response.status(200).send(new Response('Helper Approved').getData());
