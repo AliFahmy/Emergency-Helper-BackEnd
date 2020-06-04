@@ -13,5 +13,6 @@ interface IHelper extends IUser {
     backID:string;
     category:string;
     role:string;
+    currentOffer:string;
 }
 export default IHelper;

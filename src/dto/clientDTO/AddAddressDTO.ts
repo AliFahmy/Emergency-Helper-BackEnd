@@ -1,5 +1,5 @@
 import { IsString,IsNotEmptyObject } from 'class-validator';
-import ILocation from './../../interfaces/ILocation';
+import LocationDTO from './../locationDTO';
 
 
 class AddAddressDTO {
@@ -10,7 +10,7 @@ class AddAddressDTO {
   public addressName: string;
 
   @IsNotEmptyObject()
-  public location: ILocation;
+  public location: LocationDTO;
 
 }
 

@@ -1,6 +1,5 @@
-import { Document} from "mongoose";
- interface ILocation extends Document{
-    longitude : number;
-    latitude : number;
+interface ILocation  {
+    type:string;
+    coordinates:number[]
 }
 export default ILocation;
