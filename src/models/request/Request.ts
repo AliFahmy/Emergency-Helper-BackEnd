@@ -19,6 +19,9 @@ const requestSchema = new mongoose.Schema({
         canceledUser:{
             ref:'User',
             type:mongoose.Schema.Types.ObjectId
+        },
+        message:{
+            type:String
         }
     },
     location:GeoSchema,

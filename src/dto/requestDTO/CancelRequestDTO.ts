@@ -1,8 +1,8 @@
-import { IsMongoId} from 'class-validator';
+import { IsString} from 'class-validator';
 
-class RequestDTO {
-  @IsMongoId()
-  public _id: string;
+class CancelRequestDTO {
+  @IsString()
+  public message:string;
 }
 
-export default RequestDTO;
+export default CancelRequestDTO;
