@@ -156,7 +156,7 @@ class HelperController implements IController {
             next(new SomethingWentWrongException('Error: No Files Selected!'))
         }
         else{
-            await helperModel.findOne({ email: userData.email })
+            await helperModel.findOne({ email: userData.email.toLowerCase() })
             .then(async(helper:IHelper)=>{
                 if(helper){
                     next(new UserWithThatEmailAlreadyExistsException(userData.email));
@@ -170,6 +170,7 @@ class HelperController implements IController {
                                 const verificationToken = this.tokenManager.getToken({ email: userData.email });
                                 await helperModel.create({
                                     ...userData,
+                                    email:userData.email.toLowerCase(),
                                     picture: files['profilePicture'][0].location,
                                     frontID: files['frontID'][0].location,
                                     backID: files['backID'][0].location,

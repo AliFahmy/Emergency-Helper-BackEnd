@@ -2175,7 +2175,8 @@
                             "type": "string"
                         },
                         "birthDate": {
-                            "type": "string"
+                            "type": "string",
+                            "format":"date"
                         },
                         "email": {
                             "type": "string"
@@ -2185,6 +2186,9 @@
                         },
                         "mobile": {
                             "type": "string"
+                        },
+                        "balance":{
+                            "type":"number"
                         },
                         "profilePicture": {
                             "type": "string",
