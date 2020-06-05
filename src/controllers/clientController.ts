@@ -53,8 +53,8 @@ class ClientController implements IController {
         this.router.patch(`${this.path}`, authMiddleware,awsService.single('profilePicture'), validationMiddleware(UpdateClientDTO,true), this.updateAccount);
     }
     private getAccount = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
-        const {firstName,lastName,birthDate,email,gender,mobile,profilePicture} = request.user;
-        response.status(200).send(new Response(undefined, {firstName,lastName,birthDate,email,gender,mobile,profilePicture}).getData());
+        const {firstName,lastName,birthDate,email,gender,mobile,balance,profilePicture} = request.user;
+        response.status(200).send(new Response(undefined, {firstName,lastName,birthDate,email,gender,mobile,balance,profilePicture}).getData());
     }
     private formateGeoAddresses = (addresses:IAddress[]) =>{
         let savedAddresses = []
@@ -118,7 +118,7 @@ class ClientController implements IController {
     private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const userData: ClientRegistrationDTO = request.body;
         await clientModel
-            .findOne({ email: userData.email })
+            .findOne({ email: userData.email.toLowerCase() })
             .then(async (value: IUser) => {
                 if (value) {
                     next(new UserWithThatEmailAlreadyExistsException(userData.email));
@@ -128,6 +128,7 @@ class ClientController implements IController {
                     const verificationToken = this.tokenManager.getToken({ email: userData.email });
                     await clientModel.create({
                         ...userData,
+                        email:userData.email.toLowerCase(),
                         password: hashedPassword,
                         verificationToken: verificationToken
                     })
