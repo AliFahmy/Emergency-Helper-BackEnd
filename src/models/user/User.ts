@@ -33,9 +33,6 @@ const userSchema = new mongoose.Schema({
   mobile: {
     type: String
   },
-  profilePicture: {
-    type: String,
-  },
   balance: {
     type: Number,
     default: 0
@@ -50,6 +47,10 @@ const userSchema = new mongoose.Schema({
   activeRequest: {
     ref: 'Request',
     type: mongoose.Types.ObjectId
+  },
+  profilePicture:{
+        type:String,
+        default:"https://emergencyhelper.s3.eu-west-3.amazonaws.com/profilePictureTemplate.png"
   },
   requests: [{
     ref: 'Request',

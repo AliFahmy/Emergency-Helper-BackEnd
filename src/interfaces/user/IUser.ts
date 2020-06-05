@@ -6,11 +6,11 @@ interface IUser extends Document{
     firstName:string;
     lastName:string;
     email: string;
+    profilePicture:string;
     password: string;
     birthDate: Date;
     gender:string;
     mobile:string;
-    profilePicture:Buffer;
     balance:number;
     role:string;
     isApproved:boolean;
