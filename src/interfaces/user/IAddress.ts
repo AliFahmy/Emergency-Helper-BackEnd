@@ -1,6 +1,5 @@
-import { Document} from "mongoose";
 import ILocation from '../ILocation';
-interface IAddress extends Document{
+interface IAddress{
     addressName:string;
     name:string;
     location:ILocation;

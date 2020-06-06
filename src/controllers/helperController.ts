@@ -1,27 +1,26 @@
 import * as express from 'express';
 import * as bcrypt from 'bcrypt';
-import { Types } from 'mongoose';
 ////////////////////////////////////////////////////
 import IController from '../interfaces/IController';
 import ICategory from './../interfaces/ICategory';
 import IHelper from '../interfaces/user/IHelper';
-import IRequestWithUser from 'interfaces/httpRequest/IRequestWithUser';
+import IRequest from '../interfaces/request/IRequest';
+
 ////////////////////////////////////////////////////
+
 import authMiddleware from '../middlewares/auth';
 import validationMiddleware from '../middlewares/validation';
 import {awsService} from '../middlewares/upload';
 ///////////////////////////////////////////////////
 import categoryModel from '../models/Category';
 import helperModel from '../models/user/Helper';
-
 ////////////////////////////////////////////////////
-
 import CategoryDTO from '../dto/categoryDTO';
 import LogInDto from './../dto/loginDTO';
 import updateHelperDTO from './../dto/helperDTO/updateHelperDTO';
 import HelperRegistrationDTO from '../dto/helperDTO/helperRegistrationDTO';
 ////////////////////////////////////////////////////
-import WrongCredentialsException from '../exceptions/account/WrongCredentialsException';
+import HttpException from '../exceptions/HttpException';
 import SomethingWentWrongException from './../exceptions/SomethingWentWrongException';
 import UserIsNotApprovedException from '../exceptions/account/UserIsNotApprovedException';
 import UserWithThatEmailAlreadyExistsException from '../exceptions/account/UserWithThatEmailAlreadyExistsException';
@@ -30,7 +29,11 @@ import HelperCategoryAlreadyExistsException from '../exceptions/helper/HelperCat
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
-
+import IRequestWithHelper from './../interfaces/httpRequest/IRequestWithHelper';
+import requestOfferModel from './../models/request/RequestOffer';
+import IRequestOffer from './../interfaces/request/IRequestOffer';
+import ViewNearbyRequestsDTO from './../dto/requestDTO/viewNearByRequestsDTO';
+import requestModel from '../models/request/Request'
 
 class HelperController implements IController {
     public path: string;
@@ -47,6 +50,9 @@ class HelperController implements IController {
     private initializeRoutes() {
         this.router.get(`${this.path}/AllCategories`, this.getAllCategories);
         this.router.get(`${this.path}`, authMiddleware, this.getAccount);
+        this.router.get(`${this.path}/CurrentOffer`, authMiddleware, this.getCurrentOffer);
+        this.router.get(`${this.path}/HelperStatus`, authMiddleware, this.getHelperStatus);
+        
         ////////////////////////////////////////////////////////////////////
         this.router.post(`${this.path}/Login`, validationMiddleware(LogInDto), this.login);
         this.router
@@ -54,10 +60,13 @@ class HelperController implements IController {
         awsService.fields([{name:'frontID',maxCount:1},{name:'backID',maxCount:1},{name:'profilePicture',maxCount:1},{name:'certificate',maxCount:1}]),
         validationMiddleware(HelperRegistrationDTO), 
         this.register);
-
         this.router.post(`${this.path}/Category`, validationMiddleware(CategoryDTO), this.insertCategory);
+        this.router.post(`${this.path}/ToggleStatus`,authMiddleware, this.toggleState);
+        this.router.post(`${this.path}/ViewNearbyRequests`, authMiddleware,validationMiddleware(ViewNearbyRequestsDTO,true), this.viewNearByRequests);
+        
         ////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}`, authMiddleware, validationMiddleware(updateHelperDTO, true), this.updateAccount);
+
     }
     private getAllCategories = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         await categoryModel.find({}, '-_id -createdAt -updatedAt -__v')
@@ -108,9 +117,14 @@ class HelperController implements IController {
                 .then(async (isPasswordMatching:boolean)=>{
                     if(isPasswordMatching){
                         helper.password = undefined;
-                        if (helper.isApproved) {
-                            const token = this.tokenManager.getToken({ _id: helper._id });
-                            response.status(200).send(new Response('Login Success', { token }).getData());
+                        if (helper.isApproved){
+                            if(helper.adminApproved){
+                                const token = this.tokenManager.getToken({ _id: helper._id });
+                                response.status(200).send(new Response('Login Success', { token }).getData());
+                            }
+                            else{
+                                next(new HttpException(401,"Helper Is Not Approved By Admin Yet"))
+                            }
                         }
                         else{
                             await this.mailer.sendRegistrationMail(helper.firstName, helper.verificationToken, helper.email,helper.role)
@@ -142,7 +156,7 @@ class HelperController implements IController {
             next(new SomethingWentWrongException('Error: No Files Selected!'))
         }
         else{
-            await helperModel.findOne({ email: userData.email })
+            await helperModel.findOne({ email: userData.email.toLowerCase() })
             .then(async(helper:IHelper)=>{
                 if(helper){
                     next(new UserWithThatEmailAlreadyExistsException(userData.email));
@@ -156,6 +170,7 @@ class HelperController implements IController {
                                 const verificationToken = this.tokenManager.getToken({ email: userData.email });
                                 await helperModel.create({
                                     ...userData,
+                                    email:userData.email.toLowerCase(),
                                     picture: files['profilePicture'][0].location,
                                     frontID: files['frontID'][0].location,
                                     backID: files['backID'][0].location,
@@ -198,10 +213,29 @@ class HelperController implements IController {
         })
     }
     }
-    private getAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+    private getAccount = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
         response.status(200).send(new Response(undefined, {...request.user}).getData());
     }
-    private updateAccount = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+    private getCurrentOffer = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
+        if(request.user.currentOffer){
+            await requestOfferModel.findById(request.user.currentOffer,'-helperID -createdAt -updatedAt -__v')
+            .then((offer:IRequestOffer)=>{
+                if(offer){
+                    response.status(200).send(new Response(undefined, {...offer.toObject()}).getData());
+                }
+            })
+            .catch(err=>{
+                next(new SomethingWentWrongException(err))
+            })
+        }
+        else{
+            response.status(404).send(new Response("Helper Dosent Have Current Offer").getData());
+        }
+    }
+    private getHelperStatus = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
+        response.status(200).send(new Response(undefined, {status:request.user.isActive}).getData());
+    }
+    private updateAccount = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
         let newData: updateHelperDTO = request.body;
         let newObj = newData;
         request.file ? newObj['profilePicture'] = request.file['location'] : null;
@@ -215,6 +249,42 @@ class HelperController implements IController {
             }
         })
         .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
+    }
+    private toggleState = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
+        request.user.isActive = !request.user.isActive;
+        await request.user.save().then((helper:IHelper)=>{
+            if(helper){
+                response.status(200).send(new Response('Toggeled Successfuly!').getData());
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
+    }
+    private viewNearByRequests = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
+        const ViewNearbyRequestsDTO:ViewNearbyRequestsDTO = request.body
+        let radius = 5;
+        if(ViewNearbyRequestsDTO.radius){
+            radius = ViewNearbyRequestsDTO.radius
+        }
+        await requestModel.find(
+            {
+                location:{
+                    $geoWithin: {
+                        $centerSphere:[ [ request.user.location.coordinates[0] , request.user.location.coordinates[1] ] ,radius/3963.2 ] 
+                    }
+                },
+                "canceledState.isCanceled":false
+            },
+            '-canceledState -finishedState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
+        )
+        .then((requests:IRequest[])=>{
+            response.status(200).send(new Response(undefined,{requests}).getData());
+        })
+        .catch(err=>{
+            console.log(err)
             next(new SomethingWentWrongException(err))
         })
     }

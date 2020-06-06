@@ -848,6 +848,131 @@
                 }
             }
         },
+        "/api/Helper/ToggleStatus": {
+            "post": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Toggels Helper Active State",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "message":{
+                                            "type":"string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/HelperStatus": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Retrieve Helper Status",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref":"#/definitions/HelperStatus"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/CurrentOffer": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Retrieve Helper's Current Offer",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref":"#/definitions/HelperCurrentOffer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/ViewNearbyRequests": {
+            "post": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Views Nearby Requests To Helper Within Radius",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type":"object",
+                                "properties":{
+                                    "radius":{
+                                        "type":"number"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref":"#/definitions/NearbyRequests"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Helper/Category": {
             "post": {
                 "tags": [
@@ -976,6 +1101,61 @@
                     },
                     "401": {
                         "description": "Incorrect Email or Password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Admin/Register": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Registers Admin to the database for testing purposes only",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AdminRegistration"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registered Successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Admin Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Email Already Exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1342,12 +1522,17 @@
                 "tags": [
                     "Request"
                 ],
-                "summary": "Cancel Request",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/definitions/id"
+                "summary": "Cancel Current User Active Request",
+                "requestBody":{
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"object",
+                                "properties":{
+                                    "message":{
+                                        "type":"string"
+                                    }
+                                }
                             }
                         }
                     }
@@ -1379,7 +1564,163 @@
                     }
                 }
             }
+        },
+        "/api/Request/MakeOffer": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Makes Helper Offer For Client's Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Offer"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/AcceptOffer": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Accepts Helper Offer",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                               "type":"object",
+                               "properties":{
+                                   "offerID":{
+                                    "type":"string"
+                                   }
+                               }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/ViewOffers": {
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "View Client's Active Request Offers",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "payload":{
+                                            "type":"object",
+                                            "properties":{
+                                                "offers":{
+                                                    "type":"array",
+                                                    "items":{
+                                                        "$ref":"#/definitions/Offer"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/ViewHistory": {
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "View User's History of Requests",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "payload":{
+                                            "type":"object",
+                                            "properties":{
+                                                "offers":{
+                                                    "type":"array",
+                                                    "items":{
+                                                        "$ref":"#/definitions/Request"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
+
     },
     "definitions": {
         "Error": {
@@ -1392,6 +1733,81 @@
                 "message": {
                     "type": "string",
                     "example": "Something Went Wrong"
+                }
+            }
+        },
+        "Offer": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "object",
+                    "properties":{
+                        "from":{
+                            "type":"number"
+                        },
+                        "to":{
+                            "type":"number"
+                        }
+                    }
+                },
+                "requestID": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "helperID":{
+                    "type":"string"
+                },
+                "helperInfo":{
+                    "type":"object",
+                    "properties":{
+                        "profilePicture":{
+                            "type":"string"
+                        },
+                        "name":{
+                            "type":"string"
+                        },
+                        "skills":{
+                            "type":"string"
+                        },
+                        "category":{
+                            "type":"string"
+                        }
+                    }
+                }
+            }
+        },
+        "HelperCurrentOffer":{
+            "type":"object",
+            "properties":{
+                "payload":{
+                    "type":"object",
+                    "properties":{
+                        "price": {
+                            "type": "object",
+                            "properties":{
+                                "from":{
+                                    "type":"number"
+                                },
+                                "to":{
+                                    "type":"number"
+                                }
+                            }
+                        },
+                        "isAccepted":{
+                            "type":"boolean"
+                        },
+                        "_id":{
+                            "type":"string"
+                        },
+                        "description":{
+                            "type":"string"
+                        },
+                        "requestID":{
+                            "type":"string"
+                        }
+                    }
                 }
             }
         },
@@ -1422,7 +1838,7 @@
                 },
                 "date": {
                     "type": "string",
-                    "format":"date"
+                    "format": "date"
                 },
                 "senderRole": {
                     "type": "string"
@@ -1721,6 +2137,23 @@
                 }
             }
         },
+        "AdminRegistration": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "Category": {
             "type": "object",
             "properties": {
@@ -1742,7 +2175,8 @@
                             "type": "string"
                         },
                         "birthDate": {
-                            "type": "string"
+                            "type": "string",
+                            "format":"date"
                         },
                         "email": {
                             "type": "string"
@@ -1752,6 +2186,9 @@
                         },
                         "mobile": {
                             "type": "string"
+                        },
+                        "balance":{
+                            "type":"number"
                         },
                         "profilePicture": {
                             "type": "string",
@@ -1832,20 +2269,9 @@
                 }
             }
         },
-        "Picture": {
-            "properties": {
-                "picture": {
-                    "type": "string",
-                    "format": "byte"
-                }
-            }
-        },
         "NewRequest": {
             "type": "object",
             "properties": {
-                "payload": {
-                    "type": "object",
-                    "properties": {
                         "description": {
                             "type": "string"
                         },
@@ -1863,6 +2289,20 @@
                         "category": {
                             "type": "string"
                         }
+            }
+        },
+        "NearbyRequests":{
+            "type":"object",
+            "properties":{
+                "payload":{
+                    "type":"object",
+                    "properties":{
+                        "requests":{
+                            "type":"array",
+                            "items":{
+                                "$ref":"#/definitions/Request"
+                            }
+                        }
                     }
                 }
             }
@@ -1873,16 +2313,56 @@
                 "location": {
                     "type": "object",
                     "properties": {
-                        "longitude": {
-                            "type": "number"
+                        "type":{
+                            "type":"string"
                         },
-                        "latitude": {
-                            "type": "number"
+                        "_id":{
+                            "type":"string"
+                        },
+                        "coordinates":{
+                            "type":"array",
+                            "items":{
+                                "type":"number"
+                            }
                         }
                     }
                 },
-                "isCanceled": {
-                    "type": "boolean"
+                "canceledState": {
+                    "type": "object",
+                    "properties":{
+                        "isCanceled":{
+                            "type":"boolean"
+                        },
+                        "canceledUser":{
+                            "type":"string"
+                        }
+                    }
+                },
+                "finishedState": {
+                    "type": "object",
+                    "properties":{
+                        "isFinished":{
+                            "type":"boolean"
+                        },
+                        "isPaid":{
+                            "type":"string"
+                        },
+                        "paymentMethod":{
+                            "type":"string"
+                        },
+                        "items":{
+                            "type":"string"
+                        },
+                        "totalPrice":{
+                            "type":"number"
+                        },
+                        "clientRate":{
+                            "type":"number"
+                        },
+                        "helperRate":{
+                            "type":"number"
+                        }
+                    }
                 },
                 "_id": {
                     "type": "string"
@@ -1925,6 +2405,19 @@
                 },
                 "category": {
                     "type": "string"
+                }
+            }
+        },
+        "HelperStatus":{
+            "type":"object",
+            "properties":{
+                "payload":{
+                    "type":"object",
+                    "properties":{
+                        "status":{
+                            "type":"boolean"
+                        }
+                    }
                 }
             }
         }

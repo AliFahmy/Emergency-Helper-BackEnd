@@ -1,16 +1,21 @@
 import ILocation from './../ILocation';
+import ISupportTicket from './../ISupportTicket';
+import IAcceptedState from './IAcceptedState';
+import IFinishedState from './IFinishedState';
+import ICanceledState from './ICanceledState';
 import { Document } from 'mongoose';
 interface IRequest extends Document{
     _id:string;
     description: string;
-    isCanceled: boolean;
+    canceledState: ICanceledState;
     date: Date;
     location:ILocation;
     category:string;
     client:string;
-    acceptedRequestID:string;
-    finishedRequestID:string;
-    
+    supportTickets:ISupportTicket[];
+    acceptedState:IAcceptedState;
+    finishedState:IFinishedState;
+    offers:string[];
 }
 
 export default IRequest;

@@ -1,6 +1,4 @@
-import * as bcrypt from 'bcrypt';
 import * as express from 'express';
-/////////////////////////////////////////
 /////////////////////////////////////////
 import validationMiddleware from '../middlewares/validation';
 import authMiddleware from '../middlewares/auth';
@@ -10,22 +8,23 @@ import IUser from '../interfaces/user/IUser';
 import IRequest from '../interfaces/request/IRequest'
 import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
 /////////////////////////////////////////
-import userModel from '../models/user/User';
 import requestModel from '../models/request/Request'
 /////////////////////////////////////////
 import RequestDTO from '../dto/requestDTO/RequestDTO';
+import MakeOfferDTO from './../dto/requestDTO/MakeOfferDTO';
 import CancelRequestDTO from '../dto/requestDTO/CancelRequestDTO';
 /////////////////////////////////////////
 import SomethingWentWrongException from './../exceptions/SomethingWentWrongException';
-import OldPasswordDosentMatchException from '../exceptions/account/OldPasswordDosentMatchException';
-////////////////////////////////////////
-import sendEmail from '../modules/sendEmail';
-import TokenManager from '../modules/tokenManager';
-import Response from '../modules/Response';
-import clientModel from './../models/user/Client';
-import helperModel from './../models/user/Helper';
-import WrongCredentialsException from './../exceptions/account/WrongCredentialsException';
 import HttpException from './../exceptions/HttpException';
+////////////////////////////////////////
+import Response from '../modules/Response';
+import AcceptOfferDTO from './../dto/requestDTO/AcceptOfferDTO';
+import helperModel from './../models/user/Helper';
+import IHelper from './../interfaces/user/IHelper';
+import IRequestWithHelper from './../interfaces/httpRequest/IRequestWithHelper';
+import requestOfferModel from './../models/request/RequestOffer';
+import IRequestOffer from './../interfaces/request/IRequestOffer';
+
 class RequestController implements IController {
     public path: string;
     public router: express.IRouter;
@@ -36,16 +35,26 @@ class RequestController implements IController {
     }
     private initializeRoutes() {
         this.router.post(`${this.path}`, authMiddleware,validationMiddleware(RequestDTO), this.createRequest);
-        this.router.post(`${this.path}/CancelRequest`, authMiddleware,validationMiddleware(CancelRequestDTO), this.cancelRequest);
+        this.router.post(`${this.path}/CancelRequest`, authMiddleware,validationMiddleware(CancelRequestDTO,true), this.cancelRequest);
+        this.router.post(`${this.path}/MakeOffer`, authMiddleware,validationMiddleware(MakeOfferDTO), this.makeOffer);
+        this.router.post(`${this.path}/AcceptOffer`, authMiddleware,validationMiddleware(AcceptOfferDTO), this.acceptOffer);
+        ///////////////////////////////////////////////////////////////////////////////////////////
         this.router.get(`${this.path}/ActiveRequest`, authMiddleware, this.getCurrentRequest);
-
+        this.router.get(`${this.path}/ViewOffers`, authMiddleware, this.viewOffers);
+        this.router.get(`${this.path}/ViewHistory`, authMiddleware, this.viewHistory);
+        
     }
     private createRequest = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         const newRequest:RequestDTO = request.body;
-        await requestModel.create({...newRequest, client:request.user._id,date:new Date()})
+        if(request.user.activeRequest){
+           next(new HttpException(404,"Cant Create Request, You Already Have Active One")) 
+        }
+        else{
+            await requestModel.create({...newRequest, client:request.user._id,date:new Date(),"location":{"type":"Point","coordinates":[newRequest.location.longitude,newRequest.location.latitude]}})
         .then(async(req:IRequest)=>{
             if(req){
                 request.user.requests.push(req._id)
+                request.user.activeRequest = req._id
                 await request.user.save()
                 .then(async(user:IUser)=>{
                     if(user){
@@ -72,20 +81,25 @@ class RequestController implements IController {
         .catch(err=>{
             next(new SomethingWentWrongException(err))
         })
+        }
     }
     private cancelRequest = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        const req:CancelRequestDTO = request.body;
-        if(request.user.requests.includes(req._id)){
-            await requestModel.findByIdAndUpdate(req._id,{ $set: {isCanceled: true }})
-        .then((req:IRequest)=>{
+        const {message} = request.body;
+        if(request.user.activeRequest){
+            await requestModel.findByIdAndUpdate(request.user.activeRequest,{ $set: {canceledState: {isCanceled:true,canceledUser:request.user._id,message:message} }})
+        .then(async(req:IRequest)=>{
             if(req){
-                if(req.isCanceled){
-                    response.status(200).send(new Response("Request Is Already Canceled").getData());
-                    
-                }
-                else{
-                    response.status(200).send(new Response("Canceled Request").getData());
-                }
+                    request.user.activeRequest = undefined;
+                    await request.user.save()
+                    .then((user:IUser)=>{
+                        if(user){
+                            response.status(200).send(new Response("Canceled Request").getData());
+                        }
+                        else{
+                            next(new HttpException(400,"Couldnt Save User"))
+                        }
+                    })
+                
             }
             else{
                 next(new HttpException(404,"Couldn't Cancel Request"))
@@ -96,22 +110,169 @@ class RequestController implements IController {
         })
         }
         else{
-            next(new HttpException(400,"You Have No Request With That ID"))
+            next(new HttpException(400,"You Have No Active Request"))
         }
     }
+    private async getActiveRequest(user:IUser):Promise<IRequest>{
+        return new Promise<IRequest>(async(resolve,reject)=>{
+            await requestModel.findById(user.activeRequest,'-createdAt -updatedAt -__v -supportTickets -client')
+          .then((Request:IRequest)=>{
+            resolve(Request);
+          })
+          .catch(err=>{
+                reject(err)
+            }) 
+        })
+    }
     private getCurrentRequest = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        await requestModel.findOne({isCanceled:false,_id:{$in:request.user.requests},finishedRequestID:null},'-createdAt -updatedAt -__v -supportTickets -client')
-      .then((Request:IRequest)=>{
-        if(Request){
-            response.status(200).send(new Response(undefined,{...Request.toObject()}).getData());
+        await this.getActiveRequest(request.user)
+        .then((req:IRequest)=>{
+            if(req){
+                response.status(200).send(new Response(undefined,{...req.toObject()}).getData());
+            }
+            else{
+                next(new HttpException(404,"User Has No Active Request"))
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
+    }
+    private makeOffer = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
+        const offer:MakeOfferDTO = request.body;
+        if(request.user.role==="Helper"){
+        await requestModel.findById(offer.requestID)
+        .then(async(req:IRequest)=>{
+            if(req){
+                await requestOfferModel.create({helperID:request.user._id,price:offer.price,description:offer.description,requestID:req._id})
+                .then(async(offerObj:IRequestOffer)=>{
+                    req.offers.push(offerObj._id);
+                    request.user.currentOffer = offerObj._id;
+                    await req.save()
+                    .then(async(req:IRequest)=>{
+                    if(req){
+                        await request.user.save().then((helper:IHelper)=>{
+                            if(helper){
+                                response.status(200).send(new Response("Submited Offer Successfully").getData());
+                            }
+                            else{
+                                next(new SomethingWentWrongException("Couldnt Save"))
+                            }
+                        })
+                        .catch(err=>{
+                            next(new SomethingWentWrongException(err))
+                        }) 
+                    }
+                    else{
+                        next(new HttpException(400,"Failed To Make Offer, Please try again later."))
+                    }
+                })
+                .catch(err=>{
+                    next(new SomethingWentWrongException(err))
+                })
+                }).catch(err=>{
+                    next(new SomethingWentWrongException(err))
+                })
+            }
+            else{
+                next(new HttpException(404,"This Request No Longer Exists"))
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
         }
         else{
-            next(new HttpException(404,"You Have No Active Request"))
+            next(new HttpException(401,"Only Helpers Are Allowed To Make Offers"))
         }
-      })
-      .catch(err=>{
-          next(new SomethingWentWrongException(err))
-      })
+        
+    }
+    private async getHelperInformationById(id:string):Promise<object>{
+        return new Promise<object>(async(resolve,reject)=>{
+            await helperModel.findById(id)
+            .then((helper:IHelper)=>{
+                if(helper){
+                    const helperInfo = {
+                        profilePicture: helper.profilePicture,
+                        name:helper.firstName,
+                        skills:helper.skills,
+                        category:helper.category
+                    }
+                    resolve(helperInfo)
+                }
+                else{
+                    resolve(null)
+                }
+            })
+            .catch(err=>{
+                reject(err)
+            })
+        })
+    }
+    private viewOffers = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+        if(request.user.activeRequest){
+            await requestOfferModel.find({requestID:request.user.activeRequest},'-createdAt -isAccepted -updatedAt -__v -requestID')
+            .then(async(offersArray:IRequestOffer[])=>{
+                if(offersArray){
+                    let offers=[];
+                    for(let i=0;i<offersArray.length;i++){
+                        await this.getHelperInformationById(offersArray[i].helperID)
+                        .then((helperInfo)=>{
+                            offers.push({
+                                helperInfo,
+                                offer:offersArray[i]
+                            })
+                        })
+                    }
+                    response.status(200).send(new Response(undefined,{offers}).getData());
+                }
+                else{
+                    response.status(200).send(new Response("Request Has No Offers Yet").getData());
+                }
+            })
+            .catch(err=>{
+                next(new SomethingWentWrongException(err))
+            })
+        }
+        else{
+            next(new HttpException(404,"User Has No Active Request"))
+        }
+    }
+    private viewHistory = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+        await requestModel.find({_id:{$in:request.user.requests},"finishedState.isFinished":true},'-createdAt -updatedAt -__v -supportTickets -client -offers')
+        .then((requests:IRequest[])=>{
+            response.status(200).send(new Response(undefined,{requests}).getData());  
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
+    }
+    private acceptOffer = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
+        const offer:AcceptOfferDTO = request.body;
+        await requestOfferModel.findByIdAndUpdate(offer.offerID,{isAccepted:true})
+        .then(async (offerObj:IRequestOffer)=>{
+            if(offerObj){
+                await requestModel.findByIdAndUpdate(request.user.activeRequest,{acceptedState:{acceptedOffer:offer.offerID}})
+                .then(async(req:IRequest)=>{
+                    await helperModel.findByIdAndUpdate(offerObj.helperID,{activeRequest:req._id,$push:{"requests":req._id}})
+                    .then((helper:IHelper)=>{
+                        response.status(200).send(new Response(`Offer Accepted, You Will Be Connected With Your Helper ${helper.firstName} As Soon As Possible`).getData());  
+                    })
+                    .catch(err=>{
+                        next(new SomethingWentWrongException(err))
+                    })
+                })
+                .catch(err=>{
+                    next(new SomethingWentWrongException(err))
+                })
+            }
+            else{
+                next(new HttpException(404,"This Offer No Longer Exists"))
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
     }
 
 }

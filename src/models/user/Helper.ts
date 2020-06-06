@@ -23,12 +23,8 @@ const Helper = User.discriminator('Helper',new mongoose.Schema({
         default:false
     },
     location:{
-        longitude:{
-            type:Number
-        },
-        latitude:{
-            type:Number
-        }
+        type: { type: String, default:'Point' }, 
+        coordinates: [Number] 
     },
     skills:{
         type:String,
@@ -41,6 +37,10 @@ const Helper = User.discriminator('Helper',new mongoose.Schema({
     category:{
         ref: 'Category',
         type: String,
+    },
+    currentOffer:{
+        ref:'RequestOffer',
+        type:mongoose.Schema.Types.ObjectId
     }
 }));
 
