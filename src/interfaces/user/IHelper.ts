@@ -1,6 +1,5 @@
 import IUser from './IUser';
 import ILocation from './../ILocation';
-import { Types } from 'mongoose';
 interface IHelper extends IUser {
     bankAccount: string;
     isApproved:boolean;

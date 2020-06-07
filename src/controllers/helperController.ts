@@ -34,6 +34,7 @@ import requestOfferModel from './../models/request/RequestOffer';
 import IRequestOffer from './../interfaces/request/IRequestOffer';
 import ViewNearbyRequestsDTO from './../dto/requestDTO/viewNearByRequestsDTO';
 import requestModel from '../models/request/Request'
+import LocationDTO from './../dto/locationDTO';
 
 class HelperController implements IController {
     public path: string;
@@ -65,8 +66,8 @@ class HelperController implements IController {
         this.router.post(`${this.path}/ViewNearbyRequests`, authMiddleware,validationMiddleware(ViewNearbyRequestsDTO,true), this.viewNearByRequests);
         
         ////////////////////////////////////////////////////////////////////
+        this.router.patch(`${this.path}/Location`, authMiddleware,validationMiddleware(LocationDTO),this.updateLocation)
         this.router.patch(`${this.path}`, authMiddleware, validationMiddleware(updateHelperDTO, true), this.updateAccount);
-
     }
     private getAllCategories = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         await categoryModel.find({}, '-_id -createdAt -updatedAt -__v')
@@ -171,6 +172,10 @@ class HelperController implements IController {
                                 await helperModel.create({
                                     ...userData,
                                     email:userData.email.toLowerCase(),
+                                    location:{
+                                        type:"Point",
+                                        coordinates:[0,0]
+                                    },
                                     picture: files['profilePicture'][0].location,
                                     frontID: files['frontID'][0].location,
                                     backID: files['backID'][0].location,
@@ -257,6 +262,19 @@ class HelperController implements IController {
         await request.user.save().then((helper:IHelper)=>{
             if(helper){
                 response.status(200).send(new Response('Toggeled Successfuly!').getData());
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
+    }
+    private updateLocation = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
+        const location:LocationDTO = request.body;
+        request.user.location.coordinates = [location.longitude,location.latitude]
+        await request.user.save()
+        .then((helper:IHelper)=>{
+            if(helper){
+                response.status(200).send(new Response('Updated Location Successfuly!').getData());
             }
         })
         .catch(err=>{

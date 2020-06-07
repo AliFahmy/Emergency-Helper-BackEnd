@@ -872,6 +872,39 @@
                 }
             }
         },
+        "/api/Helper/Location": {
+            "patch": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Updates Helper Location",
+                "requestBody":{
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "$ref":"#/definitions/Location"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "message":{
+                                            "type":"string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Helper/HelperStatus": {
             "get": {
                 "tags": [
@@ -2418,6 +2451,17 @@
                             "type":"boolean"
                         }
                     }
+                }
+            }
+        },
+        "Location":{
+            "type":"object",
+            "properties":{
+                "longitude":{
+                    "type":"number"
+                },
+                "latitude":{
+                    "type":"number"
                 }
             }
         }
