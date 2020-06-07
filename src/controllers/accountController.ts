@@ -80,7 +80,6 @@ class AccountController implements IController {
     private addMessage = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         const message: MessageDTO = request.body;
         const newMessage = { message: message.message, date: new Date(), senderRole: request.user.role, senderID: request.user._id, senderName: request.user.firstName + " " + request.user.lastName }
-
         await supportTicketModel.findById(message.ticketID)
             .then(async (ticket) => {
                 if (ticket) {
@@ -103,7 +102,9 @@ class AccountController implements IController {
     }
     private CreateSupportTicket = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
         let supportTicket: CreateSupportTicketDTO = request.body;
-        await supportTicketModel.create({ ...supportTicket, client: request.user._id, date: new Date(), })
+        const initialMessage = { message: supportTicket.description, date: new Date(), senderRole: request.user.role, senderID: request.user._id, senderName: request.user.firstName + " " + request.user.lastName }
+
+        await supportTicketModel.create({ ...supportTicket, client: request.user._id, date: new Date(), messages:[initialMessage]})
             .then(async (ticket: ISupportTicket) => {
                 if (ticket) {
                     request.user.supportTickets.push(ticket._id)
@@ -132,7 +133,7 @@ class AccountController implements IController {
     private GetTickets = async (supportTicketsIDs: Types.ObjectId[]): Promise<string[]> => {
         let supportTickets: any = [];
         for (let i in supportTicketsIDs) {
-            await supportTicketModel.findById(supportTicketsIDs[i], { description: 1, category: 1, date: 1 }, (err, ticket: ISupportTicket) => {
+            await supportTicketModel.findById(supportTicketsIDs[i], { description: 1, category: 1, date: 1 }).then((ticket: ISupportTicket) => {
                 supportTickets.push(ticket);
             });
         }
