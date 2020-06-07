@@ -1974,7 +1974,7 @@
                 },
                 "closed": {
                     "type": "boolean",
-                    "example": "false"
+                    "example": false
                 }
             }
         },
@@ -2401,7 +2401,7 @@
                 },
                 "request": {
                     "type": "string",
-                    "required": false
+                    "required": "false"
                 },
                 "category": {
                     "type": "string"
