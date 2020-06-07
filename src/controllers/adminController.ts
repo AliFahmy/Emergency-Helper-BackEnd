@@ -182,14 +182,14 @@ class AdminController implements IController {
                 next(new SomethingWentWrongException())
             })
     }
-    private approveHelper = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        const helperID = request.body.id;
-        await helperModel.findById(helperID)
-            .then(async (helper: IHelper) => {
+    private approveHelper = async (request: IRequestWithAdmin, response: express.Response, next: express.NextFunction) => {
+        const helperID = request.body._id;
+        await helperModel.findById(helperID, {adminApproved: 1})
+            .then(async (helper) => {
                 if (helper) {
                     helper.adminApproved = true;
                     await helper.save()
-                        .then((helper: IHelper) => {
+                        .then((helper) => {
                             response.status(200).send(new Response('Helper Approved').getData());
                         })
                         .catch(err => {
