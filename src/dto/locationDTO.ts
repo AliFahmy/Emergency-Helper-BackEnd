@@ -1,10 +1,17 @@
-import { IsNumber } from 'class-validator';
+import {IsNumber,IsLongitude, IsLatitude, Max, Min } from 'class-validator';
 
 class LocationDTO {
   @IsNumber()
-  public longitude  : number;
+  @IsLongitude()
+  @Min(-180)
+  @Max(80)
+  public longitude:number;
+  
   @IsNumber()
-  public latitude: number;
+  @IsLatitude()
+  @Min(-90)
+  @Max(90)
+  public latitude:number;
 
 }
 
