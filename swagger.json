@@ -2086,6 +2086,18 @@
                     "type": "string",
                     "format": "binary"
                 },
+                "frontID": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "backID": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "certificate": {
+                    "type": "string",
+                    "format": "binary"
+                },
                 "bankAccount": {
                     "type": "string"
                 },

@@ -1,29 +1,29 @@
-import { IsString, IsBoolean, ValidateNested} from 'class-validator';
+import { IsString, IsBoolean, ValidateNested } from 'class-validator';
 import LocationDTO from '../locationDTO';
 class UpdateHelperDTO {
     @IsString()
-    public email :string;
-
-    @IsString()
-    public mobile:string;
-
-    @IsString()
-    public nationality:string;
+    public firstName: string;
     
     @IsString()
-    public picture:any;
+    public lastName: string;
 
     @IsString()
-    public bankAccount:string;
-    
+    public email: string;
+
+    @IsString()
+    public mobile: string;
+
+    @IsString()
+    public bankAccount: string;
+
     @IsBoolean()
-    public isActive:boolean;
-    
+    public isActive: boolean;
+
     @ValidateNested()
-    public location:LocationDTO;
-    
+    public location: LocationDTO;
+
     @IsString()
-    public skills:string;
+    public skills: string;
 }
 
 export default UpdateHelperDTO;
