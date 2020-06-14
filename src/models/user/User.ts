@@ -1,5 +1,7 @@
 import * as mongoose from 'mongoose';
+import * as bcrypt from 'bcrypt'
 import IUser from '../../interfaces/user/IUser';
+import TokenManager from '../../modules/tokenManager';
 
 const baseOptions = {
   discriminatorKey: 'role',
@@ -62,6 +64,18 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
   }]
 }, baseOptions);
+
+userSchema.pre<IUser>('save', async function(next){
+  if(this.isNew){
+    this.password = bcrypt.hashSync(this.password, 10);
+    this.verificationToken = new TokenManager().getToken({ email: this.email })
+    this.email = this.email.toLowerCase()
+  }
+  next();
+});
+// userSchema.pre<IUser>('remove', async function(next){
+//   next();
+// });
 
 const userModel = mongoose.model<IUser>('User', userSchema);
 

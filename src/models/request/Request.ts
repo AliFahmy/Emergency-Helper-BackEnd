@@ -25,7 +25,10 @@ const requestSchema = new mongoose.Schema({
         }
     },
     location:GeoSchema,
-    
+    radius:{
+        type:Number,
+        default:5
+    },
     date:{
         type:Date,
         required:true

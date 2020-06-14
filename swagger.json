@@ -973,12 +973,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type":"object",
-                                "properties":{
-                                    "radius":{
-                                        "type":"number"
-                                    }
-                                }
+                               "$ref":"#/definitions/Location"
                             }
                         }
                     }
@@ -2083,6 +2078,18 @@
                     "type": "string"
                 },
                 "profilePicture": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "frontID": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "backID": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "certificate": {
                     "type": "string",
                     "format": "binary"
                 },

@@ -10,6 +10,7 @@ interface IRequest extends Document{
     canceledState: ICanceledState;
     date: Date;
     location:ILocation;
+    radius:number;
     category:string;
     client:string;
     supportTickets:ISupportTicket[];
