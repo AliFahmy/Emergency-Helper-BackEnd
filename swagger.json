@@ -973,12 +973,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type":"object",
-                                "properties":{
-                                    "radius":{
-                                        "type":"number"
-                                    }
-                                }
+                               "$ref":"#/definitions/Location"
                             }
                         }
                     }

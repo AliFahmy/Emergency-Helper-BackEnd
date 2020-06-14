@@ -36,6 +36,7 @@ import IRequestOffer from './../interfaces/request/IRequestOffer';
 import ViewNearbyRequestsDTO from './../dto/requestDTO/viewNearByRequestsDTO';
 import requestModel from '../models/request/Request'
 import LocationDTO from './../dto/locationDTO';
+import ILocation from './../interfaces/ILocation';
 
 class HelperController implements IController {
     public path: string;
@@ -292,30 +293,35 @@ class HelperController implements IController {
                 next(new SomethingWentWrongException(err))
             })
     }
+    private arePointsNear(checkPoint:ILocation, centerPoint:ILocation, km:number) {
+        var ky = 40000 / 360;
+        var kx = Math.cos(Math.PI * centerPoint.coordinates[1] / 180.0) * ky;
+        var dx = Math.abs(centerPoint.coordinates[0] - checkPoint.coordinates[0]) * kx;
+        var dy = Math.abs(centerPoint.coordinates[1] - checkPoint.coordinates[1]) * ky;
+        return Math.sqrt(dx * dx + dy * dy) <= km;
+    }
     private viewNearByRequests = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
-        const ViewNearbyRequestsDTO: ViewNearbyRequestsDTO = request.body
-        let radius = 5;
-        if (ViewNearbyRequestsDTO.radius) {
-            radius = ViewNearbyRequestsDTO.radius
-        }
+        const helperLocation:LocationDTO = request.body
+        request.user.location.coordinates = [helperLocation.longitude,helperLocation.latitude]
         await requestModel.find(
             {
-                location: {
-                    $geoWithin: {
-                        $centerSphere: [[request.user.location.coordinates[0], request.user.location.coordinates[1]], radius / 3963.2]
-                    }
-                },
-                "canceledState.isCanceled": false
+                "canceledState.isCanceled":false,
+                category:request.user.category
             },
             '-canceledState -finishedState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
         )
-            .then((requests: IRequest[]) => {
-                response.status(200).send(new Response(undefined, { requests }).getData());
-            })
-            .catch(err => {
-                console.log(err)
-                next(new SomethingWentWrongException(err))
-            })
+        .then((requests:IRequest[])=>{
+            const nearbyRequests = []
+            for(let i=0;i<requests.length;i++){
+                if(this.arePointsNear(request.user.location,requests[i].location,requests[i].radius)){
+                    nearbyRequests.push(requests[i]);
+                }
+            }
+            response.status(200).send(new Response(undefined,{requests:nearbyRequests,category:request.user.category}).getData());
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
     }
 }
 
