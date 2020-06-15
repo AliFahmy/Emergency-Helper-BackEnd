@@ -67,9 +67,14 @@ const requestSchema = new mongoose.Schema({
             ref:"PaymentMethod",
             type:mongoose.Schema.Types.ObjectId
         },
-        items:{
-            type:String,
-        },
+        items:[{
+            item:{
+                type:String
+            },
+            price:{
+                type:Number
+            }
+        }],
         totalPrice:{
             type:Number
         },

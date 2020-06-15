@@ -239,7 +239,7 @@ class RequestController implements IController {
         }
     }
     private viewHistory = async (request: IRequestWithUser, response: express.Response, next: express.NextFunction) => {
-        await requestModel.find({_id:{$in:request.user.requests},"finishedState.isFinished":true},'-createdAt -updatedAt -__v -supportTickets -client -offers')
+        await requestModel.find({_id:{$in:request.user.requests},$or:[{"finishedState.isFinished":true},{"canceledState.isCanceled":true} ] },'-createdAt -updatedAt -__v -supportTickets -client -offers')
         .then((requests:IRequest[])=>{
             response.status(200).send(new Response(undefined,{requests}).getData());  
         })

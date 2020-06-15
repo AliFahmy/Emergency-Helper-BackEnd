@@ -1,5 +1,4 @@
-import { IsString, IsBoolean, ValidateNested } from 'class-validator';
-import LocationDTO from '../locationDTO';
+import { IsString, IsISO8601} from 'class-validator';
 class UpdateHelperDTO {
     @IsString()
     public firstName: string;
@@ -14,16 +13,16 @@ class UpdateHelperDTO {
     public mobile: string;
 
     @IsString()
-    public bankAccount: string;
+    public gender:string;
 
-    @IsBoolean()
-    public isActive: boolean;
-
-    @ValidateNested()
-    public location: LocationDTO;
+    @IsISO8601()
+    public birthDate:Date;
 
     @IsString()
-    public skills: string;
+    public category: string;
+
+    @IsString()
+    public skills:string;
 }
 
 export default UpdateHelperDTO;

@@ -44,14 +44,6 @@ const Helper = User.discriminator('Helper',new mongoose.Schema({
     }
 }));
 
-Helper.schema.pre<IHelper>('save', function(next){
-    if(this.isNew){
-        this.location = {
-            type:"Point",
-            coordinates:[0,0]
-        }
-    }
-})
 const helperModel = mongoose.model<IHelper>('Helper');
 
 export default helperModel;

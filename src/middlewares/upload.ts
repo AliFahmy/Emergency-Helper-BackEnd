@@ -14,7 +14,7 @@ export const awsService = multer({
      bucket: 'emergencyhelper',
      acl: 'public-read',
      key: function (req, file, cb) {
-      cb(null, path.basename( file.originalname, path.extname( file.originalname ) ) + '-' + Date.now() + path.extname( file.originalname ) )
+      cb(null, path.basename( file.originalname, path.extname( file.originalname ) ) + '-' + new Date().toISOString() + path.extname( file.originalname ) )
      }
     }),
     limits:{ fileSize: 20000000000 }, // In bytes: 2000000 bytes = 2 MB
@@ -23,7 +23,7 @@ export const awsService = multer({
     }
    });
 
-   function checkFileType( file:Express.Multer.File, cb:any ){
+function checkFileType( file:Express.Multer.File, cb:any ){
     // Allowed ext
     const filetypes = /jpeg|jpg|png|gif/;
     // Check ext
@@ -35,4 +35,13 @@ export const awsService = multer({
     } else {
      cb( 'Error: Images Only!' );
     }
-   }
+}
+
+export const deleteFiles = async (files:string[]) => {
+  for(let i=0;i<files.length;i++){
+    s3.deleteObject({
+      Bucket: 'emergencyhelper',
+      Key: files[i]
+    })
+  }
+}

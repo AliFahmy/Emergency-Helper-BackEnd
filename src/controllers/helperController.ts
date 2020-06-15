@@ -5,12 +5,10 @@ import IController from '../interfaces/IController';
 import ICategory from './../interfaces/ICategory';
 import IHelper from '../interfaces/user/IHelper';
 import IRequest from '../interfaces/request/IRequest';
-
 ////////////////////////////////////////////////////
-
 import authMiddleware from '../middlewares/auth';
 import validationMiddleware from '../middlewares/validation';
-import { awsService } from '../middlewares/upload';
+import { awsService, deleteFiles } from '../middlewares/upload';
 ///////////////////////////////////////////////////
 import categoryModel from '../models/Category';
 import helperModel from '../models/user/Helper';
@@ -37,6 +35,10 @@ import ViewNearbyRequestsDTO from './../dto/requestDTO/viewNearByRequestsDTO';
 import requestModel from '../models/request/Request'
 import LocationDTO from './../dto/locationDTO';
 import ILocation from './../interfaces/ILocation';
+import FillReceiptDTO from './../dto/requestDTO/FillReceiptDTO';
+import { IsNotEmptyObject } from 'class-validator';
+import clientModel from './../models/user/Client';
+import IClient from './../interfaces/user/IClient';
 
 class HelperController implements IController {
     public path: string;
@@ -66,7 +68,8 @@ class HelperController implements IController {
         this.router.post(`${this.path}/Category`, validationMiddleware(CategoryDTO), this.insertCategory);
         this.router.post(`${this.path}/ToggleStatus`, authMiddleware, this.toggleState);
         this.router.post(`${this.path}/ViewNearbyRequests`, authMiddleware, validationMiddleware(ViewNearbyRequestsDTO, true), this.viewNearByRequests);
-
+        this.router.post(`${this.path}/FillReciept`, authMiddleware, validationMiddleware(FillReceiptDTO), this.fillReceipt);
+        
         ////////////////////////////////////////////////////////////////////
         this.router.patch(`${this.path}/Location`, authMiddleware, validationMiddleware(LocationDTO), this.updateLocation)
         this.router.patch(`${this.path}`, authMiddleware, awsService.fields([{ name: 'frontID', maxCount: 1 }, { name: 'backID', maxCount: 1 }, { name: 'profilePicture', maxCount: 1 }, { name: 'certificate', maxCount: 1 }]), validationMiddleware(updateHelperDTO, true), this.updateAccount);
@@ -111,6 +114,21 @@ class HelperController implements IController {
                 next(new SomethingWentWrongException(err))
             })
     }
+    private fillReceipt = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
+        const items : FillReceiptDTO = request.body;
+        await requestModel.findByIdAndUpdate(request.user.activeRequest,{"finishedState.items":items, "finishedState.isFinished":true})
+        .then((request:IRequest)=>{
+            if(request){
+                response.status(200).send(new Response("Filled Receipt Successfully").getData());
+            }
+            else{
+                new HttpException(404,"Request No Longer Exists")
+            }
+        })
+        .catch(err=>{
+            next(new SomethingWentWrongException(err))
+        })
+    }
     private login = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const logInData: LogInDto = request.body;
         await helperModel.findOne({ email: logInData.email })
@@ -121,13 +139,8 @@ class HelperController implements IController {
                             if (isPasswordMatching) {
                                 helper.password = undefined;
                                 if (helper.isApproved) {
-                                    if (helper.adminApproved) {
                                         const token = this.tokenManager.getToken({ _id: helper._id });
-                                        response.status(200).send(new Response('Login Success', { token }).getData());
-                                    }
-                                    else {
-                                        next(new HttpException(401, "Helper Is Not Approved By Admin Yet"))
-                                    }
+                                        response.status(200).send(new Response('Login Success', { token }).getData());    
                                 }
                                 else {
                                     await this.mailer.sendRegistrationMail(helper.firstName, helper.verificationToken, helper.email, helper.role)
@@ -157,38 +170,35 @@ class HelperController implements IController {
     private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const userData: HelperRegistrationDTO = request.body;
         const files = request.files as Express.Multer.File[];
-        console.log("file uploaded")
+        const filesLinks = []
         if (files === undefined) {
             next(new SomethingWentWrongException('Error: No Files Selected!'))
         }
         else {
+            for(let i=0;i<files.length;i++){
+                filesLinks.push(files[i][0].location)
+            }
             await helperModel.findOne({ email: userData.email.toLowerCase() })
                 .then(async (helper: IHelper) => {
                     if (helper) {
+                        deleteFiles(filesLinks)
                         next(new UserWithThatEmailAlreadyExistsException(userData.email));
                     }
                     else {
-                        await bcrypt.hash(userData.password, 10)
-                            .then(async (hashedPassword: string) => {
                                 await categoryModel.findOne({ 'name': userData.category }, '-createdAt -updatedAt -__v')
                                     .then(async (category: ICategory) => {
                                         if (category) {
-                                            const verificationToken = this.tokenManager.getToken({ email: userData.email });
                                             await helperModel.create({
                                                 ...userData,
-                                                email: userData.email.toLowerCase(),
-                                                location: {
-                                                    type: "Point",
-                                                    coordinates: [0, 0]
-                                                },
-                                                picture: files['profilePicture'][0].location,
+                                                profilePicture: files['profilePicture'][0].location,
                                                 frontID: files['frontID'][0].location,
                                                 backID: files['backID'][0].location,
                                                 certificate: files['certificate'][0].location,
-                                                password: hashedPassword,
-                                                verificationToken: verificationToken
-                                            })
-                                                .then(async (helper: IHelper) => {
+                                                location:{
+                                                    type:"Point",
+                                                    coordinates:[0,0]
+                                                }
+                                            }).then(async (helper: IHelper) => {
                                                     if (helper) {
                                                         await this.mailer.sendRegistrationMail(helper.firstName, helper.verificationToken, helper.email, helper.role)
                                                             .then((sent: boolean) => {
@@ -204,22 +214,30 @@ class HelperController implements IController {
                                                             })
                                                     }
                                                     else {
+                                                        deleteFiles(filesLinks)
                                                         next(new SomethingWentWrongException());
                                                     }
                                                 })
                                                 .catch(err => {
+                                                    deleteFiles(filesLinks)
                                                     next(new SomethingWentWrongException(err))
                                                 })
                                         }
                                         else {
-                                            next("Helper Category Dosen't Exist")
+                                            deleteFiles(filesLinks)
+                                            next(new HttpException(404,"Category Not Found"))
                                         }
                                     })
                                     .catch(err => {
+                                        deleteFiles(filesLinks)
                                         next(new SomethingWentWrongException(err))
                                     })
-                            })
+                            
                     }
+                })
+                .catch(err=>{
+                    deleteFiles(filesLinks)
+                    next(new SomethingWentWrongException(err))
                 })
         }
     }
@@ -246,17 +264,19 @@ class HelperController implements IController {
         response.status(200).send(new Response(undefined, { status: request.user.isActive }).getData());
     }
     private updateAccount = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
+        if(Object.keys(request.body).length || request.files){
         let newData: updateHelperDTO = request.body;
         let newObj = newData;
-        if (request.file) {
-            const files = request.files as Express.Multer.File[];
-            files['profilePicture'][0].location ? newObj['profilePicture'] = files['profilePicture'][0].location : null;
-            files['frontID'][0].location ? newObj['frontID'] = files['frontID'][0].location : null;
-            files['backID'][0].location ? newObj['backID'] = files['backID'][0].location : null;
-            files['certificate'][0].location ? newObj['certificate'] = files['certificate'][0].location : null;
+        const files = request.files as Express.Multer.File[];
+        if (Object.keys(request.files).length) {
+            files['profilePicture'] ? newObj['profilePicture'] = files['profilePicture'][0].location : null;
+            files['frontID'] ? newObj['frontID'] = files['frontID'][0].location : null;
+            files['backID'] ? newObj['backID'] = files['backID'][0].location : null;
+            files['certificate'] ? newObj['certificate'] = files['certificate'][0].location : null;
         }
+        const proffesionEdit : boolean = newData.category || newData.skills || files['certificate'] ||files['frontID'] || files['backID'];
         await helperModel
-            .findByIdAndUpdate(request.user._id, { $set: newData })
+            .findByIdAndUpdate(request.user._id, { $set: newData,adminApproved : !proffesionEdit })
             .then((helper: IHelper) => {
                 if (helper) {
                     response.status(200).send(new Response('Updated Successfuly!').getData());
@@ -268,6 +288,10 @@ class HelperController implements IController {
             .catch(err => {
                 next(new SomethingWentWrongException())
             })
+        }
+        else{
+            next(new HttpException(400,"Enter at least one field to update"))
+        }
     }
     private toggleState = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
         request.user.isActive = !request.user.isActive;
@@ -301,27 +325,45 @@ class HelperController implements IController {
         return Math.sqrt(dx * dx + dy * dy) <= km;
     }
     private viewNearByRequests = async (request: IRequestWithHelper, response: express.Response, next: express.NextFunction) => {
-        const helperLocation:LocationDTO = request.body
-        request.user.location.coordinates = [helperLocation.longitude,helperLocation.latitude]
-        await requestModel.find(
-            {
-                "canceledState.isCanceled":false,
-                category:request.user.category
-            },
-            '-canceledState -finishedState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
-        )
-        .then((requests:IRequest[])=>{
-            const nearbyRequests = []
-            for(let i=0;i<requests.length;i++){
-                if(this.arePointsNear(request.user.location,requests[i].location,requests[i].radius)){
-                    nearbyRequests.push(requests[i]);
+        if(request.user.isApproved){
+            const helperLocation:LocationDTO = request.body
+            request.user.location.coordinates = [helperLocation.longitude,helperLocation.latitude]
+            await requestModel.find(
+                {
+                    "canceledState.isCanceled":false,
+                    category:request.user.category
+                },
+                '-canceledState -finishedState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
+            )
+            .then(async(requests:IRequest[])=>{
+                const nearbyRequests = []
+                for(let i=0;i<requests.length;i++){
+                    if(this.arePointsNear(request.user.location,requests[i].location,requests[i].radius)){
+                        nearbyRequests.push(requests[i]);
+                    }
                 }
-            }
-            response.status(200).send(new Response(undefined,{requests:nearbyRequests,category:request.user.category}).getData());
-        })
-        .catch(err=>{
-            next(new SomethingWentWrongException(err))
-        })
+                for(let i=0;i<nearbyRequests.length;i++){
+                    await clientModel.findById(nearbyRequests[i].client)
+                    .then((client:IClient)=>{
+                        if(client){
+                            nearbyRequests[i] = {
+                                ...nearbyRequests[i].toObject(),
+                                clientName:client.firstName,
+                                clientPicture:client.profilePicture
+                            } 
+                        }
+                    })
+                }
+                response.status(200).send(new Response(undefined,{requests:nearbyRequests,category:request.user.category}).getData());
+            })
+            .catch(err=>{
+                next(new SomethingWentWrongException(err))
+            })
+        }
+        else{
+            next(new HttpException(401,"Admin Didnt Approve Your Information Yet."))
+        }
+        
     }
 }
 
