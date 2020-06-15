@@ -872,6 +872,39 @@
                 }
             }
         },
+        "/api/Helper/FillReceipt": {
+            "post": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Fills Request Receipt",
+                "requestBody":{
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "$ref":"#/definitions/Receipt"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type":"object",
+                                    "properties":{
+                                        "message":{
+                                            "type":"string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Helper/Location": {
             "patch": {
                 "tags": [
@@ -1854,6 +1887,20 @@
                 }
             }
         },
+        "Receipt":{
+            "type":"array",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "item":{
+                        "type":"string"
+                    },
+                    "price":{
+                        "type":"number"
+                    }
+                }
+            }
+        },
         "UnAuthorized": {
             "type": "string",
             "example": "Unauthorized Account"
@@ -2077,6 +2124,13 @@
                 "mobile": {
                     "type": "string"
                 },
+                "dateOfBirth": {
+                    "type": "string",
+                    "format":"date"
+                },
+                "gender": {
+                    "type": "string"
+                },
                 "profilePicture": {
                     "type": "string",
                     "format": "binary"
@@ -2093,22 +2147,8 @@
                     "type": "string",
                     "format": "binary"
                 },
-                "bankAccount": {
+                "category": {
                     "type": "string"
-                },
-                "location": {
-                    "type": "object",
-                    "properties": {
-                        "locationX": {
-                            "type": "number"
-                        },
-                        "locationY": {
-                            "type": "number"
-                        }
-                    }
-                },
-                "isActive": {
-                    "type": "boolean"
                 },
                 "skills": {
                     "type": "string"
@@ -2350,6 +2390,9 @@
         "Request": {
             "type": "object",
             "properties": {
+                "radius":{
+                    "type":"number"
+                },   
                 "location": {
                     "type": "object",
                     "properties": {
