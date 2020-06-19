@@ -859,10 +859,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type":"object",
-                                    "properties":{
-                                        "message":{
-                                            "type":"string"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -878,11 +878,11 @@
                     "Helper"
                 ],
                 "summary": "Fills Request Receipt",
-                "requestBody":{
-                    "content":{
-                        "application/json":{
-                            "schema":{
-                                "$ref":"#/definitions/Receipt"
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Receipt"
                             }
                         }
                     }
@@ -892,10 +892,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type":"object",
-                                    "properties":{
-                                        "message":{
-                                            "type":"string"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -911,11 +911,11 @@
                     "Helper"
                 ],
                 "summary": "Updates Helper Location",
-                "requestBody":{
-                    "content":{
-                        "application/json":{
-                            "schema":{
-                                "$ref":"#/definitions/Location"
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Location"
                             }
                         }
                     }
@@ -925,10 +925,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type":"object",
-                                    "properties":{
-                                        "message":{
-                                            "type":"string"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -949,7 +949,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref":"#/definitions/HelperStatus"
+                                    "$ref": "#/definitions/HelperStatus"
                                 }
                             }
                         }
@@ -978,7 +978,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref":"#/definitions/HelperCurrentOffer"
+                                    "$ref": "#/definitions/HelperCurrentOffer"
                                 }
                             }
                         }
@@ -1006,7 +1006,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                               "$ref":"#/definitions/Location"
+                                "$ref": "#/definitions/Location"
                             }
                         }
                     }
@@ -1016,7 +1016,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref":"#/definitions/NearbyRequests"
+                                    "$ref": "#/definitions/NearbyRequests"
                                 }
                             }
                         }
@@ -1584,14 +1584,14 @@
                     "Request"
                 ],
                 "summary": "Cancel Current User Active Request",
-                "requestBody":{
-                    "content":{
-                        "application/json":{
-                            "schema":{
-                                "type":"object",
-                                "properties":{
-                                    "message":{
-                                        "type":"string"
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string"
                                     }
                                 }
                             }
@@ -1636,11 +1636,45 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/definitions/Offer"
+                                "$ref": "#/definitions/MakeOffer"
                             }
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/CancelOffer": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Cancel's Helper Current Offer For Client's Request",
                 "responses": {
                     "200": {
                         "content": {
@@ -1679,12 +1713,12 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                               "type":"object",
-                               "properties":{
-                                   "offerID":{
-                                    "type":"string"
-                                   }
-                               }
+                                "type": "object",
+                                "properties": {
+                                    "offerID": {
+                                        "type": "string"
+                                    }
+                                }
                             }
                         }
                     }
@@ -1728,15 +1762,15 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type":"object",
-                                    "properties":{
-                                        "payload":{
-                                            "type":"object",
-                                            "properties":{
-                                                "offers":{
-                                                    "type":"array",
-                                                    "items":{
-                                                        "$ref":"#/definitions/Offer"
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "offers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/Offer"
                                                     }
                                                 }
                                             }
@@ -1760,15 +1794,15 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type":"object",
-                                    "properties":{
-                                        "payload":{
-                                            "type":"object",
-                                            "properties":{
-                                                "offers":{
-                                                    "type":"array",
-                                                    "items":{
-                                                        "$ref":"#/definitions/Request"
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "offers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/Request"
                                                     }
                                                 }
                                             }
@@ -1781,7 +1815,6 @@
                 }
             }
         }
-
     },
     "definitions": {
         "Error": {
@@ -1802,12 +1835,12 @@
             "properties": {
                 "price": {
                     "type": "object",
-                    "properties":{
-                        "from":{
-                            "type":"number"
+                    "properties": {
+                        "from": {
+                            "type": "number"
                         },
-                        "to":{
-                            "type":"number"
+                        "to": {
+                            "type": "number"
                         }
                     }
                 },
@@ -1817,56 +1850,59 @@
                 "description": {
                     "type": "string"
                 },
-                "helperID":{
-                    "type":"string"
+                "helperID": {
+                    "type": "string"
                 },
-                "helperInfo":{
-                    "type":"object",
-                    "properties":{
-                        "profilePicture":{
-                            "type":"string"
+                "helperInfo": {
+                    "type": "object",
+                    "properties": {
+                        "profilePicture": {
+                            "type": "string"
                         },
-                        "name":{
-                            "type":"string"
+                        "name": {
+                            "type": "string"
                         },
-                        "skills":{
-                            "type":"string"
+                        "skills": {
+                            "type": "string"
                         },
-                        "category":{
-                            "type":"string"
+                        "category": {
+                            "type": "string"
+                        },
+                        "mobile": {
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "HelperCurrentOffer":{
-            "type":"object",
-            "properties":{
-                "payload":{
-                    "type":"object",
-                    "properties":{
+        "HelperCurrentOffer": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
                         "price": {
                             "type": "object",
-                            "properties":{
-                                "from":{
-                                    "type":"number"
+                            "properties": {
+                                "from": {
+                                    "type": "number"
                                 },
-                                "to":{
-                                    "type":"number"
+                                "to": {
+                                    "type": "number"
                                 }
                             }
                         },
-                        "isAccepted":{
-                            "type":"boolean"
+                        "isAccepted": {
+                            "type": "boolean"
                         },
-                        "_id":{
-                            "type":"string"
+                        "_id": {
+                            "type": "string"
                         },
-                        "description":{
-                            "type":"string"
+                        "description": {
+                            "type": "string"
                         },
-                        "requestID":{
-                            "type":"string"
+                        "requestID": {
+                            "type": "string"
                         }
                     }
                 }
@@ -1887,16 +1923,16 @@
                 }
             }
         },
-        "Receipt":{
-            "type":"array",
-            "items":{
-                "type":"object",
-                "properties":{
-                    "item":{
-                        "type":"string"
+        "Receipt": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "item": {
+                        "type": "string"
                     },
-                    "price":{
-                        "type":"number"
+                    "price": {
+                        "type": "number"
                     }
                 }
             }
@@ -2126,7 +2162,7 @@
                 },
                 "dateOfBirth": {
                     "type": "string",
-                    "format":"date"
+                    "format": "date"
                 },
                 "gender": {
                     "type": "string"
@@ -2256,7 +2292,7 @@
                         },
                         "birthDate": {
                             "type": "string",
-                            "format":"date"
+                            "format": "date"
                         },
                         "email": {
                             "type": "string"
@@ -2267,8 +2303,8 @@
                         "mobile": {
                             "type": "string"
                         },
-                        "balance":{
-                            "type":"number"
+                        "balance": {
+                            "type": "number"
                         },
                         "profilePicture": {
                             "type": "string",
@@ -2352,35 +2388,35 @@
         "NewRequest": {
             "type": "object",
             "properties": {
-                        "description": {
-                            "type": "string"
+                "description": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "object",
+                    "properties": {
+                        "longitude": {
+                            "type": "number"
                         },
-                        "location": {
-                            "type": "object",
-                            "properties": {
-                                "longitude": {
-                                    "type": "number"
-                                },
-                                "latitude": {
-                                    "type": "number"
-                                }
-                            }
-                        },
-                        "category": {
-                            "type": "string"
+                        "latitude": {
+                            "type": "number"
                         }
+                    }
+                },
+                "category": {
+                    "type": "string"
+                }
             }
         },
-        "NearbyRequests":{
-            "type":"object",
-            "properties":{
-                "payload":{
-                    "type":"object",
-                    "properties":{
-                        "requests":{
-                            "type":"array",
-                            "items":{
-                                "$ref":"#/definitions/Request"
+        "NearbyRequests": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "requests": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Request"
                             }
                         }
                     }
@@ -2390,60 +2426,60 @@
         "Request": {
             "type": "object",
             "properties": {
-                "radius":{
-                    "type":"number"
-                },   
+                "radius": {
+                    "type": "number"
+                },
                 "location": {
                     "type": "object",
                     "properties": {
-                        "type":{
-                            "type":"string"
+                        "type": {
+                            "type": "string"
                         },
-                        "_id":{
-                            "type":"string"
+                        "_id": {
+                            "type": "string"
                         },
-                        "coordinates":{
-                            "type":"array",
-                            "items":{
-                                "type":"number"
+                        "coordinates": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
                             }
                         }
                     }
                 },
                 "canceledState": {
                     "type": "object",
-                    "properties":{
-                        "isCanceled":{
-                            "type":"boolean"
+                    "properties": {
+                        "isCanceled": {
+                            "type": "boolean"
                         },
-                        "canceledUser":{
-                            "type":"string"
+                        "canceledUser": {
+                            "type": "string"
                         }
                     }
                 },
                 "finishedState": {
                     "type": "object",
-                    "properties":{
-                        "isFinished":{
-                            "type":"boolean"
+                    "properties": {
+                        "isFinished": {
+                            "type": "boolean"
                         },
-                        "isPaid":{
-                            "type":"string"
+                        "isPaid": {
+                            "type": "string"
                         },
-                        "paymentMethod":{
-                            "type":"string"
+                        "paymentMethod": {
+                            "type": "string"
                         },
-                        "items":{
-                            "type":"string"
+                        "items": {
+                            "type": "string"
                         },
-                        "totalPrice":{
-                            "type":"number"
+                        "totalPrice": {
+                            "type": "number"
                         },
-                        "clientRate":{
-                            "type":"number"
+                        "clientRate": {
+                            "type": "number"
                         },
-                        "helperRate":{
-                            "type":"number"
+                        "helperRate": {
+                            "type": "number"
                         }
                     }
                 },
@@ -2491,27 +2527,49 @@
                 }
             }
         },
-        "HelperStatus":{
-            "type":"object",
-            "properties":{
-                "payload":{
-                    "type":"object",
-                    "properties":{
-                        "status":{
-                            "type":"boolean"
+        "HelperStatus": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "status": {
+                            "type": "boolean"
                         }
                     }
                 }
             }
         },
-        "Location":{
-            "type":"object",
-            "properties":{
-                "longitude":{
-                    "type":"number"
+        "Location": {
+            "type": "object",
+            "properties": {
+                "longitude": {
+                    "type": "number"
                 },
-                "latitude":{
-                    "type":"number"
+                "latitude": {
+                    "type": "number"
+                }
+            }
+        },
+        "MakeOffer": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "object",
+                    "properties": {
+                        "from": {
+                            "type": "number"
+                        },
+                        "to": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "requestID": {
+                    "type": "string"
                 }
             }
         }
