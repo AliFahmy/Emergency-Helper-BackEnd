@@ -1,9 +1,9 @@
-import { IsString, IsNumber, IsObject} from 'class-validator';
+import { IsString,IsObject, IsMongoId } from 'class-validator';
 import IPrice from './../../interfaces/request/IPrice';
 class MakeOfferDTO {
   @IsObject()
   public price: IPrice;
-  @IsString()
+  @IsMongoId()
   public requestID: string;
   @IsString()
   public description:string
