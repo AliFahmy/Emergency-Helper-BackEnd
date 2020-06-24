@@ -1,44 +1,50 @@
-import * as express from "express";
-import * as bcrypt from "bcrypt";
+import * as express from 'express';
+import * as bcrypt from 'bcrypt';
 ////////////////////////////////////////////////////
-import IController from "../interfaces/IController";
-import ICategory from "./../interfaces/ICategory";
-import IHelper from "../interfaces/user/IHelper";
-import IRequest from "../interfaces/request/IRequest";
+import IController from '../interfaces/IController';
+import ICategory from './../interfaces/ICategory';
+import IHelper from '../interfaces/user/IHelper';
+import IRequest from '../interfaces/request/IRequest';
+import IRequestOffer from './../interfaces/request/IRequestOffer';
+import ILocation from './../interfaces/ILocation';
+import IClient from './../interfaces/user/IClient';
+import IRequestWithHelper from './../interfaces/httpRequest/IRequestWithHelper';
+import {
+  WAITING_FOR_OFFER_RESPONSE,
+  WAITING_FOR_HELPER_START,
+  WAITING_FOR_FINISH_REQUEST,
+  WAITING_FOR_CLIENT_START,
+  WAITING_FOR_ADMIN_APPROVAL,
+} from './../types/HelperTypes';
 ////////////////////////////////////////////////////
-import authMiddleware from "../middlewares/auth";
-import validationMiddleware from "../middlewares/validation";
-import { awsService, deleteFiles } from "../middlewares/upload";
+import authMiddleware from '../middlewares/auth';
+import validationMiddleware from '../middlewares/validation';
+import { awsService, deleteFiles } from '../middlewares/upload';
 ///////////////////////////////////////////////////
-import categoryModel from "../models/Category";
-import helperModel from "../models/user/Helper";
+import categoryModel from '../models/Category';
+import helperModel from '../models/user/Helper';
+import requestOfferModel from './../models/request/RequestOffer';
+import requestModel from '../models/request/Request';
+import clientModel from './../models/user/Client';
 ////////////////////////////////////////////////////
-import CategoryDTO from "../dto/categoryDTO";
-import LogInDto from "./../dto/loginDTO";
-import updateHelperDTO from "./../dto/helperDTO/updateHelperDTO";
-import HelperRegistrationDTO from "../dto/helperDTO/helperRegistrationDTO";
+import CategoryDTO from '../dto/categoryDTO';
+import LogInDto from './../dto/loginDTO';
+import updateHelperDTO from './../dto/helperDTO/updateHelperDTO';
+import HelperRegistrationDTO from '../dto/helperDTO/helperRegistrationDTO';
+import ViewNearbyRequestsDTO from './../dto/requestDTO/viewNearByRequestsDTO';
+import LocationDTO from './../dto/locationDTO';
+import FillReceiptDTO from './../dto/requestDTO/FillReceiptDTO';
 ////////////////////////////////////////////////////
-import HttpException from "../exceptions/HttpException";
-import SomethingWentWrongException from "./../exceptions/SomethingWentWrongException";
-import UserIsNotApprovedException from "../exceptions/account/UserIsNotApprovedException";
-import UserWithThatEmailAlreadyExistsException from "../exceptions/account/UserWithThatEmailAlreadyExistsException";
-import HelperCategoryAlreadyExistsException from "../exceptions/helper/HelperCategoryAlreadyExistsException";
-import WrongCredentialsException from "../exceptions/account/WrongCredentialsException";
+import HttpException from '../exceptions/HttpException';
+import SomethingWentWrongException from './../exceptions/SomethingWentWrongException';
+import UserIsNotApprovedException from '../exceptions/account/UserIsNotApprovedException';
+import UserWithThatEmailAlreadyExistsException from '../exceptions/account/UserWithThatEmailAlreadyExistsException';
+import HelperCategoryAlreadyExistsException from '../exceptions/helper/HelperCategoryAlreadyExistsException';
+import WrongCredentialsException from '../exceptions/account/WrongCredentialsException';
 ////////////////////////////////////////////////////
-import sendEmail from "../modules/sendEmail";
-import TokenManager from "../modules/tokenManager";
-import Response from "../modules/Response";
-import IRequestWithHelper from "./../interfaces/httpRequest/IRequestWithHelper";
-import requestOfferModel from "./../models/request/RequestOffer";
-import IRequestOffer from "./../interfaces/request/IRequestOffer";
-import ViewNearbyRequestsDTO from "./../dto/requestDTO/viewNearByRequestsDTO";
-import requestModel from "../models/request/Request";
-import LocationDTO from "./../dto/locationDTO";
-import ILocation from "./../interfaces/ILocation";
-import FillReceiptDTO from "./../dto/requestDTO/FillReceiptDTO";
-import { IsNotEmptyObject } from "class-validator";
-import clientModel from "./../models/user/Client";
-import IClient from "./../interfaces/user/IClient";
+import sendEmail from '../modules/sendEmail';
+import TokenManager from '../modules/tokenManager';
+import Response from '../modules/Response';
 
 class HelperController implements IController {
   public path: string;
@@ -46,7 +52,7 @@ class HelperController implements IController {
   private tokenManager: TokenManager;
   private mailer: sendEmail;
   constructor() {
-    this.path = "/Helper";
+    this.path = '/Helper';
     this.router = express.Router();
     this.tokenManager = new TokenManager();
     this.mailer = new sendEmail();
@@ -65,7 +71,11 @@ class HelperController implements IController {
       authMiddleware,
       this.getHelperStatus
     );
-
+    this.router.get(
+      `${this.path}/LockDownStatus`,
+      authMiddleware,
+      this.getLockDownStatus
+    );
     ////////////////////////////////////////////////////////////////////
     this.router.post(
       `${this.path}/Login`,
@@ -75,10 +85,10 @@ class HelperController implements IController {
     this.router.post(
       `${this.path}/Register`,
       awsService.fields([
-        { name: "frontID", maxCount: 1 },
-        { name: "backID", maxCount: 1 },
-        { name: "profilePicture", maxCount: 1 },
-        { name: "certificate", maxCount: 1 },
+        { name: 'frontID', maxCount: 1 },
+        { name: 'backID', maxCount: 1 },
+        { name: 'profilePicture', maxCount: 1 },
+        { name: 'certificate', maxCount: 1 },
       ]),
       validationMiddleware(HelperRegistrationDTO),
       this.register
@@ -117,10 +127,10 @@ class HelperController implements IController {
       `${this.path}`,
       authMiddleware,
       awsService.fields([
-        { name: "frontID", maxCount: 1 },
-        { name: "backID", maxCount: 1 },
-        { name: "profilePicture", maxCount: 1 },
-        { name: "certificate", maxCount: 1 },
+        { name: 'frontID', maxCount: 1 },
+        { name: 'backID', maxCount: 1 },
+        { name: 'profilePicture', maxCount: 1 },
+        { name: 'certificate', maxCount: 1 },
       ]),
       validationMiddleware(updateHelperDTO, true),
       this.updateAccount
@@ -132,7 +142,7 @@ class HelperController implements IController {
     next: express.NextFunction
   ) => {
     await categoryModel
-      .find({}, "-_id -createdAt -updatedAt -__v")
+      .find({}, '-_id -createdAt -updatedAt -__v')
       .then((categories: ICategory[]) => {
         if (categories) {
           response
@@ -165,7 +175,7 @@ class HelperController implements IController {
                 response
                   .status(201)
                   .send(
-                    new Response("Created Category Successfully").getData()
+                    new Response('Created Category Successfully').getData()
                   );
               } else {
                 next(new SomethingWentWrongException());
@@ -188,16 +198,16 @@ class HelperController implements IController {
     const items: FillReceiptDTO = request.body;
     await requestModel
       .findByIdAndUpdate(request.user.activeRequest, {
-        "finishedState.items": items,
-        "finishedState.isFinished": true,
+        'finishedState.items': items,
+        'finishedState.isFinished': true,
       })
       .then((request: IRequest) => {
         if (request) {
           response
             .status(200)
-            .send(new Response("Filled Receipt Successfully").getData());
+            .send(new Response('Filled Receipt Successfully').getData());
         } else {
-          new HttpException(404, "Request No Longer Exists");
+          new HttpException(404, 'Request No Longer Exists');
         }
       })
       .catch((err) => {
@@ -223,7 +233,7 @@ class HelperController implements IController {
                   const token = this.tokenManager.getToken({ _id: helper._id });
                   response
                     .status(200)
-                    .send(new Response("Login Success", { token }).getData());
+                    .send(new Response('Login Success', { token }).getData());
                 } else {
                   await this.mailer
                     .sendRegistrationMail(
@@ -262,7 +272,7 @@ class HelperController implements IController {
     const files = request.files as Express.Multer.File[];
     const filesLinks = [];
     if (files === undefined) {
-      next(new SomethingWentWrongException("Error: No Files Selected!"));
+      next(new SomethingWentWrongException('Error: No Files Selected!'));
     } else {
       for (let i = 0; i < files.length; i++) {
         filesLinks.push(files[i][0].location);
@@ -277,19 +287,19 @@ class HelperController implements IController {
             await categoryModel
               .findOne(
                 { name: userData.category },
-                "-createdAt -updatedAt -__v"
+                '-createdAt -updatedAt -__v'
               )
               .then(async (category: ICategory) => {
                 if (category) {
                   await helperModel
                     .create({
                       ...userData,
-                      profilePicture: files["profilePicture"][0].location,
-                      frontID: files["frontID"][0].location,
-                      backID: files["backID"][0].location,
-                      certificate: files["certificate"][0].location,
+                      profilePicture: files['profilePicture'][0].location,
+                      frontID: files['frontID'][0].location,
+                      backID: files['backID'][0].location,
+                      certificate: files['certificate'][0].location,
                       location: {
-                        type: "Point",
+                        type: 'Point',
                         coordinates: [0, 0],
                       },
                     })
@@ -308,7 +318,7 @@ class HelperController implements IController {
                                 .status(201)
                                 .send(
                                   new Response(
-                                    "Helper Registered Successfully \n Please Verify Your Email!"
+                                    'Helper Registered Successfully \n Please Verify Your Email!'
                                   ).getData()
                                 );
                             } else {
@@ -316,7 +326,7 @@ class HelperController implements IController {
                                 .status(201)
                                 .send(
                                   new Response(
-                                    "Helper Registered Successfully!"
+                                    'Helper Registered Successfully!'
                                   ).getData()
                                 );
                             }
@@ -335,7 +345,7 @@ class HelperController implements IController {
                     });
                 } else {
                   deleteFiles(filesLinks);
-                  next(new HttpException(404, "Category Not Found"));
+                  next(new HttpException(404, 'Category Not Found'));
                 }
               })
               .catch((err) => {
@@ -359,6 +369,14 @@ class HelperController implements IController {
       .status(200)
       .send(new Response(undefined, { ...request.user.toObject() }).getData());
   };
+  private msToTime(duration: number) {
+    const seconds = Math.floor((duration / 1000) % 60);
+    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    return {
+      seconds,
+      minutes,
+    };
+  }
   private getCurrentOffer = async (
     request: IRequestWithHelper,
     response: express.Response,
@@ -366,15 +384,52 @@ class HelperController implements IController {
   ) => {
     if (request.user.currentOffer) {
       await requestOfferModel
-        .findById(
-          request.user.currentOffer,
-          "-helperID -createdAt -updatedAt -__v"
-        )
-        .then((offer: IRequestOffer) => {
+        .findById(request.user.currentOffer, '-helperID -updatedAt -__v')
+        .then(async (offer: IRequestOffer) => {
           if (offer) {
-            response
-              .status(200)
-              .send(new Response(undefined, { ...offer.toObject() }).getData());
+            const timeLeft =
+              300000 -
+              Math.abs(
+                new Date().getTime() - new Date(offer.createdAt).getTime()
+              );
+
+            if (timeLeft < 0) {
+              await requestModel
+                .findByIdAndUpdate(offer.requestID, {
+                  $pull: { offers: offer._id },
+                })
+                .then(async (req: IRequest) => {
+                  await requestOfferModel
+                    .findByIdAndDelete(request.user.currentOffer)
+                    .then(async (offer: IRequestOffer) => {
+                      request.user.currentOffer = null;
+                      await request.user
+                        .save()
+                        .then((helper: IHelper) => {
+                          response
+                            .status(404)
+                            .send(
+                              new Response(
+                                'You Dont Have Current Offer'
+                              ).getData()
+                            );
+                        })
+                        .catch((err) => {
+                          next(new SomethingWentWrongException(err));
+                        });
+                    })
+                    .catch((err) => {
+                      next(new SomethingWentWrongException(err));
+                    });
+                });
+            } else {
+              response.status(200).send(
+                new Response(undefined, {
+                  ...offer.toObject(),
+                  timeLeft: this.msToTime(timeLeft),
+                }).getData()
+              );
+            }
           }
         })
         .catch((err) => {
@@ -383,7 +438,7 @@ class HelperController implements IController {
     } else {
       response
         .status(404)
-        .send(new Response("Helper Dosent Have Current Offer").getData());
+        .send(new Response('You Dont Have Current Offer').getData());
     }
   };
   private getHelperStatus = async (
@@ -407,25 +462,25 @@ class HelperController implements IController {
       let newObj = newData;
       const files = request.files as Express.Multer.File[];
       if (Object.keys(request.files).length) {
-        files["profilePicture"]
-          ? (newObj["profilePicture"] = files["profilePicture"][0].location)
+        files['profilePicture']
+          ? (newObj['profilePicture'] = files['profilePicture'][0].location)
           : null;
-        files["frontID"]
-          ? (newObj["frontID"] = files["frontID"][0].location)
+        files['frontID']
+          ? (newObj['frontID'] = files['frontID'][0].location)
           : null;
-        files["backID"]
-          ? (newObj["backID"] = files["backID"][0].location)
+        files['backID']
+          ? (newObj['backID'] = files['backID'][0].location)
           : null;
-        files["certificate"]
-          ? (newObj["certificate"] = files["certificate"][0].location)
+        files['certificate']
+          ? (newObj['certificate'] = files['certificate'][0].location)
           : null;
       }
       const proffesionEdit: boolean =
         newData.category ||
         newData.skills ||
-        files["certificate"] ||
-        files["frontID"] ||
-        files["backID"];
+        files['certificate'] ||
+        files['frontID'] ||
+        files['backID'];
       await helperModel
         .findByIdAndUpdate(request.user._id, {
           $set: newData,
@@ -435,7 +490,7 @@ class HelperController implements IController {
           if (helper) {
             response
               .status(200)
-              .send(new Response("Updated Successfuly!").getData());
+              .send(new Response('Updated Successfuly!').getData());
           } else {
             next(new SomethingWentWrongException());
           }
@@ -444,7 +499,7 @@ class HelperController implements IController {
           next(new SomethingWentWrongException());
         });
     } else {
-      next(new HttpException(400, "Enter at least one field to update"));
+      next(new HttpException(400, 'Enter at least one field to update'));
     }
   };
   private toggleState = async (
@@ -459,7 +514,7 @@ class HelperController implements IController {
         if (helper) {
           response
             .status(200)
-            .send(new Response("Toggeled Successfuly!").getData());
+            .send(new Response('Toggeled Successfuly!').getData());
         }
       })
       .catch((err) => {
@@ -479,7 +534,7 @@ class HelperController implements IController {
         if (helper) {
           response
             .status(200)
-            .send(new Response("Updated Location Successfuly!").getData());
+            .send(new Response('Updated Location Successfuly!').getData());
         }
       })
       .catch((err) => {
@@ -513,10 +568,10 @@ class HelperController implements IController {
       await requestModel
         .find(
           {
-            "canceledState.isCanceled": false,
+            'canceledState.isCanceled': false,
             category: request.user.category,
           },
-          "-canceledState -finishedState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v"
+          '-canceledState -finishedState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
         )
         .then(async (requests: IRequest[]) => {
           const nearbyRequests = [];
@@ -544,20 +599,84 @@ class HelperController implements IController {
                 }
               });
           }
-          response
-            .status(200)
-            .send(
-              new Response(undefined, {
-                requests: nearbyRequests,
-                category: request.user.category,
-              }).getData()
-            );
+          response.status(200).send(
+            new Response(undefined, {
+              requests: nearbyRequests,
+              category: request.user.category,
+            }).getData()
+          );
         })
         .catch((err) => {
           next(new SomethingWentWrongException(err));
         });
     } else {
-      next(new HttpException(401, "Admin Didnt Approve Your Information Yet."));
+      next(new HttpException(401, 'Admin Didnt Approve Your Information Yet.'));
+    }
+  };
+  private getLockDownStatus = async (
+    request: IRequestWithHelper,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    if (request.user.currentOffer) {
+      await requestOfferModel
+        .findById(request.user.currentOffer, '-helperID -updatedAt -__v')
+        .then(async (offer: IRequestOffer) => {
+          await requestModel
+            .findById(offer.requestID)
+            .then((req: IRequest) => {
+              if (!request.user.adminApproved) {
+                response.status(200).send(
+                  new Response(undefined, {
+                    isLockedDown: true,
+                    type: WAITING_FOR_ADMIN_APPROVAL,
+                  }).getData()
+                );
+              } else if (!offer.isAccepted) {
+                response.status(200).send(
+                  new Response(undefined, {
+                    isLockedDown: true,
+                    type: WAITING_FOR_OFFER_RESPONSE,
+                  }).getData()
+                );
+              } else if (offer.isAccepted && !req.acceptedState.helperStarted) {
+                response.status(200).send(
+                  new Response(undefined, {
+                    isLockedDown: true,
+                    type: WAITING_FOR_HELPER_START,
+                  }).getData()
+                );
+              } else if (
+                req.acceptedState.helperStarted &&
+                !req.acceptedState.clientApproved
+              ) {
+                response.status(200).send(
+                  new Response(undefined, {
+                    isLockedDown: true,
+                    type: WAITING_FOR_CLIENT_START,
+                  }).getData()
+                );
+              } else if (
+                req.acceptedState.clientApproved &&
+                req.acceptedState.helperStarted &&
+                !req.finishedState.isFinished
+              ) {
+                response.status(200).send(
+                  new Response(undefined, {
+                    isLockedDown: true,
+                    type: WAITING_FOR_FINISH_REQUEST,
+                  }).getData()
+                );
+              }
+            })
+            .catch((err) => {
+              next(new SomethingWentWrongException(err));
+            });
+        });
+    } else {
+      response
+        .status(200)
+        .send(new Response(undefined, { isLockedDown: false }).getData());
     }
   };
 }

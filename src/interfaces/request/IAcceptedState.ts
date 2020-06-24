@@ -1,6 +1,8 @@
 interface IAcceptedState {
-    acceptedOffer:string;
-    helperArrivalDate?:Date;
+  acceptedOffer: string;
+  helperName: string;
+  helperStarted: boolean;
+  clientApproved: boolean;
 }
 
 export default IAcceptedState;
