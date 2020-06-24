@@ -1192,6 +1192,35 @@
                 }
             }
         },
+        "/api/Helper/LockDownStatus": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "gets Helper Status",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/LockDown"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Admin/Login": {
             "post": {
                 "tags": [

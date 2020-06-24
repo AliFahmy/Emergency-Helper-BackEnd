@@ -213,10 +213,32 @@ class ClientController implements IController {
     let newData: UpdateClientDTO = request.body;
     let newObj = newData;
     request.file ? (newObj['profilePicture'] = request.file['location']) : null;
+    const emailUpdated: boolean = Boolean(newObj.email);
+
     await clientModel
-      .findByIdAndUpdate(request.user._id, { $set: newData })
-      .then((client: IClient) => {
-        if (client) {
+      .findByIdAndUpdate(request.user._id, {
+        $set: newData, isApproved: !emailUpdated
+      })
+      .then(async (client: IClient) => {
+        if (!client.isApproved) {
+          await this.mailer
+            .sendRegistrationMail(
+              client.firstName,
+              client.verificationToken,
+              client.email,
+              client.role
+            )
+            .then((result) => {
+              response
+                .status(201)
+                .send(
+                  new Response(
+                    'Client Registered Successfully\nPlease Verify Your Email!'
+                  ).getData()
+                );
+            })
+        }
+        else if (client) {
           response
             .status(200)
             .send(new Response('Updated Successfuly!').getData());

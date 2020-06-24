@@ -475,19 +475,44 @@ class HelperController implements IController {
           ? (newObj['certificate'] = files['certificate'][0].location)
           : null;
       }
+      const emailUpdated: boolean =  Boolean(newObj.email);
       const proffesionEdit: boolean =
         newData.category ||
         newData.skills ||
         files['certificate'] ||
         files['frontID'] ||
         files['backID'];
+
       await helperModel
         .findByIdAndUpdate(request.user._id, {
           $set: newData,
           adminApproved: !proffesionEdit,
+          isApproved: !emailUpdated
         })
-        .then((helper: IHelper) => {
-          if (helper) {
+        .then(async (helper: IHelper) => {
+          if (!helper.isApproved) {
+            await this.mailer
+              .sendRegistrationMail(
+                helper.firstName,
+                helper.verificationToken,
+                helper.email,
+                helper.role
+              )
+              .then((sent: boolean) => {
+                response
+                  .status(201)
+                  .send(
+                    new Response(
+                      'Updated Successfuly \n Please Verify Your Email!'
+                    ).getData()
+                  );
+
+              })
+              .catch((err) => {
+                next(new SomethingWentWrongException(err));
+              });
+          }
+          else if (helper) {
             response
               .status(200)
               .send(new Response('Updated Successfuly!').getData());
@@ -559,7 +584,7 @@ class HelperController implements IController {
     response: express.Response,
     next: express.NextFunction
   ) => {
-    if (request.user.isApproved) {
+    if (request.user.adminApproved) {
       const helperLocation: LocationDTO = request.body;
       request.user.location.coordinates = [
         helperLocation.longitude,
