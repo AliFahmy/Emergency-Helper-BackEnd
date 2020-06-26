@@ -337,20 +337,38 @@ class RequestController implements IController {
       await requestOfferModel
         .find(
           { requestID: request.user.activeRequest },
-          '-createdAt -isAccepted -updatedAt -__v -requestID'
+          '-isAccepted -updatedAt -__v -requestID'
         )
         .then(async (offersArray: IRequestOffer[]) => {
           if (offersArray) {
             let offers = [];
             for (let i = 0; i < offersArray.length; i++) {
-              await this.getHelperInformationById(offersArray[i].helperID).then(
-                (helperInfo) => {
+              if (
+                new Date().getTime() -
+                  new Date(offersArray[i].createdAt).getTime() >
+                300000
+              ) {
+                await requestOfferModel
+                  .findByIdAndRemove(offersArray[i]._id)
+                  .then(async (requestOffer: IRequestOffer) => {
+                    await helperModel
+                      .findByIdAndUpdate(requestOffer.helperID, {
+                        currentOffer: null,
+                      })
+                      .then((helper: IHelper) => {
+                        offersArray.splice(i, 1);
+                      });
+                  });
+              } else {
+                await this.getHelperInformationById(
+                  offersArray[i].helperID
+                ).then((helperInfo) => {
                   offers.push({
                     helperInfo,
                     offer: offersArray[i],
                   });
-                }
-              );
+                });
+              }
             }
             response
               .status(200)
@@ -406,6 +424,7 @@ class RequestController implements IController {
           await helperModel
             .findByIdAndUpdate(offerObj.helperID, {
               activeRequest: request.user.activeRequest,
+              currentOffer: null,
               $push: { requests: request.user.activeRequest },
             })
             .then(async (helper: IHelper) => {
@@ -416,7 +435,20 @@ class RequestController implements IController {
                     helperName: helper.firstName + ' ' + helper.lastName,
                   },
                 })
-                .then((request: IRequest) => {
+                .then(async (request: IRequest) => {
+                  const otherOffers = request.offers.filter(
+                    (id) => id !== offer.offerID
+                  );
+                  for (let i = 0; i < otherOffers.length; i++) {
+                    await requestOfferModel
+                      .findByIdAndDelete(otherOffers[i])
+                      .then(async (deletedOffer) => {
+                        await helperModel.findByIdAndUpdate(
+                          deletedOffer.helperID,
+                          { currentOffer: null }
+                        );
+                      });
+                  }
                   response
                     .status(200)
                     .send(

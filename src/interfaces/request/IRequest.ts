@@ -17,7 +17,6 @@ interface IRequest extends Document {
   supportTickets: ISupportTicket[];
   acceptedState: IAcceptedState;
   finishedState: IFinishedState;
-
   offers: string[];
 }
 

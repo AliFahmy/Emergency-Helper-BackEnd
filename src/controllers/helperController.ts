@@ -195,20 +195,38 @@ class HelperController implements IController {
     response: express.Response,
     next: express.NextFunction
   ) => {
-    const items: FillReceiptDTO = request.body;
+    const body: FillReceiptDTO = request.body;
+    let totalPrice: number = 0;
+    for (let i = 0; i < body.items.length; i++) {
+      totalPrice += body.items[i].price;
+    }
     await requestModel
       .findByIdAndUpdate(request.user.activeRequest, {
-        'finishedState.items': items,
+        'finishedState.items': body.items,
         'finishedState.isFinished': true,
+        'finishedState.totalPrice': totalPrice,
       })
-      .then((request: IRequest) => {
-        if (request) {
-          response
-            .status(200)
-            .send(new Response('Filled Receipt Successfully').getData());
-        } else {
-          new HttpException(404, 'Request No Longer Exists');
-        }
+      .then(async (req: IRequest) => {
+        request.user.activeRequest = null;
+        await request.user
+          .save()
+          .then(async (helper: IHelper) => {
+            await clientModel
+              .findByIdAndUpdate(req.client, {
+                activeRequest: null,
+              })
+              .then((client: IClient) => {
+                response
+                  .status(200)
+                  .send(new Response('Filled Receipt Successfully').getData());
+              })
+              .catch((err) => {
+                next(new SomethingWentWrongException(err));
+              });
+          })
+          .catch((err) => {
+            next(new SomethingWentWrongException(err));
+          });
       })
       .catch((err) => {
         next(new SomethingWentWrongException(err));
@@ -475,7 +493,7 @@ class HelperController implements IController {
           ? (newObj['certificate'] = files['certificate'][0].location)
           : null;
       }
-      const emailUpdated: boolean =  Boolean(newObj.email);
+      const emailUpdated: boolean = Boolean(newObj.email);
       const proffesionEdit: boolean =
         newData.category ||
         newData.skills ||
@@ -487,7 +505,7 @@ class HelperController implements IController {
         .findByIdAndUpdate(request.user._id, {
           $set: newData,
           adminApproved: !proffesionEdit,
-          isApproved: !emailUpdated
+          isApproved: !emailUpdated,
         })
         .then(async (helper: IHelper) => {
           if (!helper.isApproved) {
@@ -506,13 +524,11 @@ class HelperController implements IController {
                       'Updated Successfuly \n Please Verify Your Email!'
                     ).getData()
                   );
-
               })
               .catch((err) => {
                 next(new SomethingWentWrongException(err));
               });
-          }
-          else if (helper) {
+          } else if (helper) {
             response
               .status(200)
               .send(new Response('Updated Successfuly!').getData());
