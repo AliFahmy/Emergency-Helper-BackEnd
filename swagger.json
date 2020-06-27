@@ -1872,6 +1872,9 @@
                                         "payload": {
                                             "type": "object",
                                             "properties": {
+                                                "radius":{
+                                                    "type":"number"
+                                                },
                                                 "offers": {
                                                     "type": "array",
                                                     "items": {
