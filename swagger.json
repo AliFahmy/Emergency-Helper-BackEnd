@@ -540,7 +540,7 @@
                     "201": {
                         "description": "Added Address Successfully",
                         "content": {
-                            "text/plain": {
+                            "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
@@ -549,6 +549,35 @@
                                             "example": "Added Address Successfully"
                                         }
                                     }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Client/LockDownStatus": {
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "gets Client Status",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/LockDown"
                                 }
                             }
                         }
@@ -601,6 +630,53 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Client/Address/{_id}": {
+            "delete": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Delete Client Address With Given _id",
+                "parameters": [
+                    {
+                        "name": "_id",
+                        "in": "path",
+                        "description": "Address ID to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Address Deleted Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Invalid Address _id"
                                 }
                             }
                         }
@@ -1099,6 +1175,35 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/AllCategories"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/LockDownStatus": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "gets Helper Status",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/LockDown"
                                 }
                             }
                         }
@@ -1767,6 +1872,9 @@
                                         "payload": {
                                             "type": "object",
                                             "properties": {
+                                                "radius":{
+                                                    "type":"number"
+                                                },
                                                 "offers": {
                                                     "type": "array",
                                                     "items": {
@@ -1869,6 +1977,22 @@
                             "type": "string"
                         },
                         "mobile": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "LockDown": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "isLockedDown": {
+                            "type": "boolean"
+                        },
+                        "type": {
                             "type": "string"
                         }
                     }

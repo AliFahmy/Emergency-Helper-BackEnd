@@ -1,7 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import * as express from 'express';
 /////////////////////////////////////////
-/////////////////////////////////////////
 import validationMiddleware from '../middlewares/validation';
 import authMiddleware from '../middlewares/auth';
 /////////////////////////////////////////
@@ -27,167 +26,389 @@ import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
 import { awsService } from './../middlewares/upload';
 import IAddress from './../interfaces/user/IAddress';
-import ILocation from './../interfaces/ILocation';
+import requestModel from './../models/request/Request';
+import IRequest from './../interfaces/request/IRequest';
+import {
+  WAITING_FOR_OFFERS,
+  WAITING_FOR_HELPER_START,
+  WAITING_FOR_CLIENT_APPROVAL,
+  WAITING_FOR_CLIENT_PAYMENT,
+} from './../types/ClientTypes';
+import { Types } from 'mongoose';
+import HttpException from '../exceptions/HttpException';
 
 class ClientController implements IController {
-    public path: string;
-    public router: express.IRouter;
-    private tokenManager: TokenManager;
-    private mailer: sendEmail;
-    constructor() {
-        this.path = '/Client';
-        this.router = express.Router();
-        this.tokenManager = new TokenManager();
-        this.mailer = new sendEmail();
-        this.initializeRoutes();
-    }
-    private initializeRoutes() {
-        this.router.post(`${this.path}/Login`, validationMiddleware(LogInDto), this.login);
-        this.router.post(`${this.path}/Register`, validationMiddleware(ClientRegistrationDTO), this.register);
-        this.router.post(`${this.path}/Address`,authMiddleware, validationMiddleware(AddAddressDTO), this.addAddress);
-        
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        this.router.get(`${this.path}`, authMiddleware, this.getAccount);
-        this.router.get(`${this.path}/SavedAddresses`, authMiddleware, this.getSavedAddresses);
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        this.router.patch(`${this.path}`, authMiddleware,awsService.single('profilePicture'), validationMiddleware(UpdateClientDTO,true), this.updateAccount);
-    }
-    private getAccount = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
-        const {firstName,lastName,birthDate,email,gender,mobile,balance,profilePicture} = request.user;
-        response.status(200).send(new Response(undefined, {firstName,lastName,birthDate,email,gender,mobile,balance,profilePicture}).getData());
-    }
-    private formateGeoAddresses = (addresses:IAddress[]) =>{
-        let savedAddresses = []
-            for(let i=0;i<addresses.length;i++){
-                savedAddresses.push({
-                    name:addresses[i].name,
-                    addressName:addresses[i].addressName,
-                    location:{
-                        longitude:addresses[i].location.coordinates[0],
-                        latitude:addresses[i].location.coordinates[1]
-                    }
-                })
-            }
-        return savedAddresses;
-    }
-    private getSavedAddresses = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {    
-        response.status(200).send(new Response(undefined, {savedAddresses:this.formateGeoAddresses(request.user.savedAddresses)}).getData());
-    }
-    private addAddress = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
-        const address:AddAddressDTO = request.body;
-        const addressGeoFormat = {
-            ...address,
-            location:{
-                type:"Point",
-                coordinates:[address.location.longitude,address.location.latitude]
-            }
-        }
-        request.user.savedAddresses.push(addressGeoFormat);
-        await request.user.save()
-        .then((client:IClient)=>{
-            if(client){
-                response.status(201).send(new Response("Address Added Successfully", undefined).getData());
-            }
-            else{
-                next(new SomethingWentWrongException())
-            }
-        })
-        .catch(err=>{
-            next(new SomethingWentWrongException(err))
-        })
+  public path: string;
+  public router: express.IRouter;
+  private tokenManager: TokenManager;
+  private mailer: sendEmail;
+  constructor() {
+    this.path = '/Client';
+    this.router = express.Router();
+    this.tokenManager = new TokenManager();
+    this.mailer = new sendEmail();
+    this.initializeRoutes();
+  }
+  private initializeRoutes() {
+    this.router.post(
+      `${this.path}/Login`,
+      validationMiddleware(LogInDto),
+      this.login
+    );
+    this.router.post(
+      `${this.path}/Register`,
+      validationMiddleware(ClientRegistrationDTO),
+      this.register
+    );
+    this.router.post(
+      `${this.path}/Address`,
+      authMiddleware,
+      validationMiddleware(AddAddressDTO),
+      this.addAddress
+    );
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    this.router.get(`${this.path}`, authMiddleware, this.getAccount);
+    this.router.get(
+      `${this.path}/SavedAddresses`,
+      authMiddleware,
+      this.getSavedAddresses
+    );
+    this.router.get(
+      `${this.path}/LockDownStatus`,
+      authMiddleware,
+      this.getLockDownStatus
+    );
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    this.router.patch(
+      `${this.path}`,
+      authMiddleware,
+      awsService.single('profilePicture'),
+      validationMiddleware(UpdateClientDTO, true),
+      this.updateAccount
+    );
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    this.router.delete(
+      `${this.path}/Address/:_id`,
+      authMiddleware,
+      this.deleteAddress
+    );
+  }
+  private getAccount = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const {
+      firstName,
+      lastName,
+      birthDate,
+      email,
+      gender,
+      mobile,
+      balance,
+      profilePicture,
+    } = request.user;
+    response.status(200).send(
+      new Response(undefined, {
+        firstName,
+        lastName,
+        birthDate,
+        email,
+        gender,
+        mobile,
+        balance,
+        profilePicture,
+      }).getData()
+    );
+  };
+  private formateGeoAddresses = (addresses: IAddress[]) => {
+    let savedAddresses = [];
+    for (let i = 0; i < addresses.length; i++) {
+      savedAddresses.push({
+        _id: addresses[i]._id,
+        name: addresses[i].name,
+        addressName: addresses[i].addressName,
+        location: {
+          longitude: addresses[i].location.coordinates[0],
+          latitude: addresses[i].location.coordinates[1],
+        },
+      });
     }
-    private updateAccount = async (request: IRequestWithClient, response: express.Response, next: express.NextFunction) => {
-        let newData: UpdateClientDTO = request.body;
-        let newObj = newData;
-        request.file ? newObj['profilePicture'] = request.file['location'] : null;
-        await clientModel
-        .findByIdAndUpdate(request.user._id, { $set: newData })
-        .then((client:IClient)=>{
-            if(client){
-                response.status(200).send(new Response('Updated Successfuly!').getData());
-            }
-            else{
-                next(new SomethingWentWrongException());
-            }
+    return savedAddresses;
+  };
+  private getSavedAddresses = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    response.status(200).send(
+      new Response(undefined, {
+        savedAddresses: this.formateGeoAddresses(request.user.savedAddresses),
+      }).getData()
+    );
+  };
+  private deleteAddress = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const _id = request.params._id;
+    if (Types.ObjectId.isValid(_id)) {
+      request.user.savedAddresses = request.user.savedAddresses.filter(
+        (address: IAddress) => {
+          return address._id != _id;
+        }
+      );
+      await request.user
+        .save()
+        .then((user: IUser) => {
+          response
+            .status(200)
+            .send(new Response('Address Deleted Successfully').getData());
         })
-        .catch(err=>{
-            next(new SomethingWentWrongException())
-        })
+        .catch((err) => {
+          next(new SomethingWentWrongException(err));
+        });
+    } else {
+      next(new HttpException(400, 'Invalid Address _id'));
     }
-    private register = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        const userData: ClientRegistrationDTO = request.body;
-        await clientModel
-            .findOne({ email: userData.email.toLowerCase() })
-            .then(async (value: IUser) => {
-                if (value) {
-                    next(new UserWithThatEmailAlreadyExistsException(userData.email));
-                }
-                else {
-                    const hashedPassword = await bcrypt.hash(userData.password, 10);
-                    const verificationToken = this.tokenManager.getToken({ email: userData.email });
-                    await clientModel.create({
-                        ...userData,
-                        email:userData.email.toLowerCase(),
-                        password: hashedPassword,
-                        verificationToken: verificationToken
-                    })
-                    .then(async(client: IClient) => {
-                        client.password = undefined;
-                        await this.mailer.sendRegistrationMail(client.firstName, client.verificationToken, client.email,client.role)
-                                .then(result => {
-                                    response.status(201).send(new Response('Client Registered Successfully\nPlease Verify Your Email!').getData());
-                                }).catch(result => {
-                                    response.status(201).send(new Response('Registered Successfully!').getData());
-                                });
-                        })
-                        .catch(err => {
-                            next(new SomethingWentWrongException(err));
-                        })
-                }
-            }).catch(err => {
-                next(new SomethingWentWrongException(err));
+  };
+  private addAddress = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const address: AddAddressDTO = request.body;
+    const addressGeoFormat = {
+      ...address,
+      location: {
+        type: 'Point',
+        coordinates: [address.location.longitude, address.location.latitude],
+      },
+    };
+    request.user.savedAddresses.push(addressGeoFormat);
+    await request.user
+      .save()
+      .then((client: IClient) => {
+        if (client) {
+          response
+            .status(201)
+            .send(
+              new Response('Address Added Successfully', undefined).getData()
+            );
+        } else {
+          next(new SomethingWentWrongException());
+        }
+      })
+      .catch((err) => {
+        next(new SomethingWentWrongException(err));
+      });
+  };
+  private updateAccount = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    let newData: UpdateClientDTO = request.body;
+    let newObj = newData;
+    request.file ? (newObj['profilePicture'] = request.file['location']) : null;
+    const emailUpdated: boolean = Boolean(newObj.email);
+
+    await clientModel
+      .findByIdAndUpdate(request.user._id, {
+        $set: newData, isApproved: !emailUpdated
+      })
+      .then(async (client: IClient) => {
+        if (!client.isApproved) {
+          await this.mailer
+            .sendRegistrationMail(
+              client.firstName,
+              client.verificationToken,
+              client.email,
+              client.role
+            )
+            .then((result) => {
+              response
+                .status(201)
+                .send(
+                  new Response(
+                    'Client Registered Successfully\nPlease Verify Your Email!'
+                  ).getData()
+                );
             })
-}
-    private login = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        }
+        else if (client) {
+          response
+            .status(200)
+            .send(new Response('Updated Successfuly!').getData());
+        } else {
+          next(new SomethingWentWrongException());
+        }
+      })
+      .catch((err) => {
+        next(new SomethingWentWrongException());
+      });
+  };
+  private register = async (
+    request: express.Request,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const userData: ClientRegistrationDTO = request.body;
+    await clientModel
+      .findOne({ email: userData.email.toLowerCase() })
+      .then(async (value: IUser) => {
+        if (value) {
+          next(new UserWithThatEmailAlreadyExistsException(userData.email));
+        } else {
+          const hashedPassword = await bcrypt.hash(userData.password, 10);
+          const verificationToken = this.tokenManager.getToken({
+            email: userData.email,
+          });
+          await clientModel
+            .create({
+              ...userData,
+              email: userData.email.toLowerCase(),
+              password: hashedPassword,
+              verificationToken: verificationToken,
+            })
+            .then(async (client: IClient) => {
+              client.password = undefined;
+              await this.mailer
+                .sendRegistrationMail(
+                  client.firstName,
+                  client.verificationToken,
+                  client.email,
+                  client.role
+                )
+                .then((result) => {
+                  response
+                    .status(201)
+                    .send(
+                      new Response(
+                        'Client Registered Successfully\nPlease Verify Your Email!'
+                      ).getData()
+                    );
+                })
+                .catch((result) => {
+                  response
+                    .status(201)
+                    .send(new Response('Registered Successfully!').getData());
+                });
+            })
+            .catch((err) => {
+              next(new SomethingWentWrongException(err));
+            });
+        }
+      })
+      .catch((err) => {
+        next(new SomethingWentWrongException(err));
+      });
+  };
+  private login = async (
+    request: express.Request,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
     const logInData: LogInDto = request.body;
     await clientModel
-    .findOne({ email: logInData.email })
-    .then(async(client:IClient)=>{
-        if(client){
-            await bcrypt.compare(logInData.password, client.password)
-            .then(async (isPasswordMatching:boolean)=>{
-                if(isPasswordMatching){
-                    client.password = undefined;
-                    if(client.isApproved){
-                        const token = this.tokenManager.getToken({ _id: client._id });
-                        response.status(200).send(new Response('Login success', { token }).getData());            
-                    }
-                    else{
-                        await this.mailer.sendRegistrationMail(client.firstName, client.verificationToken, client.email,client.role)
-                        .then(result => {
-                            next(new UserIsNotApprovedException(client.email));
-                        }).catch(result => {
-                            next(new SomethingWentWrongException());
-                        });
-                    }
+      .findOne({ email: logInData.email })
+      .then(async (client: IClient) => {
+        if (client) {
+          await bcrypt
+            .compare(logInData.password, client.password)
+            .then(async (isPasswordMatching: boolean) => {
+              if (isPasswordMatching) {
+                client.password = undefined;
+                if (client.isApproved) {
+                  const token = this.tokenManager.getToken({ _id: client._id });
+                  response
+                    .status(200)
+                    .send(new Response('Login success', { token }).getData());
+                } else {
+                  await this.mailer
+                    .sendRegistrationMail(
+                      client.firstName,
+                      client.verificationToken,
+                      client.email,
+                      client.role
+                    )
+                    .then((result) => {
+                      next(new UserIsNotApprovedException(client.email));
+                    })
+                    .catch((result) => {
+                      next(new SomethingWentWrongException());
+                    });
                 }
-                else{
-                    next(new WrongCredentialsException())
-                }
+              } else {
+                next(new WrongCredentialsException());
+              }
             })
-            .catch(err=>{
-                next(new SomethingWentWrongException())
-            })
+            .catch((err) => {
+              next(new SomethingWentWrongException());
+            });
+        } else {
+          next(new WrongCredentialsException());
         }
-        else{
-            next(new WrongCredentialsException())
-        }
-    })
-    .catch(err=>{
-        next(new SomethingWentWrongException(err))
-    })
+      })
+      .catch((err) => {
+        next(new SomethingWentWrongException(err));
+      });
+  };
+  private getLockDownStatus = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    if (request.user.activeRequest) {
+      await requestModel
+        .findById(request.user.activeRequest)
+        .then((req: IRequest) => {
+          if (!req.acceptedState.acceptedOffer) {
+            response.status(200).send(
+              new Response(undefined, {
+                isLockedDown: true,
+                type: WAITING_FOR_OFFERS,
+              }).getData()
+            );
+          } else if (
+            req.acceptedState.acceptedOffer &&
+            !req.acceptedState.helperStarted
+          ) {
+            response.status(200).send(
+              new Response(undefined, {
+                isLockedDown: true,
+                type: WAITING_FOR_HELPER_START,
+              }).getData()
+            );
+          } else if (
+            req.acceptedState.helperStarted &&
+            !req.acceptedState.clientApproved
+          ) {
+            response.status(200).send(
+              new Response(undefined, {
+                isLockedDown: true,
+                type: WAITING_FOR_CLIENT_APPROVAL,
+              }).getData()
+            );
+          } else if (req.finishedState.isFinished) {
+            response.status(200).send(
+              new Response(undefined, {
+                isLockedDown: true,
+                type: WAITING_FOR_CLIENT_PAYMENT,
+              }).getData()
+            );
+          }
+        })
+        .catch((err) => {
+          next(new SomethingWentWrongException(err));
+        });
+    } else {
+      response
+        .status(200)
+        .send(new Response(undefined, { isLockedDown: false }).getData());
     }
-
+  };
 }
 export default ClientController;

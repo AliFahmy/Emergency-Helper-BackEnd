@@ -23,7 +23,7 @@ import IHelper from "./../interfaces/user/IHelper";
 import IRequestWithHelper from "./../interfaces/httpRequest/IRequestWithHelper";
 import requestOfferModel from "./../models/request/RequestOffer";
 import IRequestOffer from "./../interfaces/request/IRequestOffer";
-import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
+import CancelRequestDTO from "./../dto/requestDTO/CancelRequestDTO";
 
 class RequestController implements IController {
   public path: string;
@@ -94,6 +94,7 @@ class RequestController implements IController {
         .create({
           ...newRequest,
           client: request.user._id,
+          clientName: request.user.firstName + " " + request.user.lastName,
           date: new Date(),
           location: {
             type: "Point",
@@ -315,7 +316,7 @@ class RequestController implements IController {
               name: helper.firstName,
               skills: helper.skills,
               category: helper.category,
-              mobile:helper.mobile
+              mobile: helper.mobile,
             };
             resolve(helperInfo);
           } else {
@@ -336,24 +337,49 @@ class RequestController implements IController {
       await requestOfferModel
         .find(
           { requestID: request.user.activeRequest },
-          "-createdAt -isAccepted -updatedAt -__v -requestID"
+          "-isAccepted -updatedAt -__v -requestID"
         )
         .then(async (offersArray: IRequestOffer[]) => {
           if (offersArray) {
             let offers = [];
             for (let i = 0; i < offersArray.length; i++) {
-              await this.getHelperInformationById(offersArray[i].helperID).then(
-                (helperInfo) => {
+              if (
+                new Date().getTime() -
+                new Date(offersArray[i].createdAt).getTime() >
+                300000
+              ) {
+                await requestOfferModel
+                  .findByIdAndRemove(offersArray[i]._id)
+                  .then(async (requestOffer: IRequestOffer) => {
+                    await helperModel
+                      .findByIdAndUpdate(requestOffer.helperID, {
+                        currentOffer: null,
+                      })
+                      .then((helper: IHelper) => {
+                        offersArray.splice(i, 1);
+                      });
+                  });
+              } else {
+                await this.getHelperInformationById(
+                  offersArray[i].helperID
+                ).then((helperInfo) => {
                   offers.push({
                     helperInfo,
                     offer: offersArray[i],
                   });
-                }
-              );
+                });
+              }
             }
-            response
-              .status(200)
-              .send(new Response(undefined, { offers }).getData());
+            await this.getActiveRequest(request.user)
+            .then((req: IRequest) => {
+              if (req) {
+                response
+                .status(200)
+                .send(new Response(undefined, { radius: req.radius  ,offers }).getData());
+              } 
+            })
+       
+           
           } else {
             response
               .status(200)
@@ -402,17 +428,34 @@ class RequestController implements IController {
       .findByIdAndUpdate(offer.offerID, { isAccepted: true })
       .then(async (offerObj: IRequestOffer) => {
         if (offerObj) {
-          await requestModel
-            .findByIdAndUpdate(request.user.activeRequest, {
-              acceptedState: { acceptedOffer: offer.offerID },
+          await helperModel
+            .findByIdAndUpdate(offerObj.helperID, {
+              activeRequest: request.user.activeRequest,
+              currentOffer: null,
+              $push: { requests: request.user.activeRequest },
             })
-            .then(async (req: IRequest) => {
-              await helperModel
-                .findByIdAndUpdate(offerObj.helperID, {
-                  activeRequest: req._id,
-                  $push: { requests: req._id },
+            .then(async (helper: IHelper) => {
+              await requestModel
+                .findByIdAndUpdate(request.user.activeRequest, {
+                  acceptedState: {
+                    acceptedOffer: offer.offerID,
+                    helperName: helper.firstName + " " + helper.lastName,
+                  },
                 })
-                .then((helper: IHelper) => {
+                .then(async (request: IRequest) => {
+                  const otherOffers = request.offers.filter(
+                    (id) => id !== offer.offerID
+                  );
+                  for (let i = 0; i < otherOffers.length; i++) {
+                    await requestOfferModel
+                      .findByIdAndDelete(otherOffers[i])
+                      .then(async (deletedOffer) => {
+                        await helperModel.findByIdAndUpdate(
+                          deletedOffer.helperID,
+                          { currentOffer: null }
+                        );
+                      });
+                  }
                   response
                     .status(200)
                     .send(
