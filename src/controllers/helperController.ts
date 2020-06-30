@@ -390,7 +390,7 @@ class HelperController implements IController {
   };
   private msToTime(duration: number) {
     const seconds = Math.floor((duration / 1000) % 60);
-    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const minutes = Math.floor((duration / 60000) % 60);
     return {
       seconds,
       minutes,
@@ -501,7 +501,7 @@ class HelperController implements IController {
           : null;
       }
       const emailUpdated: boolean = Boolean(newObj.email);
-      
+
       const proffesionEdit: boolean =
         newData.category ||
         newData.skills ||
@@ -509,9 +509,9 @@ class HelperController implements IController {
         files['frontID'] ||
         files['backID'];
 
-        // const verificationToken = this.tokenManager.getToken({
-        //   email: newObj.email,
-        // });
+      // const verificationToken = this.tokenManager.getToken({
+      //   email: newObj.email,
+      // });
       await helperModel
         .findByIdAndUpdate(request.user._id, {
           $set: newData,
