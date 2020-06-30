@@ -33,7 +33,7 @@ import SupportCategoryAlreadyExistsException from './../exceptions/account/Suppo
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
-
+import * as jwt from 'jsonwebtoken';
 class AccountController implements IController {
     public path: string;
     public router: express.IRouter;
@@ -131,6 +131,7 @@ class AccountController implements IController {
 
     }
     private GetTickets = async (supportTicketsIDs: Types.ObjectId[]): Promise<string[]> => {
+        console.log(supportTicketsIDs);
         let supportTickets: any = [];
         for (let i in supportTicketsIDs) {
             await supportTicketModel.findById(supportTicketsIDs[i], { description: 1, category: 1, date: 1 }).then((ticket: ISupportTicket) => {
@@ -229,6 +230,7 @@ class AccountController implements IController {
                             user.isApproved = true;
                             await user.save((err) => {
                                 if (err) {
+                                    console.log(err);
                                     next(new SomethingWentWrongException());
                                 }
                                 else {
@@ -239,6 +241,7 @@ class AccountController implements IController {
                     }
                 })
             }).catch(result => {
+                console.log(result);
                 next(new SomethingWentWrongException());
             });
     }

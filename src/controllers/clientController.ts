@@ -135,6 +135,7 @@ class ClientController implements IController {
         },
       });
     }
+
     return savedAddresses;
   };
   private getSavedAddresses = async (
