@@ -45,7 +45,7 @@ import WrongCredentialsException from '../exceptions/account/WrongCredentialsExc
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
-import { checkOfferTime, timeLeft } from './../utils/checkOfferTime';
+import { checkOfferTime, time, timeLeft } from './../utils/checkOfferTime';
 
 class HelperController implements IController {
   public path: string;
@@ -390,7 +390,7 @@ class HelperController implements IController {
   };
   private msToTime(duration: number) {
     const seconds = Math.floor((duration / 1000) % 60);
-    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const minutes = Math.floor((duration / 60000) % 60);
     return {
       seconds,
       minutes,
@@ -451,7 +451,8 @@ class HelperController implements IController {
               response.status(200).send(
                 new Response(undefined, {
                   ...offer.toObject(),
-                  timeLeft: this.msToTime(timeLeft(offer)),
+                  createdAt: offer.createdAt,
+                  expiryDuration: time,
                 }).getData()
               );
             }
@@ -501,7 +502,7 @@ class HelperController implements IController {
           : null;
       }
       const emailUpdated: boolean = Boolean(newObj.email);
-      
+
       const proffesionEdit: boolean =
         newData.category ||
         newData.skills ||
@@ -509,9 +510,9 @@ class HelperController implements IController {
         files['frontID'] ||
         files['backID'];
 
-        // const verificationToken = this.tokenManager.getToken({
-        //   email: newObj.email,
-        // });
+      // const verificationToken = this.tokenManager.getToken({
+      //   email: newObj.email,
+      // });
       await helperModel
         .findByIdAndUpdate(request.user._id, {
           $set: newData,

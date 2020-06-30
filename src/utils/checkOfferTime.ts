@@ -1,20 +1,12 @@
 import IRequestOffer from './../interfaces/request/IRequestOffer';
-const time = 300000;
+export const time = 60000;
 export function checkOfferTime(offer: IRequestOffer): boolean {
-  if (
-    time -
-      Math.abs(new Date().getTime() - new Date(offer.createdAt).getTime()) >
-    0
-  ) {
-    console.log('true');
+  if (timeLeft(offer) > 0) {
     return true;
   }
-  console.log('false');
   return false;
 }
 
 export function timeLeft(offer: IRequestOffer): number {
-  return (
-    time - Math.abs(new Date().getTime() - new Date(offer.createdAt).getTime())
-  );
+  return time - (new Date().getTime() - new Date(offer.createdAt).getTime());
 }
