@@ -367,9 +367,16 @@ class RequestController implements IController {
                 });
               }
             }
-            response
-              .status(200)
-              .send(new Response(undefined, { offers }).getData());
+            await this.getActiveRequest(request.user).then((req: IRequest) => {
+              if (req) {
+                response.status(200).send(
+                  new Response(undefined, {
+                    radius: req.radius,
+                    offers,
+                  }).getData()
+                );
+              }
+            });
           } else {
             response
               .status(200)
