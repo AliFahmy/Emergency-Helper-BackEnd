@@ -45,6 +45,7 @@ import WrongCredentialsException from '../exceptions/account/WrongCredentialsExc
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
+import { checkOfferTime, timeLeft } from './../utils/checkOfferTime';
 
 class HelperController implements IController {
   public path: string;
@@ -395,6 +396,35 @@ class HelperController implements IController {
       minutes,
     };
   }
+  private refreshOffer = async (
+    offer: IRequestOffer,
+    request: IRequestWithHelper
+  ): Promise<boolean> => {
+    return new Promise<boolean>(async (resolve, reject) => {
+      await requestModel
+        .findByIdAndUpdate(offer.requestID, {
+          $pull: { offers: offer._id },
+        })
+        .then(async (req: IRequest) => {
+          await requestOfferModel
+            .findByIdAndDelete(offer._id)
+            .then(async (offer: IRequestOffer) => {
+              request.user.currentOffer = null;
+              await request.user
+                .save()
+                .then((helper: IHelper) => {
+                  resolve(true);
+                })
+                .catch((err) => {
+                  reject(false);
+                });
+            })
+            .catch((err) => {
+              reject(false);
+            });
+        });
+    });
+  };
   private getCurrentOffer = async (
     request: IRequestWithHelper,
     response: express.Response,
@@ -405,46 +435,23 @@ class HelperController implements IController {
         .findById(request.user.currentOffer, '-helperID -updatedAt -__v')
         .then(async (offer: IRequestOffer) => {
           if (offer) {
-            const timeLeft =
-              300000 -
-              Math.abs(
-                new Date().getTime() - new Date(offer.createdAt).getTime()
-              );
-
-            if (timeLeft < 0) {
-              await requestModel
-                .findByIdAndUpdate(offer.requestID, {
-                  $pull: { offers: offer._id },
+            if (!checkOfferTime(offer)) {
+              await this.refreshOffer(offer, request)
+                .then((value: boolean) => {
+                  response
+                    .status(404)
+                    .send(
+                      new Response('You Dont Have Current Offer').getData()
+                    );
                 })
-                .then(async (req: IRequest) => {
-                  await requestOfferModel
-                    .findByIdAndDelete(request.user.currentOffer)
-                    .then(async (offer: IRequestOffer) => {
-                      request.user.currentOffer = null;
-                      await request.user
-                        .save()
-                        .then((helper: IHelper) => {
-                          response
-                            .status(404)
-                            .send(
-                              new Response(
-                                'You Dont Have Current Offer'
-                              ).getData()
-                            );
-                        })
-                        .catch((err) => {
-                          next(new SomethingWentWrongException(err));
-                        });
-                    })
-                    .catch((err) => {
-                      next(new SomethingWentWrongException(err));
-                    });
+                .catch((err) => {
+                  next(new SomethingWentWrongException());
                 });
             } else {
               response.status(200).send(
                 new Response(undefined, {
                   ...offer.toObject(),
-                  timeLeft: this.msToTime(timeLeft),
+                  timeLeft: this.msToTime(timeLeft(offer)),
                 }).getData()
               );
             }
@@ -669,7 +676,7 @@ class HelperController implements IController {
         .then(async (offer: IRequestOffer) => {
           await requestModel
             .findById(offer.requestID)
-            .then((req: IRequest) => {
+            .then(async (req: IRequest) => {
               if (!request.user.adminApproved) {
                 response.status(200).send(
                   new Response(undefined, {
@@ -677,7 +684,7 @@ class HelperController implements IController {
                     type: WAITING_FOR_ADMIN_APPROVAL,
                   }).getData()
                 );
-              } else if (!offer.isAccepted) {
+              } else if (!offer.isAccepted && checkOfferTime(offer)) {
                 response.status(200).send(
                   new Response(undefined, {
                     isLockedDown: true,
@@ -703,7 +710,6 @@ class HelperController implements IController {
                 );
               } else if (
                 req.acceptedState.clientApproved &&
-                req.acceptedState.helperStarted &&
                 !req.finishedState.isFinished
               ) {
                 response.status(200).send(
@@ -712,11 +718,26 @@ class HelperController implements IController {
                     type: WAITING_FOR_FINISH_REQUEST,
                   }).getData()
                 );
+              } else {
+                await this.refreshOffer(offer, request)
+                  .then((value: boolean) => {
+                    response.status(200).send(
+                      new Response(undefined, {
+                        isLockedDown: false,
+                      }).getData()
+                    );
+                  })
+                  .catch((err) => {
+                    next(new SomethingWentWrongException(err));
+                  });
               }
             })
             .catch((err) => {
               next(new SomethingWentWrongException(err));
             });
+        })
+        .catch((err) => {
+          next(new SomethingWentWrongException(err));
         });
     } else {
       response

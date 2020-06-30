@@ -1,35 +1,36 @@
-import * as express from "express";
+import * as express from 'express';
 /////////////////////////////////////////
-import validationMiddleware from "../middlewares/validation";
-import authMiddleware from "../middlewares/auth";
+import validationMiddleware from '../middlewares/validation';
+import authMiddleware from '../middlewares/auth';
 /////////////////////////////////////////
-import IController from "../interfaces/IController";
-import IUser from "../interfaces/user/IUser";
-import IRequest from "../interfaces/request/IRequest";
-import IRequestWithUser from "../interfaces/httpRequest/IRequestWithUser";
+import IController from '../interfaces/IController';
+import IUser from '../interfaces/user/IUser';
+import IRequest from '../interfaces/request/IRequest';
+import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
 /////////////////////////////////////////
-import requestModel from "../models/request/Request";
+import requestModel from '../models/request/Request';
 /////////////////////////////////////////
-import RequestDTO from "../dto/requestDTO/RequestDTO";
-import MakeOfferDTO from "./../dto/requestDTO/MakeOfferDTO";
+import RequestDTO from '../dto/requestDTO/RequestDTO';
+import MakeOfferDTO from './../dto/requestDTO/MakeOfferDTO';
 /////////////////////////////////////////
-import SomethingWentWrongException from "./../exceptions/SomethingWentWrongException";
-import HttpException from "./../exceptions/HttpException";
+import SomethingWentWrongException from './../exceptions/SomethingWentWrongException';
+import HttpException from './../exceptions/HttpException';
 ////////////////////////////////////////
-import Response from "../modules/Response";
-import AcceptOfferDTO from "./../dto/requestDTO/AcceptOfferDTO";
-import helperModel from "./../models/user/Helper";
-import IHelper from "./../interfaces/user/IHelper";
-import IRequestWithHelper from "./../interfaces/httpRequest/IRequestWithHelper";
-import requestOfferModel from "./../models/request/RequestOffer";
-import IRequestOffer from "./../interfaces/request/IRequestOffer";
-import CancelRequestDTO from "./../dto/requestDTO/CancelRequestDTO";
+import Response from '../modules/Response';
+import AcceptOfferDTO from './../dto/requestDTO/AcceptOfferDTO';
+import helperModel from './../models/user/Helper';
+import IHelper from './../interfaces/user/IHelper';
+import IRequestWithHelper from './../interfaces/httpRequest/IRequestWithHelper';
+import requestOfferModel from './../models/request/RequestOffer';
+import IRequestOffer from './../interfaces/request/IRequestOffer';
+import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
+import { checkOfferTime } from './../utils/checkOfferTime';
 
 class RequestController implements IController {
   public path: string;
   public router: express.IRouter;
   constructor() {
-    this.path = "/Request";
+    this.path = '/Request';
     this.router = express.Router();
     this.initializeRoutes();
   }
@@ -86,7 +87,7 @@ class RequestController implements IController {
       next(
         new HttpException(
           404,
-          "Cant Create Request, You Already Have Active One"
+          'Cant Create Request, You Already Have Active One'
         )
       );
     } else {
@@ -94,10 +95,10 @@ class RequestController implements IController {
         .create({
           ...newRequest,
           client: request.user._id,
-          clientName: request.user.firstName + " " + request.user.lastName,
+          clientName: request.user.firstName + ' ' + request.user.lastName,
           date: new Date(),
           location: {
-            type: "Point",
+            type: 'Point',
             coordinates: [
               newRequest.location.longitude,
               newRequest.location.latitude,
@@ -115,7 +116,7 @@ class RequestController implements IController {
                   response
                     .status(201)
                     .send(
-                      new Response("Created Request Successfully").getData()
+                      new Response('Created Request Successfully').getData()
                     );
                 } else {
                   await requestModel
@@ -168,9 +169,9 @@ class RequestController implements IController {
               if (user) {
                 response
                   .status(200)
-                  .send(new Response("Canceled Request").getData());
+                  .send(new Response('Canceled Request').getData());
               } else {
-                next(new HttpException(400, "Couldnt Save User"));
+                next(new HttpException(400, 'Couldnt Save User'));
               }
             });
           } else {
@@ -181,7 +182,7 @@ class RequestController implements IController {
           next(new SomethingWentWrongException(err));
         });
     } else {
-      next(new HttpException(400, "You Have No Active Request"));
+      next(new HttpException(400, 'You Have No Active Request'));
     }
   };
   private async getActiveRequest(user: IUser): Promise<IRequest> {
@@ -189,7 +190,7 @@ class RequestController implements IController {
       await requestModel
         .findById(
           user.activeRequest,
-          "-createdAt -updatedAt -__v -supportTickets -client"
+          '-createdAt -updatedAt -__v -supportTickets -client'
         )
         .then((Request: IRequest) => {
           resolve(Request);
@@ -211,7 +212,7 @@ class RequestController implements IController {
             .status(200)
             .send(new Response(undefined, { ...req.toObject() }).getData());
         } else {
-          next(new HttpException(404, "User Has No Active Request"));
+          next(new HttpException(404, 'User Has No Active Request'));
         }
       })
       .catch((err) => {
@@ -224,9 +225,9 @@ class RequestController implements IController {
     next: express.NextFunction
   ) => {
     const offer: MakeOfferDTO = request.body;
-    if (request.user.role === "Helper") {
+    if (request.user.role === 'Helper') {
       if (request.user.currentOffer) {
-        next(new HttpException(400, "You Already Have An Active Offer"));
+        next(new HttpException(400, 'You Already Have An Active Offer'));
       } else {
         await requestModel
           .findById(offer.requestID)
@@ -255,13 +256,13 @@ class RequestController implements IController {
                                   .status(200)
                                   .send(
                                     new Response(
-                                      "Submited Offer Successfully"
+                                      'Submited Offer Successfully'
                                     ).getData()
                                   );
                               } else {
                                 next(
                                   new SomethingWentWrongException(
-                                    "Couldnt Save"
+                                    'Couldnt Save'
                                   )
                                 );
                               }
@@ -273,7 +274,7 @@ class RequestController implements IController {
                           next(
                             new HttpException(
                               400,
-                              "Failed To Make Offer, Please try again later."
+                              'Failed To Make Offer, Please try again later.'
                             )
                           );
                         }
@@ -289,12 +290,12 @@ class RequestController implements IController {
                 next(
                   new HttpException(
                     400,
-                    "From Range Must Be Less Than To Range"
+                    'From Range Must Be Less Than To Range'
                   )
                 );
               }
             } else {
-              next(new HttpException(404, "This Request No Longer Exists"));
+              next(new HttpException(404, 'This Request No Longer Exists'));
             }
           })
           .catch((err) => {
@@ -302,7 +303,7 @@ class RequestController implements IController {
           });
       }
     } else {
-      next(new HttpException(401, "Only Helpers Are Allowed To Make Offers"));
+      next(new HttpException(401, 'Only Helpers Are Allowed To Make Offers'));
     }
   };
   private async getHelperInformationById(id: string): Promise<object> {
@@ -337,17 +338,13 @@ class RequestController implements IController {
       await requestOfferModel
         .find(
           { requestID: request.user.activeRequest },
-          "-isAccepted -updatedAt -__v -requestID"
+          '-isAccepted -updatedAt -__v -requestID'
         )
         .then(async (offersArray: IRequestOffer[]) => {
           if (offersArray) {
             let offers = [];
             for (let i = 0; i < offersArray.length; i++) {
-              if (
-                new Date().getTime() -
-                new Date(offersArray[i].createdAt).getTime() >
-                300000
-              ) {
+              if (!checkOfferTime(offersArray[i])) {
                 await requestOfferModel
                   .findByIdAndRemove(offersArray[i]._id)
                   .then(async (requestOffer: IRequestOffer) => {
@@ -370,27 +367,27 @@ class RequestController implements IController {
                 });
               }
             }
-            await this.getActiveRequest(request.user)
-            .then((req: IRequest) => {
+            await this.getActiveRequest(request.user).then((req: IRequest) => {
               if (req) {
-                response
-                .status(200)
-                .send(new Response(undefined, { radius: req.radius  ,offers }).getData());
-              } 
-            })
-       
-           
+                response.status(200).send(
+                  new Response(undefined, {
+                    radius: req.radius,
+                    offers,
+                  }).getData()
+                );
+              }
+            });
           } else {
             response
               .status(200)
-              .send(new Response("Request Has No Offers Yet").getData());
+              .send(new Response('Request Has No Offers Yet').getData());
           }
         })
         .catch((err) => {
           next(new SomethingWentWrongException(err));
         });
     } else {
-      next(new HttpException(404, "User Has No Active Request"));
+      next(new HttpException(404, 'User Has No Active Request'));
     }
   };
   private viewHistory = async (
@@ -403,11 +400,11 @@ class RequestController implements IController {
         {
           _id: { $in: request.user.requests },
           $or: [
-            { "finishedState.isFinished": true },
-            { "canceledState.isCanceled": true },
+            { 'finishedState.isFinished': true },
+            { 'canceledState.isCanceled': true },
           ],
         },
-        "-createdAt -updatedAt -__v -supportTickets -client -offers"
+        '-createdAt -updatedAt -__v -supportTickets -client -offers'
       )
       .then((requests: IRequest[]) => {
         response
@@ -439,7 +436,7 @@ class RequestController implements IController {
                 .findByIdAndUpdate(request.user.activeRequest, {
                   acceptedState: {
                     acceptedOffer: offer.offerID,
-                    helperName: helper.firstName + " " + helper.lastName,
+                    helperName: helper.firstName + ' ' + helper.lastName,
                   },
                 })
                 .then(async (request: IRequest) => {
@@ -472,7 +469,7 @@ class RequestController implements IController {
               next(new SomethingWentWrongException(err));
             });
         } else {
-          next(new HttpException(404, "This Offer No Longer Exists"));
+          next(new HttpException(404, 'This Offer No Longer Exists'));
         }
       })
       .catch((err) => {
@@ -512,11 +509,11 @@ class RequestController implements IController {
                 next(new SomethingWentWrongException(err));
               });
           } else {
-            next(new HttpException(404, "You Have No Current Offer"));
+            next(new HttpException(404, 'You Have No Current Offer'));
           }
         });
     } else {
-      next(new HttpException(404, "You Have No Current Offer"));
+      next(new HttpException(404, 'You Have No Current Offer'));
     }
   };
 }
