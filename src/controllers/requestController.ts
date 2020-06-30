@@ -24,6 +24,7 @@ import IRequestWithHelper from './../interfaces/httpRequest/IRequestWithHelper';
 import requestOfferModel from './../models/request/RequestOffer';
 import IRequestOffer from './../interfaces/request/IRequestOffer';
 import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
+import { checkOfferTime } from './../utils/checkOfferTime';
 
 class RequestController implements IController {
   public path: string;
@@ -343,11 +344,7 @@ class RequestController implements IController {
           if (offersArray) {
             let offers = [];
             for (let i = 0; i < offersArray.length; i++) {
-              if (
-                new Date().getTime() -
-                  new Date(offersArray[i].createdAt).getTime() >
-                300000
-              ) {
+              if (!checkOfferTime(offersArray[i])) {
                 await requestOfferModel
                   .findByIdAndRemove(offersArray[i]._id)
                   .then(async (requestOffer: IRequestOffer) => {
