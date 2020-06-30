@@ -1872,8 +1872,8 @@
                                         "payload": {
                                             "type": "object",
                                             "properties": {
-                                                "radius":{
-                                                    "type":"number"
+                                                "radius": {
+                                                    "type": "number"
                                                 },
                                                 "offers": {
                                                     "type": "array",
@@ -2027,6 +2027,13 @@
                         },
                         "requestID": {
                             "type": "string"
+                        },
+                        "createdAt": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "expiryDuration": {
+                            "type": "number"
                         }
                     }
                 }

@@ -45,7 +45,7 @@ import WrongCredentialsException from '../exceptions/account/WrongCredentialsExc
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
-import { checkOfferTime, timeLeft } from './../utils/checkOfferTime';
+import { checkOfferTime, time, timeLeft } from './../utils/checkOfferTime';
 
 class HelperController implements IController {
   public path: string;
@@ -451,7 +451,8 @@ class HelperController implements IController {
               response.status(200).send(
                 new Response(undefined, {
                   ...offer.toObject(),
-                  timeLeft: this.msToTime(timeLeft(offer)),
+                  createdAt: offer.createdAt,
+                  expiryDuration: time,
                 }).getData()
               );
             }

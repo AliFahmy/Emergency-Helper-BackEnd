@@ -1,5 +1,5 @@
 import IRequestOffer from './../interfaces/request/IRequestOffer';
-const time = 60000;
+export const time = 60000;
 export function checkOfferTime(offer: IRequestOffer): boolean {
   if (timeLeft(offer) > 0) {
     return true;
