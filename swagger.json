@@ -7,6 +7,10 @@
     },
     "tags": [
         {
+            "name": "General",
+            "description": "API for General EndPoints in the system"
+        },
+        {
             "name": "Account",
             "description": "API for Account Managment in the system"
         },
@@ -21,10 +25,6 @@
         {
             "name": "Helper",
             "description": "API for Helpers in the system"
-        },
-        {
-            "name": "General",
-            "description": "API for General EndPoints in the system"
         },
         {
             "name": "Request",
@@ -85,6 +85,123 @@
                         }
                     },
                     "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/AllSupportCategories": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Gets all the support categories",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AllCategories"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/GetTickets": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Gets Client Ssupport Tickets",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "formatedSupportTickets": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/Ticket"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Account/GetTicketMsgs/{id}": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "gets ticket messages with passed id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fetched Messages Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/Messages"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -204,77 +321,6 @@
                 }
             }
         },
-        "/api/Account/AllSupportCategories": {
-            "get": {
-                "tags": [
-                    "Account"
-                ],
-                "summary": "Gets all the support categories",
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/AllCategories"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/Account/GetTickets": {
-            "get": {
-                "tags": [
-                    "Account"
-                ],
-                "summary": "Gets Client Ssupport Tickets",
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "payload": {
-                                            "type": "object",
-                                            "properties": {
-                                                "formatedSupportTickets": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/definitions/Ticket"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/Account/CreateSupportTicket": {
             "post": {
                 "tags": [
@@ -363,33 +409,120 @@
                 }
             }
         },
-        "/api/Account/GetTicketMsgs/{id}": {
+        "/api/Client/LockDownStatus": {
             "get": {
                 "tags": [
-                    "Account"
+                    "Client"
                 ],
-                "summary": "gets ticket messages with passed id",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
+                "summary": "gets Client Status",
                 "responses": {
                     "200": {
-                        "description": "Fetched Messages Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/LockDown"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Client/SavedAddresses": {
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Gets all saved addresses",
+                "responses": {
+                    "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "payload": {
-                                            "$ref": "#/definitions/Messages"
+                                            "type": "object",
+                                            "properties": {
+                                                "savedAddresses": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/Address"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Client": {
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Gets all the data of the currently logged in client",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/ClientInformation"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Updates the currently logged in Client",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/definitions/ClientUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated Successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Updated Successfully"
                                         }
                                     }
                                 }
@@ -566,41 +699,26 @@
                 }
             }
         },
-        "/api/Client/LockDownStatus": {
-            "get": {
+        "/api/Client/CancelRequest": {
+            "post": {
                 "tags": [
                     "Client"
                 ],
-                "summary": "gets Client Status",
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/LockDown"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
+                "summary": "Cancel Current User Active Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string"
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            }
-        },
-        "/api/Client/SavedAddresses": {
-            "get": {
-                "tags": [
-                    "Client"
-                ],
-                "summary": "Gets all saved addresses",
+                },
                 "responses": {
                     "200": {
                         "content": {
@@ -608,16 +726,8 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "payload": {
-                                            "type": "object",
-                                            "properties": {
-                                                "savedAddresses": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/definitions/Address"
-                                                    }
-                                                }
-                                            }
+                                        "message": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -684,18 +794,134 @@
                 }
             }
         },
-        "/api/Client": {
+        "/api/Helper/AllCategories": {
             "get": {
                 "tags": [
-                    "Client"
+                    "Helper"
                 ],
-                "summary": "Gets all the data of the currently logged in client",
+                "summary": "Gets all the helper categories",
                 "responses": {
                     "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/ClientInformation"
+                                    "$ref": "#/definitions/AllCategories"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/LockDownStatus": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "gets Helper Status",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/LockDown"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/HelperStatus": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Retrieve Helper Status",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/HelperStatus"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/CurrentOffer": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Retrieve Helper's Current Offer",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/HelperCurrentOffer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper": {
+            "get": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Gets all the data of the currently logged in helper",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/HelperInformation"
                                 }
                             }
                         }
@@ -704,14 +930,14 @@
             },
             "patch": {
                 "tags": [
-                    "Client"
+                    "Helper"
                 ],
-                "summary": "Updates the currently logged in Client",
+                "summary": "Updates the currently logged in Helper",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/definitions/ClientUpdate"
+                                "$ref": "#/definitions/HelperUpdate"
                             }
                         }
                     }
@@ -739,6 +965,39 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/Location": {
+            "patch": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Updates Helper Location",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Location"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -862,68 +1121,6 @@
                 }
             }
         },
-        "/api/Helper": {
-            "get": {
-                "tags": [
-                    "Helper"
-                ],
-                "summary": "Gets all the data of the currently logged in helper",
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/HelperInformation"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "tags": [
-                    "Helper"
-                ],
-                "summary": "Updates the currently logged in Helper",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/definitions/HelperUpdate"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Updated Successfully",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Updated Successfully"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/Helper/ToggleStatus": {
             "post": {
                 "tags": [
@@ -974,97 +1171,6 @@
                                             "type": "string"
                                         }
                                     }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/Helper/Location": {
-            "patch": {
-                "tags": [
-                    "Helper"
-                ],
-                "summary": "Updates Helper Location",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/definitions/Location"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/Helper/HelperStatus": {
-            "get": {
-                "tags": [
-                    "Helper"
-                ],
-                "summary": "Retrieve Helper Status",
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/HelperStatus"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/Helper/CurrentOffer": {
-            "get": {
-                "tags": [
-                    "Helper"
-                ],
-                "summary": "Retrieve Helper's Current Offer",
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/HelperCurrentOffer"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
                                 }
                             }
                         }
@@ -1163,18 +1269,37 @@
                 }
             }
         },
-        "/api/Helper/AllCategories": {
-            "get": {
+        "/api/Helper/CancelRequest": {
+            "post": {
                 "tags": [
                     "Helper"
                 ],
-                "summary": "Gets all the helper categories",
+                "summary": "Cancel Current User Active Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/AllCategories"
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1192,18 +1317,18 @@
                 }
             }
         },
-        "/api/Helper/LockDownStatus": {
+        "/api/Admin/GetAllClients": {
             "get": {
                 "tags": [
-                    "Helper"
+                    "Admin"
                 ],
-                "summary": "gets Helper Status",
+                "summary": "Gets all the clients in the system",
                 "responses": {
                     "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/definitions/LockDown"
+                                    "$ref": "#/definitions/AllClients"
                                 }
                             }
                         }
@@ -1215,6 +1340,53 @@
                                 "schema": {
                                     "$ref": "#/definitions/Error"
                                 }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "content": {
+                        "text/plain": {
+                            "schema": {
+                                "$ref": "#/definitions/UnAuthorized"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Admin/GetAllHelpers": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Gets all the helpers in the system",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AllHelpers"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Get Helpers"
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "content": {
+                        "text/plain": {
+                            "schema": {
+                                "$ref": "#/definitions/UnAuthorized"
                             }
                         }
                     }
@@ -1333,82 +1505,6 @@
                 }
             }
         },
-        "/api/Admin/GetAllClients": {
-            "get": {
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "Gets all the clients in the system",
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/AllClients"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
-                                }
-                            }
-                        }
-                    }
-                },
-                "401": {
-                    "content": {
-                        "text/plain": {
-                            "schema": {
-                                "$ref": "#/definitions/UnAuthorized"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/Admin/GetAllHelpers": {
-            "get": {
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "Gets all the helpers in the system",
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/AllHelpers"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "type": "string",
-                                    "example": "Failed To Get Helpers"
-                                }
-                            }
-                        }
-                    }
-                },
-                "401": {
-                    "content": {
-                        "text/plain": {
-                            "schema": {
-                                "$ref": "#/definitions/UnAuthorized"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/Admin/ApproveHelper": {
             "post": {
                 "tags": [
@@ -1450,6 +1546,50 @@
                                 "schema": {
                                     "type": "string",
                                     "example": "Failed To Approve Helper"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Admin/AddMessage": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add new message to the ticket",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/AdminMessage"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Message created Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
                         }
@@ -1504,92 +1644,7 @@
                 }
             }
         },
-        "/api/Admin/AddMessage": {
-            "post": {
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "Add new message to the ticket",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/definitions/AdminMessage"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Message created Successfully"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/General/AboutUs": {
-            "post": {
-                "tags": [
-                    "General"
-                ],
-                "summary": "Inserts new Section to the About us",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/definitions/AboutUsSection"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/Error"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
             "get": {
                 "tags": [
                     "General"
@@ -1619,19 +1674,17 @@
                         }
                     }
                 }
-            }
-        },
-        "/api/Request": {
+            },
             "post": {
                 "tags": [
-                    "Request"
+                    "General"
                 ],
-                "summary": "Create New Request",
+                "summary": "Inserts new Section to the About us",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/definitions/NewRequest"
+                                "$ref": "#/definitions/AboutUsSection"
                             }
                         }
                     }
@@ -1683,28 +1736,109 @@
                 }
             }
         },
-        "/api/Request/CancelRequest": {
-            "post": {
+        "/api/Request/RequestInfo": {
+            "get": {
                 "tags": [
                     "Request"
                 ],
-                "summary": "Cancel Current User Active Request",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "message": {
-                                        "type": "string"
+                "summary": "Gets Current Active Request Info",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/RequestInfo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/ViewOffers": {
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "View Client's Active Request Offers",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "radius": {
+                                                    "type": "number"
+                                                },
+                                                "offers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/Offer"
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                },
+                }
+            }
+        },
+        "/api/Request/ViewHistory": {
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "View User's History of Requests",
                 "responses": {
                     "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "properties": {
+                                                "offers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/Request"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Create New Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/NewRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1856,12 +1990,12 @@
                 }
             }
         },
-        "/api/Request/ViewOffers": {
-            "get": {
+        "/api/Request/StartHelp": {
+            "post": {
                 "tags": [
                     "Request"
                 ],
-                "summary": "View Client's Active Request Offers",
+                "summary": "Starts Help For Clients Request",
                 "responses": {
                     "200": {
                         "content": {
@@ -1869,21 +2003,20 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "payload": {
-                                            "type": "object",
-                                            "properties": {
-                                                "radius": {
-                                                    "type": "number"
-                                                },
-                                                "offers": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/definitions/Offer"
-                                                    }
-                                                }
-                                            }
+                                        "message": {
+                                            "type": "string"
                                         }
                                     }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
                         }
@@ -1891,12 +2024,12 @@
                 }
             }
         },
-        "/api/Request/ViewHistory": {
-            "get": {
+        "/api/Request/ConfirmHelpStart": {
+            "post": {
                 "tags": [
                     "Request"
                 ],
-                "summary": "View User's History of Requests",
+                "summary": "Confirms Helper Start For Clients Request",
                 "responses": {
                     "200": {
                         "content": {
@@ -1904,18 +2037,20 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "payload": {
-                                            "type": "object",
-                                            "properties": {
-                                                "offers": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/definitions/Request"
-                                                    }
-                                                }
-                                            }
+                                        "message": {
+                                            "type": "string"
                                         }
                                     }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
                                 }
                             }
                         }
@@ -2187,6 +2322,61 @@
                         },
                         "latitude": {
                             "type": "number"
+                        }
+                    }
+                }
+            }
+        },
+        "RequestInfo": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "clientImage": {
+                            "type": "string"
+                        },
+                        "clientName": {
+                            "type": "object",
+                            "properties": {
+                                "firstName": {
+                                    "type": "string"
+                                },
+                                "lastName": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "clientNumber": {
+                            "type": "string"
+                        },
+                        "requestLocation": {
+                            "type": "object",
+                            "properties": {
+                                "longitude": {
+                                    "type": "number"
+                                },
+                                "latitude": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "priceRange": {
+                            "type": "object",
+                            "properties": {
+                                "from": {
+                                    "type": "number"
+                                },
+                                "to": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "acceptedOffer": {
+                            "type": "string"
+                        },
+                        "requestDescription": {
+                            "type": "string"
                         }
                     }
                 }
