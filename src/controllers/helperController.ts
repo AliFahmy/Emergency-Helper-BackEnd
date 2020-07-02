@@ -46,6 +46,7 @@ import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
 import { checkOfferTime, time, timeLeft } from './../utils/checkOfferTime';
+import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
 
 class HelperController implements IController {
   public path: string;
@@ -103,6 +104,12 @@ class HelperController implements IController {
       `${this.path}/ToggleStatus`,
       authMiddleware,
       this.toggleState
+    );
+    this.router.post(
+      `${this.path}/CancelRequest`,
+      authMiddleware,
+      validationMiddleware(CancelRequestDTO, true),
+      this.cancelRequest
     );
     this.router.post(
       `${this.path}/ViewNearbyRequests`,
@@ -388,14 +395,6 @@ class HelperController implements IController {
       .status(200)
       .send(new Response(undefined, { ...request.user.toObject() }).getData());
   };
-  private msToTime(duration: number) {
-    const seconds = Math.floor((duration / 1000) % 60);
-    const minutes = Math.floor((duration / 60000) % 60);
-    return {
-      seconds,
-      minutes,
-    };
-  }
   private refreshOffer = async (
     offer: IRequestOffer,
     request: IRequestWithHelper
@@ -744,6 +743,55 @@ class HelperController implements IController {
       response
         .status(200)
         .send(new Response(undefined, { isLockedDown: false }).getData());
+    }
+  };
+  private cancelRequest = async (
+    request: IRequestWithHelper,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const { message } = request.body;
+    if (request.user.activeRequest) {
+      await requestModel
+        .findByIdAndUpdate(request.user.activeRequest, {
+          $set: {
+            acceptedState: null,
+            finishedState: null,
+            canceledState: {
+              canceledUser: request.user._id,
+              message: message,
+            },
+            $pull: { offers: request.user.currentOffer },
+          },
+        })
+        .then(async (req: IRequest) => {
+          request.user.activeRequest = null;
+          request.user.currentOffer = null;
+          request.user.requests = request.user.requests.filter(
+            (_id: string) => {
+              return _id !== req._id;
+            }
+          );
+          await request.user
+            .save()
+            .then(async (helper: IHelper) => {
+              response
+                .status(200)
+                .send(
+                  new Response(
+                    'Your Service For This Request Is Canceled'
+                  ).getData()
+                );
+            })
+            .catch((err) => {
+              next(new SomethingWentWrongException(err));
+            });
+        })
+        .catch((err) => {
+          next(new SomethingWentWrongException(err));
+        });
+    } else {
+      next(new HttpException(400, 'You Have No Active Request'));
     }
   };
 }

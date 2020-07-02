@@ -36,6 +36,10 @@ import {
 } from './../types/ClientTypes';
 import { Types } from 'mongoose';
 import HttpException from '../exceptions/HttpException';
+import requestOfferModel from './../models/request/RequestOffer';
+import IRequestOffer from './../interfaces/request/IRequestOffer';
+import helperModel from './../models/user/Helper';
+import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
 
 class ClientController implements IController {
   public path: string;
@@ -66,7 +70,12 @@ class ClientController implements IController {
       validationMiddleware(AddAddressDTO),
       this.addAddress
     );
-
+    this.router.post(
+      `${this.path}/CancelRequest`,
+      authMiddleware,
+      validationMiddleware(CancelRequestDTO, true),
+      this.cancelRequest
+    );
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     this.router.get(`${this.path}`, authMiddleware, this.getAccount);
     this.router.get(
@@ -218,7 +227,8 @@ class ClientController implements IController {
 
     await clientModel
       .findByIdAndUpdate(request.user._id, {
-        $set: newData, isApproved: !emailUpdated
+        $set: newData,
+        isApproved: !emailUpdated,
       })
       .then(async (client: IClient) => {
         if (!client.isApproved) {
@@ -237,9 +247,8 @@ class ClientController implements IController {
                     'Client Registered Successfully\nPlease Verify Your Email!'
                   ).getData()
                 );
-            })
-        }
-        else if (client) {
+            });
+        } else if (client) {
           response
             .status(200)
             .send(new Response('Updated Successfuly!').getData());
@@ -409,6 +418,62 @@ class ClientController implements IController {
       response
         .status(200)
         .send(new Response(undefined, { isLockedDown: false }).getData());
+    }
+  };
+  private cancelRequest = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const { message } = request.body;
+    if (request.user.activeRequest) {
+      await requestModel
+        .findByIdAndUpdate(request.user.activeRequest, {
+          $set: {
+            canceledState: {
+              isCanceled: true,
+              canceledUser: request.user._id,
+              message: message,
+            },
+          },
+        })
+        .then(async (req: IRequest) => {
+          request.user.activeRequest = null;
+          request.user.requests = request.user.requests.filter(
+            (_id: string) => {
+              return _id !== req._id;
+            }
+          );
+          await request.user
+            .save()
+            .then(async (client: IClient) => {
+              for (let i = 0; i < req.offers.length; i++) {
+                await requestOfferModel
+                  .findByIdAndDelete(req.offers[i])
+                  .then(async (offer: IRequestOffer) => {
+                    await helperModel.findByIdAndUpdate(offer.helperID, {
+                      activeRequest: null,
+                      currentOffer: null,
+                      $pull: { requests: req._id },
+                    });
+                  })
+                  .catch((err) => {
+                    next(new SomethingWentWrongException(err));
+                  });
+              }
+              response
+                .status(200)
+                .send(new Response('Request Canceled').getData());
+            })
+            .catch((err) => {
+              next(new SomethingWentWrongException(err));
+            });
+        })
+        .catch((err) => {
+          next(new SomethingWentWrongException(err));
+        });
+    } else {
+      next(new HttpException(400, 'You Have No Active Request'));
     }
   };
 }
