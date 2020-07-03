@@ -606,6 +606,7 @@ class HelperController implements IController {
       Math.abs(centerPoint.coordinates[1] - checkPoint.coordinates[1]) * ky;
     return Math.sqrt(dx * dx + dy * dy) <= km;
   }
+
   private viewNearByRequests = async (
     request: IRequestWithHelper,
     response: express.Response,
