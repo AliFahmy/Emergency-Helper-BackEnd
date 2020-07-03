@@ -620,10 +620,10 @@ class HelperController implements IController {
       await requestModel
         .find(
           {
-            'canceledState.isCanceled': false,
+            'canceledState.isCanceled': { $ne: true },
             category: request.user.category,
           },
-          '-canceledState -finishedState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
+          '-finishedState -canceledState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
         )
         .then(async (requests: IRequest[]) => {
           const nearbyRequests = [];
@@ -769,7 +769,7 @@ class HelperController implements IController {
           request.user.currentOffer = null;
           request.user.requests = request.user.requests.filter(
             (_id: string) => {
-              return _id !== req._id;
+              return _id != req._id;
             }
           );
           await request.user

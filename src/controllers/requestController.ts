@@ -236,34 +236,58 @@ class RequestController implements IController {
         });
     });
   }
+  private removeExpiredOffers = async (
+    requestId: string
+  ): Promise<string[]> => {
+    return new Promise<string[]>(async (resolve, reject) => {
+      await requestOfferModel
+        .find(
+          { requestID: requestId },
+          '-isAccepted -updatedAt -__v -requestID'
+        )
+        .then(async (offersArray: IRequestOffer[]) => {
+          let removedOffers = [];
+          let pendingOffers = [];
+          for (let i = 0; i < offersArray.length; i++) {
+            if (!checkOfferTime(offersArray[i])) {
+              removedOffers.push(offersArray[i]._id);
+              await helperModel.findByIdAndUpdate(offersArray[i].helperID, {
+                currentOffer: null,
+              });
+            } else {
+              pendingOffers.push(offersArray[i]._id);
+            }
+          }
+          await requestOfferModel
+            .deleteMany({ _id: { $in: removedOffers } })
+            .then(async () => {
+              await requestModel
+                .findByIdAndUpdate(requestId, {
+                  offers: pendingOffers,
+                })
+                .then((request: IRequest) => {
+                  resolve(request.offers);
+                });
+            });
+        })
+        .catch((err) => {
+          reject([]);
+        });
+    });
+  };
   private viewOffers = async (
     request: IRequestWithUser,
     response: express.Response,
     next: express.NextFunction
   ) => {
     if (request.user.activeRequest) {
-      await requestOfferModel
-        .find(
-          { requestID: request.user.activeRequest },
-          '-isAccepted -updatedAt -__v -requestID'
-        )
-        .then(async (offersArray: IRequestOffer[]) => {
-          if (offersArray) {
-            let offers = [];
-            for (let i = 0; i < offersArray.length; i++) {
-              if (!checkOfferTime(offersArray[i])) {
-                await requestOfferModel
-                  .findByIdAndRemove(offersArray[i]._id)
-                  .then(async (requestOffer: IRequestOffer) => {
-                    await helperModel
-                      .findByIdAndUpdate(requestOffer.helperID, {
-                        currentOffer: null,
-                      })
-                      .then((helper: IHelper) => {
-                        offersArray.splice(i, 1);
-                      });
-                  });
-              } else {
+      await this.removeExpiredOffers(request.user.activeRequest).then(
+        async (pendingOffers: string[]) => {
+          await requestOfferModel
+            .find({ _id: { $in: pendingOffers } })
+            .then(async (offersArray: IRequestOffer[]) => {
+              const offers = [];
+              for (let i = 0; i < offersArray.length; i++) {
                 await this.getHelperInformationById(
                   offersArray[i].helperID
                 ).then((helperInfo) => {
@@ -273,26 +297,22 @@ class RequestController implements IController {
                   });
                 });
               }
-            }
-            await this.getActiveRequest(request.user).then((req: IRequest) => {
-              if (req) {
-                response.status(200).send(
-                  new Response(undefined, {
-                    radius: req.radius,
-                    offers,
-                  }).getData()
-                );
-              }
+              await this.getActiveRequest(request.user).then(
+                (req: IRequest) => {
+                  response.status(200).send(
+                    new Response(undefined, {
+                      radius: req.radius,
+                      offers,
+                    }).getData()
+                  );
+                }
+              );
+            })
+            .catch((err) => {
+              next(new SomethingWentWrongException(err));
             });
-          } else {
-            response
-              .status(200)
-              .send(new Response('Request Has No Offers Yet').getData());
-          }
-        })
-        .catch((err) => {
-          next(new SomethingWentWrongException(err));
-        });
+        }
+      );
     } else {
       next(new HttpException(404, 'User Has No Active Request'));
     }
@@ -310,7 +330,6 @@ class RequestController implements IController {
           await helperModel
             .findByIdAndUpdate(offerObj.helperID, {
               activeRequest: request.user.activeRequest,
-              currentOffer: null,
               $push: { requests: request.user.activeRequest },
             })
             .then(async (helper: IHelper) => {
@@ -321,9 +340,9 @@ class RequestController implements IController {
                     helperName: helper.firstName + ' ' + helper.lastName,
                   },
                 })
-                .then(async (request: IRequest) => {
-                  const otherOffers = request.offers.filter(
-                    (id) => id !== offer.offerID
+                .then(async (req: IRequest) => {
+                  const otherOffers = req.offers.filter(
+                    (id) => id != offer.offerID
                   );
                   for (let i = 0; i < otherOffers.length; i++) {
                     await requestOfferModel
@@ -335,13 +354,19 @@ class RequestController implements IController {
                         );
                       });
                   }
-                  response
-                    .status(200)
-                    .send(
-                      new Response(
-                        `Offer Accepted, You Will Be Connected With Your Helper ${helper.firstName} As Soon As Possible`
-                      ).getData()
-                    );
+                  req.offers = [];
+                  await req.save().then(() => {
+                    response
+                      .status(200)
+                      .send(
+                        new Response(
+                          `Offer Accepted, You Will Be Connected With Your Helper ${helper.firstName} As Soon As Possible`
+                        ).getData()
+                      );
+                  });
+                })
+                .catch((err) => {
+                  next(new SomethingWentWrongException(err));
                 })
                 .catch((err) => {
                   next(new SomethingWentWrongException(err));
@@ -355,6 +380,7 @@ class RequestController implements IController {
         }
       })
       .catch((err) => {
+        console.log('awl error');
         next(new SomethingWentWrongException(err));
       });
   };
