@@ -7,8 +7,11 @@ import HelperController from './controllers/helperController';
 import ClientController from './controllers/clientController';
 import GeneralController from './controllers/generalController';
 import RequestController from './controllers/requestController';
+import { updateRequestsRadius } from './utils/updateRequestRadius';
 
 validateEnv();
+
+setInterval(updateRequestsRadius, 60000);
 
 const app = new App([
   new RequestController(),
