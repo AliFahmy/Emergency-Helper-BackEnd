@@ -761,30 +761,34 @@ class HelperController implements IController {
               canceledUser: request.user._id,
               message: message,
             },
-            $pull: { offers: request.user.currentOffer },
+            offers: [],
           },
         })
         .then(async (req: IRequest) => {
-          request.user.activeRequest = null;
-          request.user.currentOffer = null;
-          request.user.requests = request.user.requests.filter(
-            (_id: string) => {
-              return _id != req._id;
-            }
-          );
-          await request.user
-            .save()
-            .then(async (helper: IHelper) => {
-              response
-                .status(200)
-                .send(
-                  new Response(
-                    'Your Service For This Request Is Canceled'
-                  ).getData()
-                );
-            })
-            .catch((err) => {
-              next(new SomethingWentWrongException(err));
+          await requestOfferModel
+            .findByIdAndDelete(request.user.currentOffer)
+            .then(async (requestOffer: IRequestOffer) => {
+              request.user.activeRequest = null;
+              request.user.currentOffer = null;
+              request.user.requests = request.user.requests.filter(
+                (_id: string) => {
+                  return _id != req._id;
+                }
+              );
+              await request.user
+                .save()
+                .then(async (helper: IHelper) => {
+                  response
+                    .status(200)
+                    .send(
+                      new Response(
+                        'Your Service For This Request Is Canceled'
+                      ).getData()
+                    );
+                })
+                .catch((err) => {
+                  next(new SomethingWentWrongException(err));
+                });
             });
         })
         .catch((err) => {
