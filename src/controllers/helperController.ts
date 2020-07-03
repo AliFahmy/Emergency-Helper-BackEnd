@@ -434,7 +434,7 @@ class HelperController implements IController {
         .findById(request.user.currentOffer, '-helperID -updatedAt -__v')
         .then(async (offer: IRequestOffer) => {
           if (offer) {
-            if (!checkOfferTime(offer)) {
+            if (!checkOfferTime(offer) && !offer.isAccepted) {
               await this.refreshOffer(offer, request)
                 .then((value: boolean) => {
                   response

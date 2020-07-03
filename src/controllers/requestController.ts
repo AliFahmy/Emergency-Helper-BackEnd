@@ -540,7 +540,7 @@ class RequestController implements IController {
                           latitude: req.location.coordinates[1],
                         },
                         priceRange: acceptedOffer.price,
-                        acceptedOffer: acceptedOffer.description,
+                        offerDescription: acceptedOffer.description,
                         requestDescription: req.description,
                       }).getData()
                     );
