@@ -2372,7 +2372,7 @@
                                 }
                             }
                         },
-                        "acceptedOffer": {
+                        "offerDescription": {
                             "type": "string"
                         },
                         "requestDescription": {
