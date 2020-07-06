@@ -7,7 +7,7 @@ import HelperController from './controllers/helperController';
 import ClientController from './controllers/clientController';
 import GeneralController from './controllers/generalController';
 import RequestController from './controllers/requestController';
-import ChatController from './controllers/ChatController';
+import ChatController from './controllers/chatController';
 import { updateRequestsRadius } from './utils/updateRequestRadius';
 
 validateEnv();
