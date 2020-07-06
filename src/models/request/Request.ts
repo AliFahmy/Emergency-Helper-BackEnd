@@ -109,6 +109,10 @@ const requestSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
       },
     ],
+    conversation: {
+      ref: 'Conversation',
+      type: mongoose.Types.ObjectId
+    },
   },
   baseOptions
 );

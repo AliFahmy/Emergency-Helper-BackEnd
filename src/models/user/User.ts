@@ -62,7 +62,11 @@ const userSchema = new mongoose.Schema({
   supportTickets: [{
     ref: 'supportTickets',
     type: mongoose.Types.ObjectId,
-  }]
+  }],
+  conversation: {
+    ref: 'Conversation',
+    type: mongoose.Types.ObjectId
+  },
 }, baseOptions);
 
 userSchema.pre<IUser>('save', async function(next){

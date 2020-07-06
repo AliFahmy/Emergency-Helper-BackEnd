@@ -7,8 +7,10 @@ import IController from '../interfaces/IController';
 import IUser from '../interfaces/user/IUser';
 import IRequest from '../interfaces/request/IRequest';
 import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
+import IConversation from '../interfaces/IConversation';
 /////////////////////////////////////////
 import requestModel from '../models/request/Request';
+import conversationModel from '../models/request/Conversation';
 /////////////////////////////////////////
 import RequestDTO from '../dto/requestDTO/RequestDTO';
 import MakeOfferDTO from './../dto/requestDTO/MakeOfferDTO';
@@ -354,6 +356,10 @@ class RequestController implements IController {
                         );
                       });
                   }
+                  await conversationModel.create({ requestID: request.user._id, date: new Date(), messages: [] })
+                    .then(async (conversation: IConversation) => {
+                      req.conversation = conversation._id;
+                    })
                   req.offers = [];
                   await req.save().then(() => {
                     response
