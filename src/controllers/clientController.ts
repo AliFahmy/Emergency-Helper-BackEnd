@@ -4,14 +4,18 @@ import * as express from 'express';
 import validationMiddleware from '../middlewares/validation';
 import authMiddleware from '../middlewares/auth';
 /////////////////////////////////////////
+import IRequestOffer from './../interfaces/request/IRequestOffer';
 import IController from '../interfaces/IController';
 import IUser from '../interfaces/user/IUser';
 import IClient from '../interfaces/user/IClient';
 import IRequestWithClient from '../interfaces/httpRequest/IRequestWithClient';
+import IAddress from './../interfaces/user/IAddress';
 /////////////////////////////////////////
+import helperModel from './../models/user/Helper';
 import clientModel from '../models/user/Client';
 /////////////////////////////////////////
 import ClientRegistrationDTO from '../dto/clientDTO/clientRegistrationDTO';
+import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
 import LogInDto from '../dto/loginDTO';
 import UpdateClientDTO from '../dto/clientDTO/updateClientDTO';
 import AddAddressDTO from './../dto/clientDTO/AddAddressDTO';
@@ -25,7 +29,6 @@ import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
 import { awsService } from './../middlewares/upload';
-import IAddress from './../interfaces/user/IAddress';
 import requestModel from './../models/request/Request';
 import IRequest from './../interfaces/request/IRequest';
 import {
@@ -33,13 +36,11 @@ import {
   WAITING_FOR_HELPER_START,
   WAITING_FOR_CLIENT_APPROVAL,
   WAITING_FOR_CLIENT_PAYMENT,
+  WAITING_FOR_FINISH_REQUEST,
 } from './../types/ClientTypes';
 import { Types } from 'mongoose';
 import HttpException from '../exceptions/HttpException';
 import requestOfferModel from './../models/request/RequestOffer';
-import IRequestOffer from './../interfaces/request/IRequestOffer';
-import helperModel from './../models/user/Helper';
-import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
 
 class ClientController implements IController {
   public path: string;
@@ -382,24 +383,25 @@ class ClientController implements IController {
                 type: WAITING_FOR_OFFERS,
               }).getData()
             );
-          } else if (
-            req.acceptedState.acceptedOffer &&
-            !req.acceptedState.helperStarted
-          ) {
+          } else if (!req.acceptedState.helperStarted) {
             response.status(200).send(
               new Response(undefined, {
                 isLockedDown: true,
                 type: WAITING_FOR_HELPER_START,
               }).getData()
             );
-          } else if (
-            req.acceptedState.helperStarted &&
-            !req.acceptedState.clientApproved
-          ) {
+          } else if (!req.acceptedState.clientApproved) {
             response.status(200).send(
               new Response(undefined, {
                 isLockedDown: true,
                 type: WAITING_FOR_CLIENT_APPROVAL,
+              }).getData()
+            );
+          } else if (!req.finishedState.isFinished) {
+            response.status(200).send(
+              new Response(undefined, {
+                isLockedDown: true,
+                type: WAITING_FOR_FINISH_REQUEST,
               }).getData()
             );
           } else if (req.finishedState.isFinished) {

@@ -421,12 +421,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "payload": {
-                                            "$ref": "#/definitions/Messages"
-                                        }
-                                    }
+                                    "$ref": "#/definitions/Messages"
                                 }
                             }
                         }
@@ -1987,6 +1982,49 @@
                 }
             }
         },
+        "/api/Request/RateRequest": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Rate The User Current Active Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/RateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Request/CancelOffer": {
             "post": {
                 "tags": [
@@ -2213,6 +2251,22 @@
                 }
             }
         },
+        "RateRequest": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "rate": {
+                            "type": "number"
+                        },
+                        "feedback": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "HelperCurrentOffer": {
             "type": "object",
             "properties": {
@@ -2308,9 +2362,14 @@
             "type": "object",
             "properties": {
                 "payload": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Message"
+                    "type": "object",
+                    "properties": {
+                        "messages": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Message"
+                            }
+                        }
                     }
                 }
             }

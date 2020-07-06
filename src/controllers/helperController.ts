@@ -13,7 +13,7 @@ import {
   WAITING_FOR_OFFER_RESPONSE,
   WAITING_FOR_HELPER_START,
   WAITING_FOR_FINISH_REQUEST,
-  WAITING_FOR_CLIENT_START,
+  WAITING_FOR_CLIENT_APPROVAL,
   WAITING_FOR_ADMIN_APPROVAL,
 } from './../types/HelperTypes';
 ////////////////////////////////////////////////////
@@ -706,7 +706,7 @@ class HelperController implements IController {
                 response.status(200).send(
                   new Response(undefined, {
                     isLockedDown: true,
-                    type: WAITING_FOR_CLIENT_START,
+                    type: WAITING_FOR_CLIENT_APPROVAL,
                   }).getData()
                 );
               } else if (
