@@ -18,6 +18,7 @@ interface IRequest extends Document {
   acceptedState: IAcceptedState;
   finishedState: IFinishedState;
   offers: string[];
+  conversation: string;
 }
 
 export default IRequest;

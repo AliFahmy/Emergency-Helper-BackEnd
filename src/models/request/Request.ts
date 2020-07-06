@@ -97,10 +97,20 @@ const requestSchema = new mongoose.Schema(
         default: false,
       },
       clientRate: {
-        type: Number,
+        rate: {
+          type: Number,
+        },
+        feedback: {
+          type: String,
+        },
       },
       helperRate: {
-        type: Number,
+        rate: {
+          type: Number,
+        },
+        feedback: {
+          type: String,
+        },
       },
     },
     supportTickets: [
@@ -109,6 +119,10 @@ const requestSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
       },
     ],
+    conversation: {
+      ref: 'Conversation',
+      type: mongoose.Types.ObjectId,
+    },
   },
   baseOptions
 );

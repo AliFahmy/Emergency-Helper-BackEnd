@@ -409,6 +409,80 @@
                 }
             }
         },
+        "/api/Chat/GetMsgs": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "gets active conversation messages",
+                "responses": {
+                    "200": {
+                        "description": "Fetched Messages Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Messages"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Chat/SendMessage": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Send new message to the active conversation",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/NewChatMessage"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Message created Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Client/LockDownStatus": {
             "get": {
                 "tags": [
@@ -1908,6 +1982,49 @@
                 }
             }
         },
+        "/api/Request/RateRequest": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Rate The User Current Active Request",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/RateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Request/CancelOffer": {
             "post": {
                 "tags": [
@@ -2134,6 +2251,22 @@
                 }
             }
         },
+        "RateRequest": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "rate": {
+                            "type": "number"
+                        },
+                        "feedback": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "HelperCurrentOffer": {
             "type": "object",
             "properties": {
@@ -2229,9 +2362,14 @@
             "type": "object",
             "properties": {
                 "payload": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Message"
+                    "type": "object",
+                    "properties": {
+                        "messages": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Message"
+                            }
+                        }
                     }
                 }
             }
@@ -2389,6 +2527,14 @@
                     "type": "string",
                     "description": "reference ObjectID of the ticket"
                 },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "NewChatMessage": {
+            "type": "object",
+            "properties": {
                 "message": {
                     "type": "string"
                 }

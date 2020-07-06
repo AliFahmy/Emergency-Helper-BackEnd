@@ -7,6 +7,7 @@ import HelperController from './controllers/helperController';
 import ClientController from './controllers/clientController';
 import GeneralController from './controllers/generalController';
 import RequestController from './controllers/requestController';
+import ChatController from './controllers/ChatController';
 import { updateRequestsRadius } from './utils/updateRequestRadius';
 
 validateEnv();
@@ -20,6 +21,7 @@ const app = new App([
   new AccountController(),
   new HelperController(),
   new AdminController(),
+  new ChatController(),
 ]);
 
 app.listen();

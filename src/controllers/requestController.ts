@@ -7,8 +7,10 @@ import IController from '../interfaces/IController';
 import IUser from '../interfaces/user/IUser';
 import IRequest from '../interfaces/request/IRequest';
 import IRequestWithUser from '../interfaces/httpRequest/IRequestWithUser';
+import IConversation from '../interfaces/IConversation';
 /////////////////////////////////////////
 import requestModel from '../models/request/Request';
+import conversationModel from '../models/request/Conversation';
 /////////////////////////////////////////
 import RequestDTO from '../dto/requestDTO/RequestDTO';
 import MakeOfferDTO from './../dto/requestDTO/MakeOfferDTO';
@@ -29,6 +31,8 @@ import IOffer from './../interfaces/request/IOffer';
 import clientModel from './../models/user/Client';
 import IClient from './../interfaces/user/IClient';
 import IRequestWithClient from './../interfaces/httpRequest/IRequestWithClient';
+import IRate from './../interfaces/request/IRate';
+import RateRequestDTO from './../dto/requestDTO/RateRequestDTO';
 
 class RequestController implements IController {
   public path: string;
@@ -57,6 +61,12 @@ class RequestController implements IController {
       this.cancelOffer
     );
     this.router.post(`${this.path}/StartHelp`, authMiddleware, this.startHelp);
+    this.router.post(
+      `${this.path}/RateRequest`,
+      authMiddleware,
+      validationMiddleware(RateRequestDTO, true),
+      this.rateRequest
+    );
     this.router.post(
       `${this.path}/ConfirmHelpStart`,
       authMiddleware,
@@ -354,6 +364,15 @@ class RequestController implements IController {
                         );
                       });
                   }
+                  await conversationModel
+                    .create({
+                      requestID: request.user._id,
+                      date: new Date(),
+                      messages: [],
+                    })
+                    .then(async (conversation: IConversation) => {
+                      req.conversation = conversation._id;
+                    });
                   req.offers = [];
                   await req.save().then(() => {
                     response
@@ -614,6 +633,66 @@ class RequestController implements IController {
     } else {
       next(new HttpException(404, 'You Have No Active Request'));
     }
+  };
+  private rateRequest = async (
+    request: IRequestWithUser,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const rate: RateRequestDTO = request.body;
+    if (request.user.activeRequest) {
+      await this.rateRequestHelperFunction(
+        request.user.role,
+        rate,
+        request.user.activeRequest
+      )
+        .then((result: boolean) => {
+          if (result) {
+            response
+              .status(200)
+              .send(new Response('Request Rated Successfully').getData());
+          }
+        })
+        .catch((reason: boolean) => {
+          next(new SomethingWentWrongException());
+        });
+    } else {
+      next(new HttpException(404, 'You Have No Active Request To Rate'));
+    }
+  };
+  private rateRequestHelperFunction = async (
+    userRole: string,
+    rate: IRate,
+    requestID: string
+  ): Promise<boolean> => {
+    return new Promise<boolean>(async (resolve, reject) => {
+      if (userRole == 'Client') {
+        await requestModel
+          .findByIdAndUpdate(requestID, {
+            'finishedState.clientRate': {
+              rate: rate.rate,
+              feedback: rate.feedback,
+            },
+          })
+          .then((request: IRequest) => {
+            resolve(true);
+            return;
+          });
+      } else if (userRole == 'Helper') {
+        await requestModel
+          .findByIdAndUpdate(requestID, {
+            'finishedState.helperRate': {
+              rate: rate.rate,
+              feedback: rate.feedback,
+            },
+          })
+          .then((request: IRequest) => {
+            resolve(true);
+            return;
+          });
+      }
+      reject(false);
+    });
   };
 }
 export default RequestController;
