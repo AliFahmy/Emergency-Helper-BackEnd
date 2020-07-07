@@ -2254,16 +2254,11 @@
         "RateRequest": {
             "type": "object",
             "properties": {
-                "payload": {
-                    "type": "object",
-                    "properties": {
-                        "rate": {
-                            "type": "number"
-                        },
-                        "feedback": {
-                            "type": "string"
-                        }
-                    }
+                "rate": {
+                    "type": "number"
+                },
+                "feedback": {
+                    "type": "string"
                 }
             }
         },
