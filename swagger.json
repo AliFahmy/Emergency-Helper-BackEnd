@@ -1219,7 +1219,7 @@
                 }
             }
         },
-        "/api/Helper/FillReceipt": {
+        "/api/Helper/FillReciept": {
             "post": {
                 "tags": [
                     "Helper"
@@ -1853,6 +1853,9 @@
                                                     "items": {
                                                         "$ref": "#/definitions/Offer"
                                                     }
+                                                },
+                                                "distanceBetween": {
+                                                    "type": "number"
                                                 }
                                             }
                                         }
@@ -2318,15 +2321,20 @@
             }
         },
         "Receipt": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "item": {
-                        "type": "string"
-                    },
-                    "price": {
-                        "type": "number"
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "item": {
+                                "type": "string"
+                            },
+                            "price": {
+                                "type": "number"
+                            }
+                        }
                     }
                 }
             }

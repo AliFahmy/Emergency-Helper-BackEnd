@@ -33,6 +33,7 @@ import IClient from './../interfaces/user/IClient';
 import IRequestWithClient from './../interfaces/httpRequest/IRequestWithClient';
 import IRate from './../interfaces/request/IRate';
 import RateRequestDTO from './../dto/requestDTO/RateRequestDTO';
+import { arePointsNear } from './../modules/DistanceBetweenTwoPoints';
 
 class RequestController implements IController {
   public path: string;
@@ -223,8 +224,8 @@ class RequestController implements IController {
         next(new SomethingWentWrongException(err));
       });
   };
-  private async getHelperInformationById(id: string): Promise<object> {
-    return new Promise<object>(async (resolve, reject) => {
+  private async getHelperInformationById(id: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
       await helperModel
         .findById(id)
         .then((helper: IHelper) => {
@@ -234,6 +235,7 @@ class RequestController implements IController {
               name: helper.firstName,
               skills: helper.skills,
               category: helper.category,
+              location: helper.location,
               mobile: helper.mobile,
             };
             resolve(helperInfo);
@@ -262,7 +264,7 @@ class RequestController implements IController {
             if (!checkOfferTime(offersArray[i])) {
               removedOffers.push(offersArray[i]._id);
               await helperModel.findByIdAndUpdate(offersArray[i].helperID, {
-                currentOffer: null,
+                $unset: { currentOffer: 1 },
               });
             } else {
               pendingOffers.push(offersArray[i]._id);
@@ -294,21 +296,27 @@ class RequestController implements IController {
       await this.removeExpiredOffers(request.user.activeRequest).then(
         async (pendingOffers: string[]) => {
           await requestOfferModel
-            .find({ _id: { $in: pendingOffers } })
+            .find({ _id: { $in: pendingOffers } }, '-__v -createdAt -updatedAt')
             .then(async (offersArray: IRequestOffer[]) => {
-              const offers = [];
-              for (let i = 0; i < offersArray.length; i++) {
-                await this.getHelperInformationById(
-                  offersArray[i].helperID
-                ).then((helperInfo) => {
-                  offers.push({
-                    helperInfo,
-                    offer: offersArray[i],
-                  });
-                });
-              }
               await this.getActiveRequest(request.user).then(
-                (req: IRequest) => {
+                async (req: IRequest) => {
+                  const offers = [];
+                  for (let i = 0; i < offersArray.length; i++) {
+                    await this.getHelperInformationById(
+                      offersArray[i].helperID
+                    ).then((helperInfo) => {
+                      offers.push({
+                        helperInfo,
+                        offer: offersArray[i].toObject(),
+                        distanceBetween: parseFloat(
+                          arePointsNear(
+                            helperInfo.location,
+                            req.location
+                          ).toFixed(1)
+                        ),
+                      });
+                    });
+                  }
                   response.status(200).send(
                     new Response(undefined, {
                       radius: req.radius,
@@ -360,7 +368,7 @@ class RequestController implements IController {
                       .then(async (deletedOffer) => {
                         await helperModel.findByIdAndUpdate(
                           deletedOffer.helperID,
-                          { currentOffer: null }
+                          { $unset: { currentOffer: 1 } }
                         );
                       });
                   }
@@ -418,9 +426,10 @@ class RequestController implements IController {
                 $pull: { offers: offer._id },
               })
               .then(async (req: IRequest) => {
-                request.user.currentOffer = null;
-                await request.user
-                  .save()
+                await helperModel
+                  .findByIdAndUpdate(request.user._id, {
+                    $unset: { currentOffer: 1 },
+                  })
                   .then((helper: IHelper) => {
                     response
                       .status(200)

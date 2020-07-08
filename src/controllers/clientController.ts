@@ -440,22 +440,21 @@ class ClientController implements IController {
           },
         })
         .then(async (req: IRequest) => {
-          request.user.activeRequest = null;
-          request.user.requests = request.user.requests.filter(
-            (_id: string) => {
-              return _id !== req._id;
-            }
-          );
-          await request.user
-            .save()
+          const requests = request.user.requests.filter((_id: string) => {
+            return _id !== req._id;
+          });
+          await clientModel
+            .findByIdAndUpdate(request.user._id, {
+              $set: { requests: requests },
+              $unset: { activeRequest: 1 },
+            })
             .then(async (client: IClient) => {
               for (let i = 0; i < req.offers.length; i++) {
                 await requestOfferModel
                   .findByIdAndDelete(req.offers[i])
                   .then(async (offer: IRequestOffer) => {
                     await helperModel.findByIdAndUpdate(offer.helperID, {
-                      activeRequest: null,
-                      currentOffer: null,
+                      $unset: { activeRequest: 1, currentOffer: 1 },
                       $pull: { requests: req._id },
                     });
                   })

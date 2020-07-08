@@ -47,6 +47,7 @@ import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
 import { checkOfferTime, time, timeLeft } from './../utils/checkOfferTime';
 import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
+import { arePointsNear } from './../modules/DistanceBetweenTwoPoints';
 
 class HelperController implements IController {
   public path: string;
@@ -215,13 +216,12 @@ class HelperController implements IController {
         'finishedState.totalPrice': totalPrice,
       })
       .then(async (req: IRequest) => {
-        request.user.activeRequest = null;
-        await request.user
-          .save()
+        await helperModel
+          .findByIdAndUpdate(request.user._id, { $unset: { activeRequest: 1 } })
           .then(async (helper: IHelper) => {
             await clientModel
               .findByIdAndUpdate(req.client, {
-                activeRequest: null,
+                $unset: { activeRequest: 1 },
               })
               .then((client: IClient) => {
                 response
@@ -408,9 +408,10 @@ class HelperController implements IController {
           await requestOfferModel
             .findByIdAndDelete(offer._id)
             .then(async (offer: IRequestOffer) => {
-              request.user.currentOffer = null;
-              await request.user
-                .save()
+              await helperModel
+                .findByIdAndUpdate(request.user._id, {
+                  $unset: { currentOffer: 1 },
+                })
                 .then((helper: IHelper) => {
                   resolve(true);
                 })
@@ -593,19 +594,6 @@ class HelperController implements IController {
         next(new SomethingWentWrongException(err));
       });
   };
-  private arePointsNear(
-    checkPoint: ILocation,
-    centerPoint: ILocation,
-    km: number
-  ) {
-    var ky = 40000 / 360;
-    var kx = Math.cos((Math.PI * centerPoint.coordinates[1]) / 180.0) * ky;
-    var dx =
-      Math.abs(centerPoint.coordinates[0] - checkPoint.coordinates[0]) * kx;
-    var dy =
-      Math.abs(centerPoint.coordinates[1] - checkPoint.coordinates[1]) * ky;
-    return Math.sqrt(dx * dx + dy * dy) <= km;
-  }
 
   private viewNearByRequests = async (
     request: IRequestWithHelper,
@@ -630,11 +618,8 @@ class HelperController implements IController {
           const nearbyRequests = [];
           for (let i = 0; i < requests.length; i++) {
             if (
-              this.arePointsNear(
-                request.user.location,
-                requests[i].location,
-                requests[i].radius
-              )
+              arePointsNear(request.user.location, requests[i].location) <=
+              requests[i].radius
             ) {
               nearbyRequests.push(requests[i]);
             }
@@ -755,29 +740,30 @@ class HelperController implements IController {
     if (request.user.activeRequest) {
       await requestModel
         .findByIdAndUpdate(request.user.activeRequest, {
+          $unset: {
+            acceptedState: 1,
+            finishedState: 1,
+            offers: 1,
+          },
           $set: {
-            acceptedState: null,
-            finishedState: null,
             canceledState: {
               canceledUser: request.user._id,
               message: message,
             },
-            offers: [],
           },
         })
         .then(async (req: IRequest) => {
           await requestOfferModel
             .findByIdAndDelete(request.user.currentOffer)
             .then(async (requestOffer: IRequestOffer) => {
-              request.user.activeRequest = null;
-              request.user.currentOffer = null;
-              request.user.requests = request.user.requests.filter(
-                (_id: string) => {
-                  return _id != req._id;
-                }
-              );
-              await request.user
-                .save()
+              const requests = request.user.requests.filter((_id: string) => {
+                return _id != req._id;
+              });
+              await helperModel
+                .findByIdAndUpdate(request.user._id, {
+                  $set: { requests: requests },
+                  $unset: { activeRequest: 1, currentOffer: 1 },
+                })
                 .then(async (helper: IHelper) => {
                   response
                     .status(200)
