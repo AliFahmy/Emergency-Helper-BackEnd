@@ -63,11 +63,9 @@ const requestSchema = new mongoose.Schema(
       },
       helperStarted: {
         type: Boolean,
-        default: false,
       },
       clientApproved: {
         type: Boolean,
-        default: false,
       },
     },
     finishedState: {
