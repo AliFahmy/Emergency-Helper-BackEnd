@@ -213,7 +213,7 @@ class RequestController implements IController {
             { 'canceledState.isCanceled': true },
           ],
         },
-        '-createdAt -updatedAt -__v -supportTickets -client -offers'
+        '-createdAt -updatedAt -__v -supportTickets -client -offers -location'
       )
       .then((requests: IRequest[]) => {
         response
@@ -649,12 +649,11 @@ class RequestController implements IController {
     next: express.NextFunction
   ) => {
     const rate: RateRequestDTO = request.body;
-    if (request.user.activeRequest) {
-      await this.rateRequestHelperFunction(
-        request.user.role,
-        rate,
-        request.user.activeRequest
-      )
+    const requestID: string = rate.requestID
+      ? rate.requestID
+      : request.user.activeRequest;
+    if (requestID) {
+      await this.rateRequestHelperFunction(request.user.role, rate, requestID)
         .then((result: boolean) => {
           if (result) {
             response

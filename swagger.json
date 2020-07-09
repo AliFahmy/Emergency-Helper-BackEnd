@@ -1883,7 +1883,7 @@
                                         "payload": {
                                             "type": "object",
                                             "properties": {
-                                                "offers": {
+                                                "requests": {
                                                     "type": "array",
                                                     "items": {
                                                         "$ref": "#/definitions/Request"
@@ -2261,6 +2261,9 @@
                     "type": "number"
                 },
                 "feedback": {
+                    "type": "string"
+                },
+                "requestID": {
                     "type": "string"
                 }
             }
@@ -2924,6 +2927,9 @@
                         },
                         "canceledUser": {
                             "type": "string"
+                        },
+                        "message": {
+                            "type": "string"
                         }
                     }
                 },
@@ -2946,10 +2952,26 @@
                             "type": "number"
                         },
                         "clientRate": {
-                            "type": "number"
+                            "type": "object",
+                            "properties": {
+                                "rate": {
+                                    "type": "number"
+                                },
+                                "feedback": {
+                                    "type": "number"
+                                }
+                            }
                         },
                         "helperRate": {
-                            "type": "number"
+                            "type": "object",
+                            "properties": {
+                                "rate": {
+                                    "type": "number"
+                                },
+                                "feedback": {
+                                    "type": "number"
+                                }
+                            }
                         }
                     }
                 },
@@ -2965,6 +2987,9 @@
                 "date": {
                     "type": "string",
                     "format": "date"
+                },
+                "conversation": {
+                    "type": "string"
                 }
             }
         },

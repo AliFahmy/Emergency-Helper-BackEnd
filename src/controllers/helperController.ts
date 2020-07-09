@@ -594,7 +594,6 @@ class HelperController implements IController {
         next(new SomethingWentWrongException(err));
       });
   };
-
   private viewNearByRequests = async (
     request: IRequestWithHelper,
     response: express.Response,
@@ -610,6 +609,7 @@ class HelperController implements IController {
         .find(
           {
             'canceledState.isCanceled': { $ne: true },
+            'acceptedState.isAccepted': { $ne: true },
             category: request.user.category,
           },
           '-finishedState -canceledState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
