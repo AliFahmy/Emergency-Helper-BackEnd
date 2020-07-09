@@ -609,7 +609,7 @@ class HelperController implements IController {
         .find(
           {
             'canceledState.isCanceled': { $ne: true },
-            'acceptedState.isAccepted': { $ne: true },
+            'acceptedState.acceptedOffer': { $exists: false },
             category: request.user.category,
           },
           '-finishedState -canceledState -offers -supportTickets -createdAt -updatedAt -acceptedState -__v'
