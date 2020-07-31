@@ -381,7 +381,7 @@ class RequestController implements IController {
                     .then(async (conversation: IConversation) => {
                       req.conversation = conversation._id;
                     });
-                  req.offers = [];
+                  req.offers = [offer.offerID];
                   await req.save().then(() => {
                     response
                       .status(200)
