@@ -219,18 +219,9 @@ class HelperController implements IController {
         await helperModel
           .findByIdAndUpdate(request.user._id, { $unset: { activeRequest: 1 } })
           .then(async (helper: IHelper) => {
-            await clientModel
-              .findByIdAndUpdate(req.client, {
-                $unset: { activeRequest: 1 },
-              })
-              .then((client: IClient) => {
-                response
-                  .status(200)
-                  .send(new Response('Filled Receipt Successfully').getData());
-              })
-              .catch((err) => {
-                next(new SomethingWentWrongException(err));
-              });
+            response
+              .status(200)
+              .send(new Response('Filled Receipt Successfully').getData());
           })
           .catch((err) => {
             next(new SomethingWentWrongException(err));
