@@ -89,6 +89,11 @@ class RequestController implements IController {
     this.router.get(
       `${this.path}/RequestInfo`,
       authMiddleware,
+      this.requestInfo
+    );
+    this.router.get(
+      `${this.path}/AcceptedOffer`,
+      authMiddleware,
       this.getAcceptedOffer
     );
     this.router.get(
@@ -539,7 +544,7 @@ class RequestController implements IController {
       next(new HttpException(401, 'Only Helpers Are Allowed To Make Offers'));
     }
   };
-  private getAcceptedOffer = async (
+  private requestInfo = async (
     request: IRequestWithHelper,
     response: express.Response,
     next: express.NextFunction
@@ -585,6 +590,59 @@ class RequestController implements IController {
             });
         })
         .catch((err) => {
+          next(new SomethingWentWrongException(err));
+        });
+    } else {
+      next(new HttpException(404, 'You Have No Accepted Offer'));
+    }
+  };
+  private getAcceptedOffer = async (
+    request: IRequestWithHelper,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    if (request.user.activeRequest) {
+      await requestModel
+        .findById(request.user.activeRequest)
+        .then(async (req: IRequest) => {
+          await requestOfferModel
+            .findById(req.acceptedState.acceptedOffer)
+            .then(async (acceptedOffer: IOffer) => {
+              if (acceptedOffer.isAccepted) {
+                await helperModel
+                  .findById(acceptedOffer.helperID)
+                  .then((helper: IHelper) => {
+                    response.status(200).send(
+                      new Response(undefined, {
+                        helperImage: helper.profilePicture,
+                        helperName: {
+                          firstName: helper.firstName,
+                          lastName: helper.lastName,
+                        },
+                        helperNumber: helper.mobile,
+                        priceRange: acceptedOffer.price,
+                        skills: helper.skills,
+                        offerDescription: acceptedOffer.description,
+                        category: helper.category,
+                        requestID: req._id,
+                      }).getData()
+                    );
+                  })
+                  .catch((err) => {
+                    console.log('helper model');
+                    next(new SomethingWentWrongException(err));
+                  });
+              } else {
+                next(new HttpException(404, 'Your Offer Is Not Yet Accepted'));
+              }
+            })
+            .catch((err) => {
+              console.log('request offer model');
+              next(new SomethingWentWrongException(err));
+            });
+        })
+        .catch((err) => {
+          console.log('request model');
           next(new SomethingWentWrongException(err));
         });
     } else {

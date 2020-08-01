@@ -1829,6 +1829,25 @@
                 }
             }
         },
+        "/api/Request/AcceptedOffer": {
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Gets Accepted Offer For Client App",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AcceptedOffer"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Request/ViewOffers": {
             "get": {
                 "tags": [
@@ -2520,6 +2539,56 @@
                             "type": "string"
                         },
                         "requestDescription": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "AcceptedOffer": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "helperImage": {
+                            "type": "string"
+                        },
+                        "helperName": {
+                            "type": "object",
+                            "properties": {
+                                "firstName": {
+                                    "type": "string"
+                                },
+                                "lastName": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "helperNumber": {
+                            "type": "string"
+                        },
+                        "priceRange": {
+                            "type": "object",
+                            "properties": {
+                                "from": {
+                                    "type": "number"
+                                },
+                                "to": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "offerDescription": {
+                            "type": "string"
+                        },
+                        "category": {
+                            "type": "string"
+                        },
+                        "skills": {
+                            "type": "string"
+                        },
+                        "requestID": {
                             "type": "string"
                         }
                     }
