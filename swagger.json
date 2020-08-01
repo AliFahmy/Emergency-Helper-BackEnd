@@ -1848,6 +1848,25 @@
                 }
             }
         },
+        "/api/Request/RequestReceipt": {
+            "get": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Gets Reques Receipt",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/RequestReceipt"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Request/ViewOffers": {
             "get": {
                 "tags": [
@@ -1976,6 +1995,40 @@
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Request/ConfirmPayment": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Confirm Clients Payment",
                 "responses": {
                     "200": {
                         "content": {
@@ -2540,6 +2593,22 @@
                         },
                         "requestDescription": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "RequestReceipt": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "object",
+                    "properties": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "totalPrice": {
+                            "type": "number"
                         }
                     }
                 }

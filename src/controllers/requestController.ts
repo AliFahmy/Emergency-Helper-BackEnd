@@ -74,6 +74,11 @@ class RequestController implements IController {
       this.confirmHelpStart
     );
     this.router.post(
+      `${this.path}/ConfirmPayment`,
+      authMiddleware,
+      this.confirmPayment
+    );
+    this.router.post(
       `${this.path}/AcceptOffer`,
       authMiddleware,
       validationMiddleware(AcceptOfferDTO),
@@ -86,6 +91,12 @@ class RequestController implements IController {
       this.getCurrentRequest
     );
     this.router.get(`${this.path}/ViewOffers`, authMiddleware, this.viewOffers);
+    this.router.get(
+      `${this.path}/RequestReciept`,
+      authMiddleware,
+      this.requestReceipt
+    );
+
     this.router.get(
       `${this.path}/RequestInfo`,
       authMiddleware,
@@ -416,6 +427,33 @@ class RequestController implements IController {
         next(new SomethingWentWrongException(err));
       });
   };
+  private requestReceipt = async (
+    request: IRequestWithUser,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    if (request.user.activeRequest) {
+      await requestModel
+        .findById(request.user.activeRequest)
+        .then((req: IRequest) => {
+          if (req.finishedState.isFinished) {
+            response.status(200).send(
+              new Response(undefined, {
+                items: req.finishedState.items,
+                totalPrice: req.finishedState.totalPrice,
+              }).getData()
+            );
+          } else {
+            next(new HttpException(400, 'Request Is Not Finished Yet'));
+          }
+        })
+        .catch((err) => {
+          next(new SomethingWentWrongException());
+        });
+    } else {
+      next(new HttpException(404, 'You Have No Active Request'));
+    }
+  };
   private cancelOffer = async (
     request: IRequestWithHelper,
     response: express.Response,
@@ -696,6 +734,32 @@ class RequestController implements IController {
         })
         .catch((err) => {
           next(new SomethingWentWrongException(err));
+        });
+    } else {
+      next(new HttpException(404, 'You Have No Active Request'));
+    }
+  };
+  private confirmPayment = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    if (request.user.activeRequest) {
+      await clientModel
+        .findByIdAndUpdate(request.user, {
+          $unset: { activeRequest: 1 },
+        })
+        .then((client: IClient) => {
+          response
+            .status(200)
+            .send(
+              new Response(
+                'Payment Confirmed, Your Request Is Now Finished'
+              ).getData()
+            );
+        })
+        .catch((err) => {
+          next(new SomethingWentWrongException());
         });
     } else {
       next(new HttpException(404, 'You Have No Active Request'));
