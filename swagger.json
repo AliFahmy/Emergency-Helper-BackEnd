@@ -2057,6 +2057,40 @@
                 }
             }
         },
+        "/api/Request/RestartRequest": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Restarts Clients Request",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Request/RateRequest": {
             "post": {
                 "tags": [
