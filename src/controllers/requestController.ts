@@ -79,6 +79,11 @@ class RequestController implements IController {
       this.confirmPayment
     );
     this.router.post(
+      `${this.path}/RestartRequest`,
+      authMiddleware,
+      this.restartRequest
+    );
+    this.router.post(
       `${this.path}/AcceptOffer`,
       authMiddleware,
       validationMiddleware(AcceptOfferDTO),
@@ -92,11 +97,10 @@ class RequestController implements IController {
     );
     this.router.get(`${this.path}/ViewOffers`, authMiddleware, this.viewOffers);
     this.router.get(
-      `${this.path}/RequestReciept`,
+      `${this.path}/RequestReceipt`,
       authMiddleware,
       this.requestReceipt
     );
-
     this.router.get(
       `${this.path}/RequestInfo`,
       authMiddleware,
@@ -179,6 +183,59 @@ class RequestController implements IController {
         .catch((err) => {
           next(new SomethingWentWrongException(err));
         });
+    }
+  };
+  private restartRequest = async (
+    request: IRequestWithUser,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    if (request.user.activeRequest) {
+      await requestModel
+        .findById(request.user.activeRequest)
+        .then(async (req: IRequest) => {
+          if (req.acceptedState.acceptedOffer) {
+            await requestOfferModel
+              .findByIdAndDelete(req.acceptedState.acceptedOffer)
+              .then(async (offer: IRequestOffer) => {
+                await helperModel
+                  .findByIdAndUpdate(offer.helperID, {
+                    $unset: { currentOffer: 1, activeRequest: 1 },
+                  })
+                  .then(async (helper: IHelper) => {
+                    await requestModel
+                      .findByIdAndUpdate(req._id, {
+                        $unset: {
+                          canceledState: 1,
+                          offers: 1,
+                          acceptedState: 1,
+                          finishedState: 1,
+                          conversation: 1,
+                        },
+                      })
+                      .then((updatedRequest: IRequest) => {
+                        response
+                          .status(200)
+                          .send(new Response('Request Restarted').getData());
+                      })
+                      .catch((err) => {
+                        next(new SomethingWentWrongException(err));
+                      });
+                  })
+                  .catch((err) => {
+                    next(new SomethingWentWrongException());
+                  });
+              })
+              .catch((err) => {
+                next(new SomethingWentWrongException());
+              });
+          }
+        })
+        .catch((err) => {
+          next(new SomethingWentWrongException());
+        });
+    } else {
+      next(new HttpException(404, 'You Dont Have Active Request'));
     }
   };
   private async getActiveRequest(user: IUser): Promise<IRequest> {
