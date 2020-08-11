@@ -224,7 +224,9 @@ class ClientController implements IController {
     let newData: UpdateClientDTO = request.body;
     let newObj = newData;
     request.file ? (newObj['profilePicture'] = request.file['location']) : null;
-    const emailUpdated: boolean = Boolean(newObj.email);
+    let emailUpdated: boolean = true;
+    if (request.user.email == newObj.email)
+      emailUpdated = false;
     const verificationToken = this.tokenManager.getToken({
       email: newObj.email ? newObj.email : request.user.email,
     });
