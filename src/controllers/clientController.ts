@@ -273,16 +273,9 @@ class ClientController implements IController {
         if (value) {
           next(new UserWithThatEmailAlreadyExistsException(userData.email));
         } else {
-          const hashedPassword = await bcrypt.hash(userData.password, 10);
-          const verificationToken = this.tokenManager.getToken({
-            email: userData.email,
-          });
           await clientModel
             .create({
               ...userData,
-              email: userData.email.toLowerCase(),
-              password: hashedPassword,
-              verificationToken: verificationToken,
             })
             .then(async (client: IClient) => {
               client.password = undefined;
