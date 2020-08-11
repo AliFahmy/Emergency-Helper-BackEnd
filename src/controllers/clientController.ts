@@ -225,12 +225,19 @@ class ClientController implements IController {
     let newObj = newData;
     request.file ? (newObj['profilePicture'] = request.file['location']) : null;
     const emailUpdated: boolean = Boolean(newObj.email);
-
+    const verificationToken = this.tokenManager.getToken({
+      email: newObj.email ? newObj.email : request.user.email,
+    });
     await clientModel
-      .findByIdAndUpdate(request.user._id, {
-        $set: newData,
-        isApproved: !emailUpdated,
-      })
+      .findByIdAndUpdate(
+        request.user._id,
+        {
+          $set: newData,
+          isApproved: !emailUpdated,
+          verificationToken: verificationToken,
+        },
+        { new: true }
+      )
       .then(async (client: IClient) => {
         if (!client.isApproved) {
           await this.mailer
