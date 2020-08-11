@@ -17,7 +17,6 @@ class UpdateClientDTO {
     @IsString()
     public gender:string;
 
-    @IsISO8601()
     public birthDate:Date;
     
 }
