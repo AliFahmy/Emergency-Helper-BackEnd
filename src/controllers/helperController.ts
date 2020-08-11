@@ -501,14 +501,16 @@ class HelperController implements IController {
         files['frontID'] ||
         files['backID'];
 
-      // const verificationToken = this.tokenManager.getToken({
-      //   email: newObj.email,
-      // });
+      const verificationToken = this.tokenManager.getToken({
+        email: newObj.email || request.user.email,
+      });
+
       await helperModel
         .findByIdAndUpdate(request.user._id, {
           $set: newData,
           adminApproved: !proffesionEdit,
           isApproved: !emailUpdated,
+          verificationToken: verificationToken,
         })
         .then(async (helper: IHelper) => {
           if (!helper.isApproved) {
