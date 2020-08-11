@@ -492,7 +492,9 @@ class HelperController implements IController {
           ? (newObj['certificate'] = files['certificate'][0].location)
           : null;
       }
-      const emailUpdated: boolean = Boolean(newObj.email);
+      let emailUpdated: boolean = true;
+      if (request.user.email == newObj.email)
+        emailUpdated = false;
 
       const proffesionEdit: boolean =
         newData.category ||
