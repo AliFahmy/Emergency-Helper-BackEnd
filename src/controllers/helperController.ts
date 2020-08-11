@@ -502,17 +502,22 @@ class HelperController implements IController {
         files['backID'];
 
       const verificationToken = this.tokenManager.getToken({
-        email: newObj.email || request.user.email,
+        email: newObj.email ? newObj.email : request.user.email,
       });
 
       await helperModel
-        .findByIdAndUpdate(request.user._id, {
-          $set: newData,
-          adminApproved: !proffesionEdit,
-          isApproved: !emailUpdated,
-          verificationToken: verificationToken,
-        })
+        .findByIdAndUpdate(
+          request.user._id,
+          {
+            $set: newData,
+            adminApproved: !proffesionEdit,
+            isApproved: !emailUpdated,
+            verificationToken: verificationToken,
+          },
+          { new: true }
+        )
         .then(async (helper: IHelper) => {
+          console.log(helper);
           if (!helper.isApproved) {
             await this.mailer
               .sendRegistrationMail(

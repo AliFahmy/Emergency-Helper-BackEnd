@@ -1467,6 +1467,44 @@
                 }
             }
         },
+        "/api/Admin/GetAllSupportTickets": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Gets all the Support Tickets in the system",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/AllTickets"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Failed To Get Support Tickets"
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "content": {
+                        "text/plain": {
+                            "schema": {
+                                "$ref": "#/definitions/UnAuthorized"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Admin/Login": {
             "post": {
                 "tags": [
@@ -2493,6 +2531,17 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/FullAccount"
+                    }
+                }
+            }
+        },
+        "AllTickets": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Ticket"
                     }
                 }
             }
