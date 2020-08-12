@@ -274,6 +274,8 @@ class HelperController implements IController {
                 next(new WrongCredentialsException());
               }
             });
+        } else {
+          next(new WrongCredentialsException());
         }
       })
       .catch((err) => {
@@ -493,8 +495,7 @@ class HelperController implements IController {
           : null;
       }
       let emailUpdated: boolean = true;
-      if (request.user.email == newObj.email)
-        emailUpdated = false;
+      if (request.user.email == newObj.email) emailUpdated = false;
 
       const proffesionEdit: boolean =
         newData.category ||
