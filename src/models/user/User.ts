@@ -72,6 +72,9 @@ const userSchema = new mongoose.Schema(
       ref: 'Conversation',
       type: mongoose.Types.ObjectId,
     },
+    expoToken: {
+      type: String,
+    },
   },
   baseOptions
 );

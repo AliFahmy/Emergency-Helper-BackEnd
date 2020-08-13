@@ -409,6 +409,50 @@
                 }
             }
         },
+        "/api/Account/PushToken": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Add new push token to the user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/PushToken"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Push Token added Successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Chat/GetMsgs": {
             "get": {
                 "tags": [
@@ -2408,6 +2452,14 @@
                     "type": "string"
                 },
                 "requestID": {
+                    "type": "string"
+                }
+            }
+        },
+        "PushToken": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }
