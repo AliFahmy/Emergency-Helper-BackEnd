@@ -20,6 +20,13 @@ import HttpException from './../exceptions/HttpException';
 
 ////////////////////////////////////////
 import Response from '../modules/Response';
+import { SendNotfication } from './../modules/SendNotification';
+import clientModel from './../models/user/Client';
+import IClient from './../interfaces/user/IClient';
+import requestOfferModel from './../models/request/RequestOffer';
+import IRequestOffer from './../interfaces/request/IRequestOffer';
+import helperModel from './../models/user/Helper';
+import IHelper from './../interfaces/user/IHelper';
 class ChatController implements IController {
   public path: string;
   public router: express.IRouter;
@@ -90,15 +97,66 @@ class ChatController implements IController {
                 conversation.messages.push(newMessage);
                 conversation
                   .save()
-                  .then(() => {
-                    response
-                      .status(200)
-                      .send(
-                        new Response(
-                          'Message Sent Succesfully',
-                          undefined
-                        ).getData()
-                      );
+                  .then(async () => {
+                    if (request.user.role == 'Helper') {
+                      await clientModel
+                        .findById(req.client)
+                        .then(async (client: IClient) => {
+                          await SendNotfication(
+                            'New Message Recieved From Helper',
+                            message,
+                            { type: 'NEW_MESSAGE' },
+                            client.expoToken
+                          )
+                            .then((value: boolean) => {
+                              response
+                                .status(200)
+                                .send(
+                                  new Response(
+                                    'Message Sent Succesfully',
+                                    undefined
+                                  ).getData()
+                                );
+                            })
+                            .catch((err) => {
+                              next(new SomethingWentWrongException(err));
+                            });
+                        });
+                    } else {
+                      await requestOfferModel
+                        .findById(req.acceptedState.acceptedOffer)
+                        .then(async (requestOffer: IRequestOffer) => {
+                          await helperModel
+                            .findById(requestOffer.helperID)
+                            .then(async (helper: IHelper) => {
+                              await SendNotfication(
+                                'New Message Recieved From Client',
+                                message,
+                                { type: 'NEW_MESSAGE' },
+                                helper.expoToken
+                              )
+                                .then((value: boolean) => {
+                                  response
+                                    .status(200)
+                                    .send(
+                                      new Response(
+                                        'Message Sent Succesfully',
+                                        undefined
+                                      ).getData()
+                                    );
+                                })
+                                .catch((err) => {
+                                  next(new SomethingWentWrongException(err));
+                                });
+                            })
+                            .catch((err) => {
+                              next(new SomethingWentWrongException(err));
+                            });
+                        })
+                        .catch((err) => {
+                          next(new SomethingWentWrongException(err));
+                        });
+                    }
                   })
                   .catch((err) => {
                     next(new SomethingWentWrongException(err));

@@ -33,6 +33,9 @@ import SupportCategoryAlreadyExistsException from './../exceptions/account/Suppo
 import sendEmail from '../modules/sendEmail';
 import TokenManager from '../modules/tokenManager';
 import Response from '../modules/Response';
+import PushTokenDTO from './../dto/PushTokenDTO';
+import { Expo } from 'expo-server-sdk';
+import HttpException from '../exceptions/HttpException';
 class AccountController implements IController {
   public path: string;
   public router: express.IRouter;
@@ -55,6 +58,17 @@ class AccountController implements IController {
       `${this.path}/VerifyAccount/:verificationToken/:role`,
       this.verifyAccount
     );
+    this.router.get(
+      `${this.path}/AllSupportCategories`,
+      authMiddleware,
+      this.getAllSupportCategories
+    );
+    this.router.get(`${this.path}/GetTickets`, authMiddleware, this.getTickets);
+    this.router.get(
+      `${this.path}/GetTicketMsgs/:id`,
+      authMiddleware,
+      this.GetTicketMsgs
+    );
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     this.router.patch(
       `${this.path}/ChangePassword`,
@@ -69,30 +83,23 @@ class AccountController implements IController {
       validationMiddleware(SupportCategoryDTO),
       this.insertSupportCategory
     );
-    this.router.get(
-      `${this.path}/AllSupportCategories`,
-      authMiddleware,
-      this.getAllSupportCategories
-    );
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-    this.router.get(`${this.path}/GetTickets`, authMiddleware, this.getTickets);
     this.router.post(
-      `${this.path}/CreateSupportTicket`,
+      `${this.path}/PushToken`,
       authMiddleware,
-      validationMiddleware(CreateSupportTicketDTO, true),
-      this.CreateSupportTicket
+      validationMiddleware(PushTokenDTO),
+      this.addPushToken
     );
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     this.router.post(
       `${this.path}/AddMessage`,
       authMiddleware,
       validationMiddleware(MessageDTO),
       this.addMessage
     );
-    this.router.get(
-      `${this.path}/GetTicketMsgs/:id`,
+    this.router.post(
+      `${this.path}/CreateSupportTicket`,
       authMiddleware,
-      this.GetTicketMsgs
+      validationMiddleware(CreateSupportTicketDTO, true),
+      this.CreateSupportTicket
     );
   }
   private GetTicketMsgs = async (
@@ -153,6 +160,28 @@ class AccountController implements IController {
       .catch((err) => {
         next(new SomethingWentWrongException(err));
       });
+  };
+  private addPushToken = async (
+    request: IRequestWithUser,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const tokenInfo: PushTokenDTO = request.body;
+    if (Expo.isExpoPushToken(tokenInfo.token)) {
+      request.user.expoToken = tokenInfo.token;
+      await request.user
+        .save()
+        .then((user: IUser) => {
+          response
+            .status(201)
+            .send(new Response('Push Token Added Successfully').getData());
+        })
+        .catch((err) => {
+          next(new SomethingWentWrongException(err));
+        });
+    } else {
+      next(new HttpException(401, 'Not Valid Expo Push Token'));
+    }
   };
   private validateToken = async (
     request: IRequestWithUser,
