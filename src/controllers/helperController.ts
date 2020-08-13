@@ -798,6 +798,7 @@ class HelperController implements IController {
     next: express.NextFunction
   ) => {
     const userData: resetPasswordDTO = request.body;
+
     await helperModel
       .findOne({ email: userData.email })
       .then(async (helper: IHelper) => {
@@ -807,13 +808,14 @@ class HelperController implements IController {
         });
         helper.password = newPassword;
         await helper
-          .save(async (client: IClient) => {
+          .save()
+          .then(async (helper: IHelper) => {
             await this.mailer
               .sendMail(
                 helper.email,
                 'Password Reset',
                 'Dear ' +
-                  client.firstName +
+                  helper.firstName +
                   ' \n' +
                   'Your New Password Is : ' +
                   newPassword

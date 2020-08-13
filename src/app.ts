@@ -7,58 +7,58 @@ import IController from './interfaces/IController';
 import errorMiddleware from './middlewares/errorMiddleware';
 
 class App {
+  private app: express.Application;
+  private PORT: any;
 
-  private app : express.Application;
-  private PORT:any;
-  
   constructor(controllers: IController[]) {
-    
     this.app = express();
     this.PORT = process.env.PORT || 5000;
 
-    
+    this.app.use(express.static('../backend-views/build'));
     this.initializeMiddlewares();
-    
-    
+
     this.initializeControllers(controllers);
-    
-    this.app.use("/", swaggerUi.serve,swaggerUi.setup(swaggerDocument));
-    
+
+    this.app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
     this.initializeErrorHandling();
     this.connectToDatabase();
   }
 
   private initializeMiddlewares() {
-    this.app.use(bodyParser.urlencoded({extended:true}))
-    this.app.use(bodyParser.json({limit: '100mb'}));
-}
+    this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.app.use(bodyParser.json({ limit: '100mb' }));
+  }
 
- private initializeErrorHandling(){
-   this.app.use(errorMiddleware);
- }
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware);
+  }
 
-  private initializeControllers(controllers:IController[]) {
+  private initializeControllers(controllers: IController[]) {
     controllers.forEach((controller) => {
       this.app.use('/api', controller.router);
     });
   }
 
-  private connectToDatabase(){
-    const {
-      MONGODB_URL
-      } = process.env;
+  private connectToDatabase() {
+    const { MONGODB_URL } = process.env;
 
-      mongoose
-        .connect(MONGODB_URL.toString(),{ useNewUrlParser: true,useUnifiedTopology:true,useFindAndModify:false,useCreateIndex: true})
-        .then((result)=>{
-            // handle connnection succedded
-            console.log("CONNECTED TO DB")
-        })
-        .catch((err:Error)=>{
-            // handle error database 
-            console.log(err);
-        })
-    }
+    mongoose
+      .connect(MONGODB_URL.toString(), {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+        useCreateIndex: true,
+      })
+      .then((result) => {
+        // handle connnection succedded
+        console.log('CONNECTED TO DB');
+      })
+      .catch((err: Error) => {
+        // handle error database
+        console.log(err);
+      });
+  }
 
   public listen() {
     this.app.listen(this.PORT, () => {
