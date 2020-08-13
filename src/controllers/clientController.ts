@@ -436,7 +436,6 @@ class ClientController implements IController {
     next: express.NextFunction
   ) => {
     const userData: resetPasswordDTO = request.body;
-    console.log(userData);
     await clientModel
       .findOne({ email: userData.email })
       .then(async (client: IClient) => {
