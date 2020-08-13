@@ -1,12 +1,12 @@
 import * as express from 'express';
 import * as bcrypt from 'bcrypt';
+import * as generatePassword from 'generate-password';
 ////////////////////////////////////////////////////
 import IController from '../interfaces/IController';
 import ICategory from './../interfaces/ICategory';
 import IHelper from '../interfaces/user/IHelper';
 import IRequest from '../interfaces/request/IRequest';
 import IRequestOffer from './../interfaces/request/IRequestOffer';
-import ILocation from './../interfaces/ILocation';
 import IClient from './../interfaces/user/IClient';
 import IRequestWithHelper from './../interfaces/httpRequest/IRequestWithHelper';
 import {
@@ -48,6 +48,7 @@ import Response from '../modules/Response';
 import { checkOfferTime, time, timeLeft } from './../utils/checkOfferTime';
 import CancelRequestDTO from './../dto/requestDTO/CancelRequestDTO';
 import { arePointsNear } from './../modules/DistanceBetweenTwoPoints';
+import resetPasswordDTO from './../dto/resetPasswordDTO';
 
 class HelperController implements IController {
   public path: string;
@@ -84,6 +85,11 @@ class HelperController implements IController {
       `${this.path}/Login`,
       validationMiddleware(LogInDto),
       this.login
+    );
+    this.router.post(
+      `${this.path}/ResetPassword`,
+      validationMiddleware(resetPasswordDTO),
+      this.resetPassword
     );
     this.router.post(
       `${this.path}/Register`,
@@ -785,6 +791,53 @@ class HelperController implements IController {
     } else {
       next(new HttpException(400, 'You Have No Active Request'));
     }
+  };
+  private resetPassword = async (
+    request: IRequestWithHelper,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const userData: resetPasswordDTO = request.body;
+    await helperModel
+      .findOne({ email: userData.email })
+      .then(async (helper: IHelper) => {
+        const newPassword = generatePassword.generate({
+          length: 10,
+          numbers: true,
+        });
+        helper.password = newPassword;
+        await helper
+          .save(async (client: IClient) => {
+            await this.mailer
+              .sendMail(
+                helper.email,
+                'Password Reset',
+                'Dear ' +
+                  client.firstName +
+                  ' \n' +
+                  'Your New Password Is : ' +
+                  newPassword
+              )
+              .then((value: boolean) => {
+                response
+                  .status(201)
+                  .send(
+                    new Response(
+                      'Password Reset Succeded, We Sent A New Password To Your Email'
+                    )
+                  );
+              })
+              .catch((err) => {
+                next(new SomethingWentWrongException(err));
+              });
+          })
+          .catch((err) => {
+            next(new SomethingWentWrongException(err));
+          });
+      })
+      .catch((err) => {
+        next(new HttpException(404, 'No Such User With That Email'));
+      });
   };
 }
 

@@ -75,6 +75,9 @@ const userSchema = new mongoose.Schema(
     expoToken: {
       type: String,
     },
+    resetPasswordToken: {
+      type: String,
+    },
   },
   baseOptions
 );
@@ -84,6 +87,8 @@ userSchema.pre<IUser>('save', async function (next) {
     this.password = bcrypt.hashSync(this.password, 10);
     this.verificationToken = new TokenManager().getToken({ email: this.email });
     this.email = this.email.toLowerCase();
+  } else if (this.isModified('password')) {
+    this.password = bcrypt.hashSync(this.password, 10);
   }
   next();
 });

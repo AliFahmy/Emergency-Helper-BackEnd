@@ -817,6 +817,39 @@
                 }
             }
         },
+        "/api/Client/ResetPassword": {
+            "post": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Resets Client Password",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/ResetPassword"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/Client/CancelRequest": {
             "post": {
                 "tags": [
@@ -1274,6 +1307,39 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/definitions/Receipt"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Helper/ResetPassword": {
+            "post": {
+                "tags": [
+                    "Helper"
+                ],
+                "summary": "Resets Helper Password",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/ResetPassword"
                             }
                         }
                     }
@@ -2452,6 +2518,14 @@
                     "type": "string"
                 },
                 "requestID": {
+                    "type": "string"
+                }
+            }
+        },
+        "ResetPassword": {
+            "type": "object",
+            "properties": {
+                "email": {
                     "type": "string"
                 }
             }

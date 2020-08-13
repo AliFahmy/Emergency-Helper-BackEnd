@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import * as express from 'express';
+import * as generatePassword from 'generate-password';
 /////////////////////////////////////////
 import validationMiddleware from '../middlewares/validation';
 import authMiddleware from '../middlewares/auth';
@@ -41,6 +42,7 @@ import {
 import { Types } from 'mongoose';
 import HttpException from '../exceptions/HttpException';
 import requestOfferModel from './../models/request/RequestOffer';
+import resetPasswordDTO from './../dto/resetPasswordDTO';
 
 class ClientController implements IController {
   public path: string;
@@ -76,6 +78,11 @@ class ClientController implements IController {
       authMiddleware,
       validationMiddleware(CancelRequestDTO, true),
       this.cancelRequest
+    );
+    this.router.post(
+      `${this.path}/ResetPassword`,
+      validationMiddleware(resetPasswordDTO),
+      this.resetPassword
     );
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     this.router.get(`${this.path}`, authMiddleware, this.getAccount);
@@ -225,8 +232,7 @@ class ClientController implements IController {
     let newObj = newData;
     request.file ? (newObj['profilePicture'] = request.file['location']) : null;
     let emailUpdated: boolean = true;
-    if (request.user.email == newObj.email)
-      emailUpdated = false;
+    if (request.user.email == newObj.email) emailUpdated = false;
     const verificationToken = this.tokenManager.getToken({
       email: newObj.email ? newObj.email : request.user.email,
     });
@@ -423,6 +429,56 @@ class ClientController implements IController {
         .status(200)
         .send(new Response(undefined, { isLockedDown: false }).getData());
     }
+  };
+  private resetPassword = async (
+    request: IRequestWithClient,
+    response: express.Response,
+    next: express.NextFunction
+  ) => {
+    const userData: resetPasswordDTO = request.body;
+    console.log(userData);
+    await clientModel
+      .findOne({ email: userData.email })
+      .then(async (client: IClient) => {
+        console.log(client);
+        const newPassword = generatePassword.generate({
+          length: 10,
+          numbers: true,
+        });
+        client.password = newPassword;
+        await client
+          .save()
+          .then(async (c: IClient) => {
+            await this.mailer
+              .sendMail(
+                client.email,
+                'Password Reset',
+                'Dear ' +
+                  client.firstName +
+                  ' \n' +
+                  'Your New Password Is : ' +
+                  newPassword
+              )
+              .then((value: boolean) => {
+                response
+                  .status(201)
+                  .send(
+                    new Response(
+                      'Password Reset Succeded, We Sent A New Password To Your Email'
+                    )
+                  );
+              })
+              .catch((err) => {
+                next(new SomethingWentWrongException(err));
+              });
+          })
+          .catch((err) => {
+            next(new SomethingWentWrongException(err));
+          });
+      })
+      .catch((err) => {
+        next(new HttpException(404, 'No Such User With That Email'));
+      });
   };
   private cancelRequest = async (
     request: IRequestWithClient,

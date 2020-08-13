@@ -83,6 +83,7 @@ class AccountController implements IController {
       validationMiddleware(SupportCategoryDTO),
       this.insertSupportCategory
     );
+
     this.router.post(
       `${this.path}/PushToken`,
       authMiddleware,
