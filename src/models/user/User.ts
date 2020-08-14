@@ -81,11 +81,11 @@ const userSchema = new mongoose.Schema(
     rate: {
       numberOfReviews: {
         type: Number,
-        default: 0,
+        default: 1,
       },
       totalRate: {
         type: Number,
-        default: 0,
+        default: 5,
       },
     },
   },
