@@ -19,7 +19,6 @@ export const SendNotfication = async (
       body: body,
       data: data,
     });
-
     let chunks = expo.chunkPushNotifications(notifications);
     for (let chunk of chunks) {
       try {

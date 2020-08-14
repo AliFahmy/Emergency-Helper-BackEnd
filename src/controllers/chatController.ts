@@ -104,7 +104,7 @@ class ChatController implements IController {
                         .then(async (client: IClient) => {
                           await SendNotfication(
                             'New Message Recieved From Helper',
-                            message,
+                            message.message,
                             { type: 'NEW_MESSAGE' },
                             client.expoToken
                           )
@@ -179,7 +179,7 @@ class ChatController implements IController {
       await requestModel
         .findById(
           user.activeRequest,
-          '-createdAt -updatedAt -__v -supportTickets -client'
+          '-createdAt -updatedAt -__v -supportTickets'
         )
         .then((Request: IRequest) => {
           resolve(Request);
