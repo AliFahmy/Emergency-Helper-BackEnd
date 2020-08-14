@@ -482,7 +482,6 @@ class RequestController implements IController {
         }
       })
       .catch((err) => {
-        console.log('awl error');
         next(new SomethingWentWrongException(err));
       });
   };
@@ -726,7 +725,6 @@ class RequestController implements IController {
                     );
                   })
                   .catch((err) => {
-                    console.log('helper model');
                     next(new SomethingWentWrongException(err));
                   });
               } else {
@@ -734,12 +732,10 @@ class RequestController implements IController {
               }
             })
             .catch((err) => {
-              console.log('request offer model');
               next(new SomethingWentWrongException(err));
             });
         })
         .catch((err) => {
-          console.log('request model');
           next(new SomethingWentWrongException(err));
         });
     } else {
@@ -866,10 +862,10 @@ class RequestController implements IController {
           .then(async (request: IRequest) => {
             await helperModel
               .findById(request.acceptedState.helperID)
-              .then((helper: IHelper) => {
+              .then(async (helper: IHelper) => {
                 helper.rate.numberOfReviews += 1;
                 helper.rate.totalRate += rate.rate;
-                helper
+                await helper
                   .save()
                   .then(() => {
                     resolve(true);
@@ -881,6 +877,9 @@ class RequestController implements IController {
               .catch((err) => {
                 reject(false);
               });
+          })
+          .catch((err) => {
+            reject(false);
           });
       } else if (userRole == 'Helper') {
         await requestModel

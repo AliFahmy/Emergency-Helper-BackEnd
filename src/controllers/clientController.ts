@@ -439,7 +439,6 @@ class ClientController implements IController {
     await clientModel
       .findOne({ email: userData.email })
       .then(async (client: IClient) => {
-        console.log(client);
         const newPassword = generatePassword.generate({
           length: 10,
           numbers: true,

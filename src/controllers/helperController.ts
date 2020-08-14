@@ -526,7 +526,6 @@ class HelperController implements IController {
           { new: true }
         )
         .then(async (helper: IHelper) => {
-          console.log(helper);
           if (!helper.isApproved) {
             await this.mailer
               .sendRegistrationMail(

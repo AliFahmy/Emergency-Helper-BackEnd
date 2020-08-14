@@ -242,7 +242,6 @@ class AccountController implements IController {
   private GetTickets = async (
     supportTicketsIDs: Types.ObjectId[]
   ): Promise<string[]> => {
-    console.log(supportTicketsIDs);
     let supportTickets: any = [];
     for (let i in supportTicketsIDs) {
       await supportTicketModel
@@ -378,7 +377,6 @@ class AccountController implements IController {
                 user.isApproved = true;
                 await user.save((err) => {
                   if (err) {
-                    console.log(err);
                     next(new SomethingWentWrongException());
                   } else {
                     response
@@ -392,7 +390,6 @@ class AccountController implements IController {
         );
       })
       .catch((result) => {
-        console.log(result);
         next(new SomethingWentWrongException());
       });
   };

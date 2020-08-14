@@ -229,7 +229,6 @@ class AdminController implements IController {
     await userModel
       .findOneAndRemove({ _id: userID })
       .then((user: IUser) => {
-        console.log(user);
         response
           .status(200)
           .send(new Response('User Deleted Successfully').getData());
