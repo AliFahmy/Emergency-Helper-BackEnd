@@ -390,9 +390,12 @@ class HelperController implements IController {
     response: express.Response,
     next: express.NextFunction
   ) => {
-    response
-      .status(200)
-      .send(new Response(undefined, { ...request.user.toObject() }).getData());
+    response.status(200).send(
+      new Response(undefined, {
+        ...request.user.toObject(),
+        rate: request.user.rate.totalRate / request.user.rate.numberOfReviews,
+      }).getData()
+    );
   };
   private refreshOffer = async (
     offer: IRequestOffer,
@@ -639,6 +642,8 @@ class HelperController implements IController {
                     ...nearbyRequests[i].toObject(),
                     clientName: client.firstName,
                     clientPicture: client.profilePicture,
+                    clientRate:
+                      client.rate.totalRate / client.rate.numberOfReviews,
                   };
                 }
               });

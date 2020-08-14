@@ -136,6 +136,7 @@ class ClientController implements IController {
         mobile,
         balance,
         profilePicture,
+        rate: request.user.rate.totalRate / request.user.rate.numberOfReviews,
       }).getData()
     );
   };

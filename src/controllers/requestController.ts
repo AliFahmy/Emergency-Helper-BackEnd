@@ -671,6 +671,8 @@ class RequestController implements IController {
                         priceRange: acceptedOffer.price,
                         offerDescription: acceptedOffer.description,
                         requestDescription: req.description,
+                        clientRate:
+                          client.rate.totalRate / client.rate.numberOfReviews,
                       }).getData()
                     );
                   })
@@ -721,6 +723,8 @@ class RequestController implements IController {
                         offerDescription: acceptedOffer.description,
                         category: helper.category,
                         requestID: req._id,
+                        helperRate:
+                          helper.rate.totalRate / helper.rate.numberOfReviews,
                       }).getData()
                     );
                   })
