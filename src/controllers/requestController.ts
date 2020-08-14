@@ -335,7 +335,7 @@ class RequestController implements IController {
           let removedOffers = [];
           let pendingOffers = [];
           for (let i = 0; i < offersArray.length; i++) {
-            if (!checkOfferTime(offersArray[i])) {
+            if (!checkOfferTime(offersArray[i]) && !offersArray[i].isAccepted) {
               removedOffers.push(offersArray[i]._id);
               await helperModel.findByIdAndUpdate(offersArray[i].helperID, {
                 $unset: { currentOffer: 1 },
