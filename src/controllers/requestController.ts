@@ -430,6 +430,7 @@ class RequestController implements IController {
                   acceptedState: {
                     acceptedOffer: offer.offerID,
                     helperName: helper.firstName + ' ' + helper.lastName,
+                    helperID: helper._id,
                   },
                 })
                 .then(async (req: IRequest) => {
@@ -863,20 +864,12 @@ class RequestController implements IController {
             },
           })
           .then(async (request: IRequest) => {
-            await requestOfferModel
-              .findById(request.acceptedState.acceptedOffer)
-              .then(async (requestOffer: IRequestOffer) => {
-                await helperModel
-                  .findById(requestOffer.helperID)
-                  .then((helper: IHelper) => {
-                    helper.rate.numberOfReviews += 1;
-                    helper.rate.totalRate += rate.rate;
-                    resolve(true);
-                    return;
-                  })
-                  .catch((err) => {
-                    reject(false);
-                  });
+            await helperModel
+              .findById(request.acceptedState.helperID)
+              .then((helper: IHelper) => {
+                helper.rate.numberOfReviews += 1;
+                helper.rate.totalRate += rate.rate;
+                resolve(true);
               })
               .catch((err) => {
                 reject(false);

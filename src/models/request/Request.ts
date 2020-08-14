@@ -58,6 +58,10 @@ const requestSchema = new mongoose.Schema(
         ref: 'RequestOffer',
         type: mongoose.Schema.Types.ObjectId,
       },
+      helperID: {
+        ref: 'Helper',
+        type: mongoose.Schema.Types.ObjectId,
+      },
       helperName: {
         type: String,
       },

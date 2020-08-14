@@ -399,31 +399,29 @@ class HelperController implements IController {
     request: IRequestWithHelper
   ): Promise<boolean> => {
     return new Promise<boolean>(async (resolve, reject) => {
-      if (!offer.isAccepted) {
-        await requestModel
-          .findByIdAndUpdate(offer.requestID, {
-            $pull: { offers: offer._id },
-          })
-          .then(async (req: IRequest) => {
-            await requestOfferModel
-              .findByIdAndDelete(offer._id)
-              .then(async (offer: IRequestOffer) => {
-                await helperModel
-                  .findByIdAndUpdate(request.user._id, {
-                    $unset: { currentOffer: 1 },
-                  })
-                  .then((helper: IHelper) => {
-                    resolve(true);
-                  })
-                  .catch((err) => {
-                    reject(false);
-                  });
-              })
-              .catch((err) => {
-                reject(false);
-              });
-          });
-      }
+      await requestModel
+        .findByIdAndUpdate(offer.requestID, {
+          $pull: { offers: offer._id },
+        })
+        .then(async (req: IRequest) => {
+          await requestOfferModel
+            .findByIdAndDelete(offer._id)
+            .then(async (offer: IRequestOffer) => {
+              await helperModel
+                .findByIdAndUpdate(request.user._id, {
+                  $unset: { currentOffer: 1 },
+                })
+                .then((helper: IHelper) => {
+                  resolve(true);
+                })
+                .catch((err) => {
+                  reject(false);
+                });
+            })
+            .catch((err) => {
+              reject(false);
+            });
+        });
     });
   };
   private getCurrentOffer = async (
