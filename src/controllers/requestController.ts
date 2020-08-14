@@ -869,7 +869,14 @@ class RequestController implements IController {
               .then((helper: IHelper) => {
                 helper.rate.numberOfReviews += 1;
                 helper.rate.totalRate += rate.rate;
-                resolve(true);
+                helper
+                  .save()
+                  .then(() => {
+                    resolve(true);
+                  })
+                  .catch((err) => {
+                    reject(false);
+                  });
               })
               .catch((err) => {
                 reject(false);
