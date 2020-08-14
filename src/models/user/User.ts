@@ -78,6 +78,16 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: {
       type: String,
     },
+    rate: {
+      numberOfReviews: {
+        type: Number,
+        default: 0,
+      },
+      totalRate: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   baseOptions
 );

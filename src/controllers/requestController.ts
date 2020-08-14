@@ -310,6 +310,7 @@ class RequestController implements IController {
               category: helper.category,
               location: helper.location,
               mobile: helper.mobile,
+              rate: helper.rate.totalRate / helper.rate.numberOfReviews,
             };
             resolve(helperInfo);
           } else {
@@ -861,9 +862,25 @@ class RequestController implements IController {
               feedback: rate.feedback,
             },
           })
-          .then((request: IRequest) => {
-            resolve(true);
-            return;
+          .then(async (request: IRequest) => {
+            await requestOfferModel
+              .findById(request.acceptedState.acceptedOffer)
+              .then(async (requestOffer: IRequestOffer) => {
+                await helperModel
+                  .findById(requestOffer.helperID)
+                  .then((helper: IHelper) => {
+                    helper.rate.numberOfReviews += 1;
+                    helper.rate.totalRate += rate.rate;
+                    resolve(true);
+                    return;
+                  })
+                  .catch((err) => {
+                    reject(false);
+                  });
+              })
+              .catch((err) => {
+                reject(false);
+              });
           });
       } else if (userRole == 'Helper') {
         await requestModel
@@ -873,9 +890,22 @@ class RequestController implements IController {
               feedback: rate.feedback,
             },
           })
-          .then((request: IRequest) => {
-            resolve(true);
-            return;
+          .then(async (request: IRequest) => {
+            await clientModel
+              .findById(request.client)
+              .then(async (client: IClient) => {
+                client.rate.numberOfReviews += 1;
+                client.rate.totalRate += rate.rate;
+                await client
+                  .save()
+                  .then(() => {
+                    resolve(true);
+                    return;
+                  })
+                  .catch((err) => {
+                    reject(false);
+                  });
+              });
           });
       }
       reject(false);

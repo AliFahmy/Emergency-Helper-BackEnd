@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { stringList } from 'aws-sdk/clients/datapipeline';
+import IUserRate from './IUserRate';
 
 interface IUser extends Document {
   _id: string;
@@ -20,5 +20,6 @@ interface IUser extends Document {
   activeRequest: string;
   conversation: string;
   expoToken: string;
+  rate: IUserRate;
 }
 export default IUser;
