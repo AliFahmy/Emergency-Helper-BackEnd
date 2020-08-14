@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as mongoose from 'mongoose';
 import * as swaggerUi from 'swagger-ui-express';
+import * as path from 'path';
 import * as swaggerDocument from '../swagger.json';
 import IController from './interfaces/IController';
 import errorMiddleware from './middlewares/errorMiddleware';
@@ -13,8 +14,10 @@ class App {
   constructor(controllers: IController[]) {
     this.app = express();
     this.PORT = process.env.PORT || 5000;
+    this.app.use(express.static(path.join(__dirname, '/public')));
+    this.app.set('views', path.join(__dirname, '/views'));
+    this.app.set('view engine', 'pug');
 
-    this.app.use(express.static('../backend-views/build'));
     this.initializeMiddlewares();
 
     this.initializeControllers(controllers);

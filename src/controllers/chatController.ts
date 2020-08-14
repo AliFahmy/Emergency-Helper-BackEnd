@@ -131,7 +131,7 @@ class ChatController implements IController {
                             .then(async (helper: IHelper) => {
                               await SendNotfication(
                                 'New Message Recieved From Client',
-                                message,
+                                message.message,
                                 { type: 'NEW_MESSAGE' },
                                 helper.expoToken
                               )

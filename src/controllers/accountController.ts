@@ -370,18 +370,18 @@ class AccountController implements IController {
               next(err);
             } else {
               if (user.isApproved) {
-                response
-                  .status(200)
-                  .send(new Response('User Already Verified!').getData());
+                response.render('verification', {
+                  message: 'Email Already Verified',
+                });
               } else {
                 user.isApproved = true;
                 await user.save((err) => {
                   if (err) {
                     next(new SomethingWentWrongException());
                   } else {
-                    response
-                      .status(201)
-                      .send(new Response('Verified Successfully!').getData());
+                    response.render('verification', {
+                      message: 'Email Verified Successfully',
+                    });
                   }
                 });
               }
