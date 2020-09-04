@@ -9,6 +9,7 @@
     "start": "nodemon ./src/server.ts"
   },
   "author": "",
+  "type":"module",
   "license": "ISC",
   "dependencies": {
     "@types/cors": "^2.8.6",
