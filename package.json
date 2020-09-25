@@ -20,7 +20,7 @@
     "@types/nodemailer": "^6.4.0",
     "@types/swagger-jsdoc": "^3.0.2",
     "aws-sdk": "^2.664.0",
-    "bcrypt": "^3.0.8",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.11.0",
